@@ -10,6 +10,11 @@ struct Player
 
 };
 
+struct Platform
+{
+
+};
+
 // Eagles have a hard shell
 struct Deadly
 {
@@ -111,9 +116,9 @@ struct Mesh
  */
 
 enum class TEXTURE_ASSET_ID {
-	BUG = 0,
-	EAGLE = BUG + 1,
-	TEXTURE_COUNT = EAGLE + 1
+	OLIVER = 0,
+	EARTH = OLIVER + 1,
+	TEXTURE_COUNT = EARTH + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 

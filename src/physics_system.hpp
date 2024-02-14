@@ -14,4 +14,7 @@ public:
 	PhysicsSystem()
 	{
 	}
+
+private: 
+	float gravityConstant = 9.8f;
 };
