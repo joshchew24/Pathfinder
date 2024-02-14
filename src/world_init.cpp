@@ -38,7 +38,7 @@ Entity createPlatform(RenderSystem* renderer, vec2 position, vec2 size)
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
-	motion.velocity = { 0, 100.f };
+	motion.velocity = { 0, 0 };
 	motion.position = position;
 
 	// Setting initial values, scale is negative to make it face the opposite way
@@ -74,5 +74,33 @@ Entity createLine(vec2 position, vec2 scale)
 	motion.scale = scale;
 
 	registry.debugComponents.emplace(entity);
+	return entity;
+}
+
+Entity createBoulder(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 100.f };
+	motion.position = position;
+
+	// Setting initial values, scale is negative to make it face the opposite way
+	motion.scale = vec2({ -BOULDER_BB_WIDTH, BOULDER_BB_HEIGHT });
+
+	// Create and (empty) Eagle component to be able to refer to all eagles
+	registry.deadlys.emplace(entity);
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::BOULDER,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
 	return entity;
 }

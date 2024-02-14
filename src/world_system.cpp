@@ -9,14 +9,14 @@
 #include "physics_system.hpp"
 
 // Game configuration
-const size_t MAX_EAGLES = 15;
+const size_t MAX_BOULDERS = 5;
 const size_t MAX_BUG = 5;
-const size_t EAGLE_DELAY_MS = 2000 * 3;
+const size_t BOULDER_DELAY_MS = 2000 * 3;
 const size_t BUG_DELAY_MS = 5000 * 3;
 
 // Create the bug world
 WorldSystem::WorldSystem()
-	: next_eagle_spawn(0.f)
+	: next_boulder_spawn(0.f)
 	, next_bug_spawn(0.f) {
 	// Seeding rng with random device
 	rng = std::default_random_engine(std::random_device()());
@@ -140,6 +140,13 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			if(!registry.players.has(motions_registry.entities[i])) // don't remove the player
 				registry.remove_all_components_of(motions_registry.entities[i]);
 		}
+	}
+
+	next_boulder_spawn -= elapsed_ms_since_last_update * current_speed;
+	if (registry.deadlys.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
+		// Reset timer
+		next_boulder_spawn = (BOULDER_DELAY_MS / 2) + uniform_dist(rng) * (BOULDER_DELAY_MS / 2);
+		createBoulder(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), -100.f));
 	}
 
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
