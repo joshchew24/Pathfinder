@@ -48,15 +48,18 @@ private:
 	// OpenGL window handle
 	GLFWwindow* window;
 
-	// Number of bug eaten by the chicken, displayed in the window title
-	unsigned int points;
-
 	// Game state
 	RenderSystem* renderer;
 	float current_speed;
 	float next_eagle_spawn;
 	float next_bug_spawn;
-	Entity player_chicken;
+	Entity player;
+
+	//Move state
+	bool leftState;
+	bool rightState;
+	bool upState;
+	bool downState;
 
 	// music references
 	Mix_Music* background_music;

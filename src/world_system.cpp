@@ -16,8 +16,7 @@ const size_t BUG_DELAY_MS = 5000 * 3;
 
 // Create the bug world
 WorldSystem::WorldSystem()
-	: points(0)
-	, next_eagle_spawn(0.f)
+	: next_eagle_spawn(0.f)
 	, next_bug_spawn(0.f) {
 	// Seeding rng with random device
 	rng = std::default_random_engine(std::random_device()());
@@ -125,11 +124,6 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
 
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
-	// Updating window title with points
-	std::stringstream title_ss;
-	title_ss << "Points: " << points;
-	glfwSetWindowTitle(window, title_ss.str().c_str());
-
 	// Remove debug info from the last step
 	while (registry.debugComponents.entities.size() > 0)
 	    registry.remove_all_components_of(registry.debugComponents.entities.back());
@@ -146,21 +140,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			if(!registry.players.has(motions_registry.entities[i])) // don't remove the player
 				registry.remove_all_components_of(motions_registry.entities[i]);
 		}
-	}
-
-	// Spawning new eagles
-	next_eagle_spawn -= elapsed_ms_since_last_update * current_speed;
-	if (registry.deadlys.components.size() <= MAX_EAGLES && next_eagle_spawn < 0.f) {
-		// Reset timer
-		next_eagle_spawn = (EAGLE_DELAY_MS / 2) + uniform_dist(rng) * (EAGLE_DELAY_MS / 2);
-		// Create eagle with random initial position
-        createEagle(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), 100.f));
-	}
-
-	// Spawning new bug
-	next_bug_spawn -= elapsed_ms_since_last_update * current_speed;
-	if (registry.eatables.components.size() <= MAX_BUG && next_bug_spawn < 0.f) {
-		// !!!  TODO A1: Create new bug with createBug({0,0}), as for the Eagles above
 	}
 
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -214,23 +193,14 @@ void WorldSystem::restart_game() {
 	// Debugging for memory/component leaks
 	registry.list_all_components();
 
-	// Create a new chicken
-	player_chicken = createChicken(renderer, { window_width_px/2, window_height_px - 200 });
-	registry.colors.insert(player_chicken, {1, 0.8f, 0.8f});
+	//platform
+	registry.platforms.emplace(createPlatform(renderer, { 700, window_height_px - 20 }, { 700.f, 600.f }));
+	registry.platforms.emplace(createPlatform(renderer, { window_width_px / 2, window_height_px - 20 }, { 700.f, 400.f }));
 
-	// !! TODO A2: Enable static eggs on the ground, for reference
-	// Create eggs on the floor, use this for reference
-	/*
-	for (uint i = 0; i < 20; i++) {
-		int w, h;
-		glfwGetWindowSize(window, &w, &h);
-		float radius = 30 * (uniform_dist(rng) + 0.3f); // range 0.3 .. 1.3
-		Entity egg = createEgg({ uniform_dist(rng) * w, h - uniform_dist(rng) * 20 },
-			         { radius, radius });
-		float brightness = uniform_dist(rng) * 0.5 + 0.5;
-		registry.colors.insert(egg, { brightness, brightness, brightness});
-	}
-	*/
+	// Create a new chicken
+	player = createOliver(renderer, { window_width_px/2, window_height_px - 400 });
+	registry.colors.insert(player, {1, 0.8f, 0.8f});
+	
 }
 
 // Compute collisions between entities
@@ -263,10 +233,14 @@ void WorldSystem::handle_collisions() {
 					// chew, count points, and set the LightUp timer
 					registry.remove_all_components_of(entity_other);
 					Mix_PlayChannel(-1, chicken_eat_sound, 0);
-					++points;
 
 					// !!! TODO A1: create a new struct called LightUp in components.hpp and add an instance to the chicken entity by modifying the ECS registry
 				}
+			}
+			//check landed on platform
+			else if (registry.platforms.has(entity_other)) {
+				Motion& motion = registry.motions.get(entity);
+				motion.velocity.y = 0;
 			}
 		}
 	}
@@ -282,11 +256,46 @@ bool WorldSystem::is_over() const {
 
 // On key callback
 void WorldSystem::on_key(int key, int, int action, int mod) {
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A1: HANDLE CHICKEN MOVEMENT HERE
-	// key is of 'type' GLFW_KEY_
-	// action can be GLFW_PRESS GLFW_RELEASE GLFW_REPEAT
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	//close on escape
+	if (action == GLFW_RELEASE && key == GLFW_KEY_ESCAPE) {
+		glfwSetWindowShouldClose(window, 1);
+	}
+
+	//player movement
+	if (action == GLFW_PRESS && key == GLFW_KEY_LEFT) {
+		leftState = true;
+	}
+	if (action == GLFW_RELEASE && key == GLFW_KEY_LEFT) {
+		leftState = false;
+	}
+	if (action == GLFW_PRESS && key == GLFW_KEY_RIGHT) {
+		rightState = true;
+	}
+	if (action == GLFW_RELEASE && key == GLFW_KEY_RIGHT) {
+		rightState = false;
+	}
+
+	if (action == GLFW_PRESS && key == GLFW_KEY_UP) {
+		upState = true;
+	}
+	if (action == GLFW_RELEASE && key == GLFW_KEY_UP) {
+		upState = false;
+	}
+
+	float speed = 200.f;
+	Motion& motion = registry.motions.get(player);
+	if (!registry.deathTimers.has(player)) {
+		if (leftState && !rightState) {
+			motion.velocity.x = -speed;
+		}
+		else if (!leftState && rightState) {
+			motion.velocity.x = speed;
+		}
+		else {
+			motion.velocity.x = 0;
+		}
+	}
+
 
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R) {
