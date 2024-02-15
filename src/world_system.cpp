@@ -192,6 +192,13 @@ void WorldSystem::restart_game() {
 	// Reset the game speed
 	current_speed = 1.f;
 
+	//set all key states to false
+	leftState = false;
+	rightState = false;
+	upState = false;
+	downState = false;
+
+
 	// Remove all entities that we created
 	// All that have a motion, we could also iterate over all bug, eagles, ... but that would be more cumbersome
 	while (registry.motions.entities.size() > 0)
@@ -269,7 +276,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	//player movement
-	if (action == GLFW_PRESS && key == GLFW_KEY_LEFT) {
+	if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_LEFT) {
 		leftState = true;
 	}
 	if (action == GLFW_RELEASE && key == GLFW_KEY_LEFT) {
@@ -289,17 +296,35 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		upState = false;
 	}
 
+	RenderRequest &renderRequest = registry.renderRequests.get(player);
 	float speed = 200.f;
 	Motion& motion = registry.motions.get(player);
 	if (!registry.deathTimers.has(player)) {
 		if (leftState && !rightState) {
 			motion.velocity.x = -speed;
+			if (motion.scale.x > 0) {
+				motion.scale.x = -motion.scale.x;
+			}
+			if (currentRunningTexture == (int) TEXTURE_ASSET_ID::RUN4) {
+				currentRunningTexture = (int) TEXTURE_ASSET_ID::OLIVER;
+			}
+			currentRunningTexture++;
+			renderRequest.used_texture = static_cast<TEXTURE_ASSET_ID>(currentRunningTexture);
 		}
 		else if (!leftState && rightState) {
 			motion.velocity.x = speed;
+			if (motion.scale.x < 0) {
+				motion.scale.x = -motion.scale.x;
+			}
+			if (currentRunningTexture == (int)TEXTURE_ASSET_ID::RUN4) {
+				currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER;
+			}
+			currentRunningTexture++;
+			renderRequest.used_texture = static_cast<TEXTURE_ASSET_ID>(currentRunningTexture);
 		}
 		else {
 			motion.velocity.x = 0;
+			renderRequest.used_texture = TEXTURE_ASSET_ID::OLIVER;
 		}
 	}
 
