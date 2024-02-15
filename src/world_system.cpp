@@ -86,6 +86,9 @@ GLFWwindow* WorldSystem::create_window() {
 	glfwSetKeyCallback(window, key_redirect);
 	glfwSetCursorPosCallback(window, cursor_pos_redirect);
 
+	// Set cursor mode to hidden
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
 	//////////////////////////////////////
 	// Loading music and sounds with SDL
 	if (SDL_Init(SDL_INIT_AUDIO) < 0) {
@@ -197,6 +200,10 @@ void WorldSystem::restart_game() {
 	while (registry.motions.entities.size() > 0)
 	    registry.remove_all_components_of(registry.motions.entities.back());
 
+	// Remove pencil
+	while (registry.pencil.entities.size() > 0)
+		registry.remove_all_components_of(registry.pencil.entities.back());
+
 	// Debugging for memory/component leaks
 	registry.list_all_components();
 
@@ -208,6 +215,8 @@ void WorldSystem::restart_game() {
 	player = createOliver(renderer, { window_width_px/2, window_height_px - 400 });
 	registry.colors.insert(player, {1, 0.8f, 0.8f});
 	
+	// Create pencil
+	pencil = createPencil(renderer, { window_width_px / 2, window_height_px / 2 }, { 100.f, 100.f });
 }
 
 // Compute collisions between entities
@@ -339,5 +348,7 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 	// default facing direction is (1, 0)
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-	(vec2)mouse_position; // dummy to avoid compiler warning
+	Motion& motion = registry.motions.get(pencil);
+	motion.position.x = mouse_position.x + 50.f;
+	motion.position.y = mouse_position.y - 50.f;
 }

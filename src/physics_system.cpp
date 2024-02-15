@@ -45,7 +45,7 @@ void PhysicsSystem::step(float elapsed_ms)
 		Entity entity = motion_registry.entities[i];
 		float step_seconds = elapsed_ms / 1000.f;
 		(void)elapsed_ms; // placeholder to silence unused warning until implemented
-		if (!registry.platforms.has(entity)) {
+		if (!registry.platforms.has(entity) && !registry.pencil.has(entity)) {
 			motion.velocity.y += gravityConstant * step_seconds;
 			motion.position.y += motion.velocity.y * step_seconds;
 

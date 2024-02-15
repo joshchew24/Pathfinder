@@ -54,6 +54,7 @@ private:
 	float next_boulder_spawn;
 	float next_bug_spawn;
 	Entity player;
+	Entity pencil;
 
 	//Move state
 	bool leftState;

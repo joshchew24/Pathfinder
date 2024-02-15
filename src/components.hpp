@@ -15,6 +15,12 @@ struct Platform
 
 };
 
+// tracking the pencil
+struct Pencil
+{
+
+};
+
 // Eagles have a hard shell
 struct Deadly
 {
@@ -119,7 +125,8 @@ enum class TEXTURE_ASSET_ID {
 	OLIVER = 0,
 	EARTH = OLIVER + 1,
 	BOULDER = EARTH + 1,
-	TEXTURE_COUNT = BOULDER + 1
+	PENCIL = BOULDER + 1,
+	TEXTURE_COUNT = PENCIL + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
