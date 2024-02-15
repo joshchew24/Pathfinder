@@ -26,14 +26,6 @@ bool collides(const Motion& motion1, const Motion& motion2)
 	return false;
 }
 
-bool rectangleCollides(const Motion& motion1, const Motion& motion2) {
-	bool y_val = (motion1.position[1] - abs(motion1.scale.y)/2.f) < (motion2.position[1] + abs(motion2.scale.y)/2.f) &&
-		(motion2.position[1] - abs(motion2.scale.y)/2.f) < (motion1.position[1] + abs(motion1.scale.y)/2.f);
-	bool x_val = (motion1.position[0] - abs(motion1.scale.x/2.f)) < (motion2.position[0] + abs(motion2.scale.x)/2.f) &&
-		(motion2.position[0] - abs(motion2.scale.x/2.f) < (motion1.position[0] + abs(motion1.scale.x)/2.f));
-	return y_val && x_val;
-}
-
 void PhysicsSystem::step(float elapsed_ms)
 {
 	// Move bug based on how much time has passed, this is to (partially) avoid
@@ -64,7 +56,7 @@ void PhysicsSystem::step(float elapsed_ms)
 		for(uint j = i+1; j<motion_container.components.size(); j++)
 		{
 			Motion& motion_j = motion_container.components[j];
-			if (rectangleCollides(motion_i, motion_j))
+			if (collides(motion_i, motion_j))
 			{
 				Entity entity_j = motion_container.entities[j];
 				// Create a collisions event

@@ -9,5 +9,3 @@
 |Daniel Lee|
 |Joshua Chew|
 |Kevin Zhu|
-
-TODO: get player and entity system in
