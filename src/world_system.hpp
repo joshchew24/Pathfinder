@@ -62,6 +62,9 @@ private:
 	bool upState;
 	bool downState;
 
+	//To set running animation
+	int currentRunningTexture = (int) TEXTURE_ASSET_ID::OLIVER;
+
 	// music references
 	Mix_Music* background_music;
 	Mix_Chunk* chicken_dead_sound;

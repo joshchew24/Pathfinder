@@ -39,6 +39,7 @@ struct Motion {
 	float angle = 0;
 	vec2 velocity = { 0, 0 };
 	vec2 scale = { 10, 10 };
+	float gravityScale = 1.0f;
 };
 
 // Stucture to store collision information
@@ -122,10 +123,14 @@ struct Mesh
  */
 
 enum class TEXTURE_ASSET_ID {
-	OLIVER = 0,
-	EARTH = OLIVER + 1,
+	EARTH = 0,
 	BOULDER = EARTH + 1,
-	PENCIL = BOULDER + 1,
+	OLIVER = BOULDER + 1,
+	RUN1 = OLIVER + 1,
+	RUN2 = RUN1 + 1,
+	RUN3 = RUN2 + 1,
+	RUN4 = RUN3 + 1,
+  PENCIL = RUN4 + 1,
 	TEXTURE_COUNT = PENCIL + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
