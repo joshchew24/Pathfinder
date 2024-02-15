@@ -16,6 +16,7 @@
 #include <glm/ext/vector_int2.hpp>  // ivec2
 #include <glm/vec3.hpp>             // vec3
 #include <glm/mat3x3.hpp>           // mat3
+#include <glm/trigonometric.hpp>
 using namespace glm;
 
 #include "tiny_ecs.hpp"
@@ -46,5 +47,8 @@ struct Transform {
 	void rotate(float radians);
 	void translate(vec2 offset);
 };
+
+// helper to rotate vectors
+vec2 rotate_vector(vec2 original, float radians);
 
 bool gl_has_errors();

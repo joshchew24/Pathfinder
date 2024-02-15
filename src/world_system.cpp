@@ -13,6 +13,7 @@ const size_t MAX_BOULDERS = 5;
 const size_t MAX_BUG = 5;
 const size_t BOULDER_DELAY_MS = 2000 * 3;
 const size_t BUG_DELAY_MS = 5000 * 3;
+const float FRICTION = 5.f;
 
 // Create the bug world
 WorldSystem::WorldSystem()
@@ -178,8 +179,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	// reduce window brightness if any of the present chickens is dying
 	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
 
-	// !!! TODO A1: update LightUp timers and remove if time drops below zero, similar to the death counter
-
 	return true;
 }
 
@@ -297,33 +296,40 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	RenderRequest &renderRequest = registry.renderRequests.get(player);
-	float speed = 200.f;
-	Motion& motion = registry.motions.get(player);
-	if (!registry.deathTimers.has(player)) {
-		if (leftState && !rightState) {
-			motion.velocity.x = -speed;
-			if (motion.scale.x > 0) {
-				motion.scale.x = -motion.scale.x;
+	if ((key == GLFW_KEY_RIGHT || key == GLFW_KEY_LEFT) && !registry.deathTimers.has(player)) {
+		RenderRequest& renderRequest = registry.renderRequests.get(player);
+		auto& motions = registry.motions;
+		Motion& motion = motions.get(player);
+		if (action == GLFW_PRESS) {
+			motion.acceleration.x = 0.0;
+			// set the velocity if it's not 0
+			float vel = 250.f;
+			if (key == GLFW_KEY_LEFT) {
+				motion.velocity.x = vel * -1.f;
+				if (motion.scale.x > 0) {
+					motion.scale.x = -motion.scale.x;
+				}
+				if (currentRunningTexture == (int)TEXTURE_ASSET_ID::RUN4) {
+					currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER;
+				}
+				currentRunningTexture++;
+				renderRequest.used_texture = static_cast<TEXTURE_ASSET_ID>(currentRunningTexture);
 			}
-			if (currentRunningTexture == (int) TEXTURE_ASSET_ID::RUN4) {
-				currentRunningTexture = (int) TEXTURE_ASSET_ID::OLIVER;
+			else if (key == GLFW_KEY_RIGHT) {
+				motion.velocity.x = vel;
+				if (motion.scale.x < 0) {
+					motion.scale.x = -motion.scale.x;
+				}
+				if (currentRunningTexture == (int)TEXTURE_ASSET_ID::RUN4) {
+					currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER;
+				}
+				currentRunningTexture++;
+				renderRequest.used_texture = static_cast<TEXTURE_ASSET_ID>(currentRunningTexture);
 			}
-			currentRunningTexture++;
-			renderRequest.used_texture = static_cast<TEXTURE_ASSET_ID>(currentRunningTexture);
 		}
-		else if (!leftState && rightState) {
-			motion.velocity.x = speed;
-			if (motion.scale.x < 0) {
-				motion.scale.x = -motion.scale.x;
-			}
-			if (currentRunningTexture == (int)TEXTURE_ASSET_ID::RUN4) {
-				currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER;
-			}
-			currentRunningTexture++;
-			renderRequest.used_texture = static_cast<TEXTURE_ASSET_ID>(currentRunningTexture);
-		}
-		else {
-			motion.velocity.x = 0;
+		else if (action == GLFW_RELEASE) {
+			// set acceleration vector to the opposite direction of current velocity with magnitude of constant value FRICTION
+			motion.acceleration.x = FRICTION * -motion.velocity.x/abs(motion.velocity.x);
 			renderRequest.used_texture = TEXTURE_ASSET_ID::OLIVER;
 		}
 	}

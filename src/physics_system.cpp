@@ -38,19 +38,45 @@ void PhysicsSystem::step(float elapsed_ms)
 {
 	// Move bug based on how much time has passed, this is to (partially) avoid
 	// having entities move at different speed based on the machine.
+	//auto& motion_registry = registry.motions;
+	//for(uint i = 0; i< motion_registry.size(); i++)
+	//{
+	//	Motion& motion = motion_registry.components[i];
+	//	Entity entity = motion_registry.entities[i];
+	//	float step_seconds = elapsed_ms / 1000.f;
+	//	(void)elapsed_ms; // placeholder to silence unused warning until implemented
+	//	if (!registry.platforms.has(entity)) {
+	//		motion.velocity.y += gravityConstant * step_seconds;
+	//		motion.position.y += motion.velocity.y * step_seconds;
+
+	//		motion.position.x += motion.velocity.x * step_seconds;
+	//	}
+	//}
+
 	auto& motion_registry = registry.motions;
-	for(uint i = 0; i< motion_registry.size(); i++)
+	for (uint i = 0; i < motion_registry.size(); i++)
 	{
 		Motion& motion = motion_registry.components[i];
-		Entity entity = motion_registry.entities[i];
 		float step_seconds = elapsed_ms / 1000.f;
-		(void)elapsed_ms; // placeholder to silence unused warning until implemented
+		//vec2 angled_velocity = rotate_vector(motion.velocity, motion.angle);
+		//motion.position += angled_velocity * step_seconds;
+		Entity entity = motion_registry.entities[i];
 		if (!registry.platforms.has(entity)) {
-			motion.velocity.y += motion.gravityScale * gravityConstant * step_seconds;
-			motion.position.y += motion.velocity.y * step_seconds;
-
-			motion.position.x += motion.velocity.x * step_seconds;
+			motion.acceleration.y = gravityConstant;
 		}
+		if (motion.velocity != vec2(0.0) && motion.acceleration != vec2(0.0)) {
+			// this conditional ASSUMES we are decelerating due to friction, and should stop at 0
+			if (glm::length(motion.velocity) < glm::length(motion.acceleration)) {
+				motion.velocity = vec2(0.0);
+			}
+			else {
+				motion.velocity = clamp(motion.velocity + motion.acceleration, vec2(-TERMINAL_VELOCITY), vec2(TERMINAL_VELOCITY));
+			}
+		}
+		else {
+			motion.acceleration = vec2(0.0);
+		}
+		motion.position += motion.velocity * step_seconds;
 	}
 
 	// Check for collisions between all moving entities
