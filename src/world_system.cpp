@@ -274,28 +274,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		glfwSetWindowShouldClose(window, 1);
 	}
 
-	//player movement
-	if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_LEFT) {
-		leftState = true;
-	}
-	if (action == GLFW_RELEASE && key == GLFW_KEY_LEFT) {
-		leftState = false;
-	}
-	if (action == GLFW_PRESS && key == GLFW_KEY_RIGHT) {
-		rightState = true;
-	}
-	if (action == GLFW_RELEASE && key == GLFW_KEY_RIGHT) {
-		rightState = false;
-	}
-
-	if (action == GLFW_PRESS && key == GLFW_KEY_UP) {
-		upState = true;
-	}
-	if (action == GLFW_RELEASE && key == GLFW_KEY_UP) {
-		upState = false;
-	}
-
-	RenderRequest &renderRequest = registry.renderRequests.get(player);
+	// player movement
 	if ((key == GLFW_KEY_RIGHT || key == GLFW_KEY_LEFT) && !registry.deathTimers.has(player)) {
 		RenderRequest& renderRequest = registry.renderRequests.get(player);
 		auto& motions = registry.motions;
@@ -332,6 +311,13 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 			motion.acceleration.x = FRICTION * -motion.velocity.x/abs(motion.velocity.x);
 			renderRequest.used_texture = TEXTURE_ASSET_ID::OLIVER;
 		}
+	}
+
+	// player jump
+	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+		auto& motions = registry.motions;
+		Motion& motion = motions.get(player);
+		motion.velocity.y = -250.f;
 	}
 
 
