@@ -13,6 +13,7 @@ const size_t MAX_BOULDERS = 5;
 const size_t MAX_BUG = 5;
 const size_t BOULDER_DELAY_MS = 2000 * 3;
 const size_t BUG_DELAY_MS = 5000 * 3;
+const float FRICTION = 5.f;
 
 // Create the bug world
 WorldSystem::WorldSystem()
@@ -178,8 +179,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	// reduce window brightness if any of the present chickens is dying
 	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
 
-	// !!! TODO A1: update LightUp timers and remove if time drops below zero, similar to the death counter
-
 	return true;
 }
 
@@ -269,37 +268,23 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	//player movement
-	if (action == GLFW_PRESS && key == GLFW_KEY_LEFT) {
-		leftState = true;
-	}
-	if (action == GLFW_RELEASE && key == GLFW_KEY_LEFT) {
-		leftState = false;
-	}
-	if (action == GLFW_PRESS && key == GLFW_KEY_RIGHT) {
-		rightState = true;
-	}
-	if (action == GLFW_RELEASE && key == GLFW_KEY_RIGHT) {
-		rightState = false;
-	}
-
-	if (action == GLFW_PRESS && key == GLFW_KEY_UP) {
-		upState = true;
-	}
-	if (action == GLFW_RELEASE && key == GLFW_KEY_UP) {
-		upState = false;
-	}
-
-	float speed = 200.f;
-	Motion& motion = registry.motions.get(player);
-	if (!registry.deathTimers.has(player)) {
-		if (leftState && !rightState) {
-			motion.velocity.x = -speed;
+	if ((key == GLFW_KEY_RIGHT || key == GLFW_KEY_LEFT) && !registry.deathTimers.has(player)) {
+		auto& motions = registry.motions;
+		Motion& motion = motions.get(player);
+		if (action == GLFW_PRESS) {
+			motion.acceleration.x = 0.0;
+			// set the velocity if it's not 0
+			float vel = 250.f;
+			if (key == GLFW_KEY_LEFT) {
+				motion.velocity.x = vel * -1.f;
+			}
+			else if (key == GLFW_KEY_RIGHT) {
+				motion.velocity.x = vel;
+			}
 		}
-		else if (!leftState && rightState) {
-			motion.velocity.x = speed;
-		}
-		else {
-			motion.velocity.x = 0;
+		else if (action == GLFW_RELEASE) {
+			// set acceleration vector to the opposite direction of current velocity with magnitude of constant value FRICTION
+			motion.acceleration.x = FRICTION * -motion.velocity.x/abs(motion.velocity.x);
 		}
 	}
 
