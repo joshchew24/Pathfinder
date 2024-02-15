@@ -5,7 +5,7 @@
 #include "render_system.hpp"
 
 const float BOULDER_BB_WIDTH = 0.3f * 300.f;
-const float BOULDER_BB_HEIGHT = 0.3f * 202.f;
+const float BOULDER_BB_HEIGHT = 0.3f * 300.f;
 
 // These are ahrd coded to the dimensions of the entity texture
 // the player
