@@ -250,11 +250,6 @@ void WorldSystem::handle_collisions() {
 					// !!! TODO A1: create a new struct called LightUp in components.hpp and add an instance to the chicken entity by modifying the ECS registry
 				}
 			}
-			//check landed on platform
-			else if (registry.platforms.has(entity_other)) {
-				Motion& motion = registry.motions.get(entity);
-				motion.velocity.y = 0;
-			}
 		}
 	}
 
@@ -280,8 +275,8 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		auto& motions = registry.motions;
 		Motion& motion = motions.get(player);
 		if (action == GLFW_PRESS) {
-			motion.acceleration.x = 0.0;
 			// set the velocity if it's not 0
+			motion.acceleration.x = 0.0;
 			float vel = 250.f;
 			if (key == GLFW_KEY_LEFT) {
 				motion.velocity.x = vel * -1.f;
@@ -307,7 +302,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 			}
 		}
 		else if (action == GLFW_RELEASE) {
-			// set acceleration vector to the opposite direction of current velocity with magnitude of constant value FRICTION
+			// set x acceleration to FRICTION in opposite direction of current x velocity
 			motion.acceleration.x = FRICTION * -motion.velocity.x/abs(motion.velocity.x);
 			renderRequest.used_texture = TEXTURE_ASSET_ID::OLIVER;
 		}
@@ -318,6 +313,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		auto& motions = registry.motions;
 		Motion& motion = motions.get(player);
 		motion.velocity.y = -250.f;
+		motion.grounded = false;
 	}
 
 

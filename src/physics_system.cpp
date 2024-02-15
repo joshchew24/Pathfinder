@@ -36,23 +36,6 @@ bool rectangleCollides(const Motion& motion1, const Motion& motion2) {
 
 void PhysicsSystem::step(float elapsed_ms)
 {
-	// Move bug based on how much time has passed, this is to (partially) avoid
-	// having entities move at different speed based on the machine.
-	//auto& motion_registry = registry.motions;
-	//for(uint i = 0; i< motion_registry.size(); i++)
-	//{
-	//	Motion& motion = motion_registry.components[i];
-	//	Entity entity = motion_registry.entities[i];
-	//	float step_seconds = elapsed_ms / 1000.f;
-	//	(void)elapsed_ms; // placeholder to silence unused warning until implemented
-	//	if (!registry.platforms.has(entity)) {
-	//		motion.velocity.y += gravityConstant * step_seconds;
-	//		motion.position.y += motion.velocity.y * step_seconds;
-
-	//		motion.position.x += motion.velocity.x * step_seconds;
-	//	}
-	//}
-
 	auto& motion_registry = registry.motions;
 	for (uint i = 0; i < motion_registry.size(); i++)
 	{
@@ -60,9 +43,13 @@ void PhysicsSystem::step(float elapsed_ms)
 		float step_seconds = elapsed_ms / 1000.f;
 		//vec2 angled_velocity = rotate_vector(motion.velocity, motion.angle);
 		//motion.position += angled_velocity * step_seconds;
-		Entity entity = motion_registry.entities[i];
-		if (!registry.platforms.has(entity)) {
-			motion.acceleration.y = gravityConstant;
+		//Entity entity = motion_registry.entities[i];
+		if (motion.grounded) {
+			motion.acceleration.y = 0.f;
+			motion.velocity.y = 0.f;
+		}
+		else {
+			motion.acceleration.y = 9.f;
 		}
 		if (motion.velocity != vec2(0.0) && motion.acceleration != vec2(0.0)) {
 			// this conditional ASSUMES we are decelerating due to friction, and should stop at 0
@@ -75,6 +62,9 @@ void PhysicsSystem::step(float elapsed_ms)
 		}
 		else {
 			motion.acceleration = vec2(0.0);
+		}
+		if (registry.players.has(motion_registry.entities[i])) {
+			printf("grounded: %d\n", motion.grounded);
 		}
 		motion.position += motion.velocity * step_seconds;
 	}
@@ -97,6 +87,13 @@ void PhysicsSystem::step(float elapsed_ms)
 				// We are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity
 				registry.collisions.emplace_with_duplicates(entity_i, entity_j);
 				registry.collisions.emplace_with_duplicates(entity_j, entity_i);
+				if (registry.platforms.has(entity_i) && registry.players.has(entity_j)) {
+					Motion& motion = registry.motions.get(entity_j);
+					motion.grounded = true;
+				} else if (registry.players.has(entity_i) && registry.platforms.has(entity_j)) {
+					Motion& motion = registry.motions.get(entity_i);
+					motion.grounded = true;
+				}
 			}
 		}
 	}
