@@ -41,9 +41,6 @@ void PhysicsSystem::step(float elapsed_ms)
 	{
 		Motion& motion = motion_registry.components[i];
 		float step_seconds = elapsed_ms / 1000.f;
-		//vec2 angled_velocity = rotate_vector(motion.velocity, motion.angle);
-		//motion.position += angled_velocity * step_seconds;
-		//Entity entity = motion_registry.entities[i];
 		if (motion.grounded) {
 			motion.acceleration.y = 0.f;
 			motion.velocity.y = 0.f;
@@ -62,9 +59,6 @@ void PhysicsSystem::step(float elapsed_ms)
 		}
 		else {
 			motion.acceleration = vec2(0.0);
-		}
-		if (registry.players.has(motion_registry.entities[i])) {
-			printf("grounded: %d\n", motion.grounded);
 		}
 		motion.position += motion.velocity * step_seconds;
 	}
@@ -87,14 +81,20 @@ void PhysicsSystem::step(float elapsed_ms)
 				// We are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity
 				registry.collisions.emplace_with_duplicates(entity_i, entity_j);
 				registry.collisions.emplace_with_duplicates(entity_j, entity_i);
-				if (registry.platforms.has(entity_i) && registry.players.has(entity_j)) {
-					Motion& motion = registry.motions.get(entity_j);
-					motion.grounded = true;
-				} else if (registry.players.has(entity_i) && registry.platforms.has(entity_j)) {
-					Motion& motion = registry.motions.get(entity_i);
-					motion.grounded = true;
-				}
 			}
 		}
 	}
+
+	ComponentContainer<Platform>& platform_container = registry.platforms;
+	//ComponentContainer<Motion>& motion_container = registry.motions;
+	Motion& player = motion_container.get(registry.players.entities[0]);
+	bool touching_any_platform = false;
+	for (uint i = 0; i < platform_container.components.size(); i++) {
+		Motion& platform = motion_container.get(platform_container.entities[i]);
+		if (rectangleCollides(platform, player)) {
+			touching_any_platform = true;
+			break;
+		}
+	}
+	player.grounded = touching_any_platform;
 }
