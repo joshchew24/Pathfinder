@@ -267,7 +267,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		glfwSetWindowShouldClose(window, 1);
 	}
 
-	//player movement
+	// player movement
 	if ((key == GLFW_KEY_RIGHT || key == GLFW_KEY_LEFT) && !registry.deathTimers.has(player)) {
 		auto& motions = registry.motions;
 		Motion& motion = motions.get(player);
@@ -286,6 +286,13 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 			// set acceleration vector to the opposite direction of current velocity with magnitude of constant value FRICTION
 			motion.acceleration.x = FRICTION * -motion.velocity.x/abs(motion.velocity.x);
 		}
+	}
+
+	// player jump
+	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+		auto& motions = registry.motions;
+		Motion& motion = motions.get(player);
+		motion.velocity.y = -250.f;
 	}
 
 
