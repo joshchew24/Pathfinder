@@ -283,18 +283,9 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	// player movement
 	if ((key == GLFW_KEY_RIGHT || key == GLFW_KEY_LEFT) && !registry.deathTimers.has(player)) {
 		RenderRequest& renderRequest = registry.renderRequests.get(player);
-		auto& motions = registry.motions;
-		Motion& motion = motions.get(player);
 		if (action == GLFW_PRESS) {
 			movementSystem.press(key);
-			// set the velocity if it's not 0
-			//motion.acceleration.x = 0.0;
-			//float vel = 250.f;
 			if (key == GLFW_KEY_LEFT) {
-				//motion.velocity.x = vel * -1.f;
-				//if (motion.scale.x > 0) {
-					//motion.scale.x = -motion.scale.x;
-				//}
 				if (currentRunningTexture == (int)TEXTURE_ASSET_ID::RUN4) {
 					currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER;
 				}
@@ -302,10 +293,6 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 				renderRequest.used_texture = static_cast<TEXTURE_ASSET_ID>(currentRunningTexture);
 			}
 			else if (key == GLFW_KEY_RIGHT) {
-				//motion.velocity.x = vel;
-				//if (motion.scale.x < 0) {
-					//motion.scale.x = -motion.scale.x;
-				//}
 				if (currentRunningTexture == (int)TEXTURE_ASSET_ID::RUN4) {
 					currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER;
 				}
@@ -315,8 +302,6 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		}
 		else if (action == GLFW_RELEASE) {
 			movementSystem.release(key);
-			// set x acceleration to FRICTION in opposite direction of current x velocity
-			//motion.acceleration.x = FRICTION * -motion.velocity.x/abs(motion.velocity.x);
 			renderRequest.used_texture = TEXTURE_ASSET_ID::OLIVER;
 		}
 	}
