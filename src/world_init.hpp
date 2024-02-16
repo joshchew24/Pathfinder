@@ -15,7 +15,7 @@ Entity createPlatform(RenderSystem* renderer, vec2 pos, vec2 size);
 // a red line for debugging purposes
 Entity createLine(vec2 position, vec2 size);
 
-Entity createBoulder(RenderSystem* renderer, vec2 position, vec2 velocity);
+Entity createBoulder(RenderSystem* renderer, vec2 position);
 
 Entity createPencil(RenderSystem* renderer, vec2 pos, vec2 size);
 

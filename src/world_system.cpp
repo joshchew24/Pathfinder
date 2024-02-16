@@ -7,7 +7,6 @@
 #include <sstream>
 
 #include "physics_system.hpp"
-#include <iostream>
 
 // Game configuration
 const size_t MAX_BOULDERS = 5;
@@ -147,6 +146,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 
 	Motion& pmotion = registry.motions.get(player);
+	vec2 pPosition = pmotion.position;
 
 	// if entity is player and below window screen
 	if (pmotion.position.y - abs(pmotion.scale.y) / 2 > window_height_px) {
@@ -160,19 +160,23 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	if (registry.deadlys.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
 		// Reset timer
 		next_boulder_spawn = (BOULDER_DELAY_MS / 2) + uniform_dist(rng) * (BOULDER_DELAY_MS / 2);
-		vec2 bPosition = { 50.f + uniform_dist(rng) * (window_width_px - 100.f), -100.f };
-
-		// Calculate the direction vector from boulder to player
-		vec2 pPosition = { 0.f, 0.f };
-		if (motions_registry.has(player) && !registry.deathTimers.has(player)) {
-			pPosition = motions_registry.get(player).position;
-		}
-		vec2 direction = normalize(pPosition - bPosition);
-
-		float speed = 800.0f;
-		vec2 bVelocity = lerp(vec2(0,100.f), direction * speed, 0.9f);
-		createBoulder(renderer, bPosition, bVelocity);
+		createBoulder(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), -100.f));
 	}
+
+	// iterate over boulders and use lerp to move towards player
+	for (int i = (int)motions_registry.components.size() - 1; i >= 0; --i) {
+		Motion& motion = motions_registry.components[i];
+		if (registry.deadlys.has(motions_registry.entities[i])) {
+			vec2 bPosition = motion.position;
+			vec2 toPlayer = normalize(pPosition - bPosition);
+			if (bPosition.y < pPosition.y + 50.f) {
+				motion.position.x = lerp<float>(bPosition.x, pPosition.x, 0.001f);
+				motion.velocity.x += toPlayer.x * 0.1f;
+			}
+		}
+	}	
+
+
 
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	// TODO A2: HANDLE EGG SPAWN HERE
@@ -243,10 +247,10 @@ void WorldSystem::restart_game() {
 	registry.colors.insert(player, {1, 0.8f, 0.8f});
 	
 	// Create pencil
-	double xpos, ypos;
-	glfwGetCursorPos(window, &xpos, &ypos);
-	vec2 scale = { 50.f, 50.f };
-	pencil = createPencil(renderer, {xpos + scale.x/2, ypos - scale.y/2}, scale);
+	pencil = createPencil(renderer, { window_width_px / 2, window_height_px / 2 }, { 50.f, 50.f });
+
+	// Center cursor to pencil location
+	glfwSetCursorPos(window, window_width_px / 2 - 25.f, window_height_px / 2 + 25.f);
 }
 
 // Compute collisions between entities
@@ -389,6 +393,6 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 	Motion& motion = registry.motions.get(pencil);
-	motion.position.x = mouse_position.x + (motion.scale.x /2);
-	motion.position.y = mouse_position.y - (motion.scale.y /2);
+	motion.position.x = mouse_position.x + 25.f;
+	motion.position.y = mouse_position.y - 25.f;
 }
