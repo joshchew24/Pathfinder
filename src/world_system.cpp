@@ -72,7 +72,7 @@ GLFWwindow* WorldSystem::create_window() {
 	glfwWindowHint(GLFW_RESIZABLE, 0);
 
 	// Create the main window (for rendering, keyboard, and mouse input)
-	window = glfwCreateWindow(window_width_px, window_height_px, "Chicken Game Assignment", nullptr, nullptr);
+	window = glfwCreateWindow(window_width_px, window_height_px, "Pathfinder", nullptr, nullptr);
 	if (window == nullptr) {
 		fprintf(stderr, "Failed to glfwCreateWindow");
 		return nullptr;
@@ -321,8 +321,10 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
 		auto& motions = registry.motions;
 		Motion& motion = motions.get(player);
-		motion.velocity.y = -250.f;
-		motion.grounded = false;
+		if (motion.grounded) {
+			motion.velocity.y = -250.f;
+			motion.grounded = false;
+		}
 	}
 
 
