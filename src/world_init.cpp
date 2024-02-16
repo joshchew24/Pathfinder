@@ -16,6 +16,7 @@ Entity createOliver(RenderSystem* renderer, vec2 pos)
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = {40.f, 80.f};
 	motion.gravityScale = 8.f;
+	motion.grounded = false;
 
 	// Create and (empty) Chicken component to be able to refer to all eagles
 	registry.players.emplace(entity);

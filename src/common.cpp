@@ -21,6 +21,13 @@ void Transform::translate(vec2 offset)
 	mat = mat * T;
 }
 
+vec2 rotate_vector(vec2 original, float radians) {
+	float c = cosf(radians);
+	float s = sinf(radians);
+	mat2 R = mat2(c, s, -s, c);
+	return R * original;
+}
+
 bool gl_has_errors()
 {
 	GLenum error = glGetError();

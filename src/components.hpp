@@ -39,7 +39,9 @@ struct Motion {
 	float angle = 0;
 	vec2 velocity = { 0, 0 };
 	vec2 scale = { 10, 10 };
+	vec2 acceleration = { 0, 0 };
 	float gravityScale = 1.0f;
+	bool grounded = false;
 };
 
 // Stucture to store collision information

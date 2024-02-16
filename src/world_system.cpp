@@ -14,6 +14,7 @@ const size_t MAX_BOULDERS = 5;
 const size_t MAX_BUG = 5;
 const size_t BOULDER_DELAY_MS = 2000 * 3;
 const size_t BUG_DELAY_MS = 5000 * 3;
+const float FRICTION = 5.f;
 
 // Create the bug world
 WorldSystem::WorldSystem()
@@ -145,6 +146,15 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
+	Motion& pmotion = registry.motions.get(player);
+
+	// if entity is player and below window screen
+	if (pmotion.position.y - abs(pmotion.scale.y) / 2 > window_height_px) {
+		if (!registry.deathTimers.has(player)) {
+			registry.deathTimers.emplace(player);
+			Mix_PlayChannel(-1, chicken_dead_sound, 0);
+		}
+	}
 
 	next_boulder_spawn -= elapsed_ms_since_last_update * current_speed;
 	if (registry.deadlys.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
@@ -192,8 +202,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 	// reduce window brightness if any of the present chickens is dying
 	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
-
-	// !!! TODO A1: update LightUp timers and remove if time drops below zero, similar to the death counter
 
 	return true;
 }
@@ -275,11 +283,6 @@ void WorldSystem::handle_collisions() {
 					// !!! TODO A1: create a new struct called LightUp in components.hpp and add an instance to the chicken entity by modifying the ECS registry
 				}
 			}
-			//check landed on platform
-			else if (registry.platforms.has(entity_other)) {
-				Motion& motion = registry.motions.get(entity);
-				motion.velocity.y = 0;
-			}
 		}
 	}
 
@@ -299,56 +302,53 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		glfwSetWindowShouldClose(window, 1);
 	}
 
-	//player movement
-	if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_LEFT) {
-		leftState = true;
-	}
-	if (action == GLFW_RELEASE && key == GLFW_KEY_LEFT) {
-		leftState = false;
-	}
-	if (action == GLFW_PRESS && key == GLFW_KEY_RIGHT) {
-		rightState = true;
-	}
-	if (action == GLFW_RELEASE && key == GLFW_KEY_RIGHT) {
-		rightState = false;
-	}
-
-	if (action == GLFW_PRESS && key == GLFW_KEY_UP) {
-		upState = true;
-	}
-	if (action == GLFW_RELEASE && key == GLFW_KEY_UP) {
-		upState = false;
-	}
-
-	RenderRequest &renderRequest = registry.renderRequests.get(player);
-	float speed = 200.f;
-	Motion& motion = registry.motions.get(player);
-	if (!registry.deathTimers.has(player)) {
-		if (leftState && !rightState) {
-			motion.velocity.x = -speed;
-			if (motion.scale.x > 0) {
-				motion.scale.x = -motion.scale.x;
+	// player movement
+	if ((key == GLFW_KEY_RIGHT || key == GLFW_KEY_LEFT) && !registry.deathTimers.has(player)) {
+		RenderRequest& renderRequest = registry.renderRequests.get(player);
+		auto& motions = registry.motions;
+		Motion& motion = motions.get(player);
+		if (action == GLFW_PRESS) {
+			// set the velocity if it's not 0
+			motion.acceleration.x = 0.0;
+			float vel = 250.f;
+			if (key == GLFW_KEY_LEFT) {
+				motion.velocity.x = vel * -1.f;
+				if (motion.scale.x > 0) {
+					motion.scale.x = -motion.scale.x;
+				}
+				if (currentRunningTexture == (int)TEXTURE_ASSET_ID::RUN4) {
+					currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER;
+				}
+				currentRunningTexture++;
+				renderRequest.used_texture = static_cast<TEXTURE_ASSET_ID>(currentRunningTexture);
 			}
-			if (currentRunningTexture == (int) TEXTURE_ASSET_ID::RUN4) {
-				currentRunningTexture = (int) TEXTURE_ASSET_ID::OLIVER;
+			else if (key == GLFW_KEY_RIGHT) {
+				motion.velocity.x = vel;
+				if (motion.scale.x < 0) {
+					motion.scale.x = -motion.scale.x;
+				}
+				if (currentRunningTexture == (int)TEXTURE_ASSET_ID::RUN4) {
+					currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER;
+				}
+				currentRunningTexture++;
+				renderRequest.used_texture = static_cast<TEXTURE_ASSET_ID>(currentRunningTexture);
 			}
-			currentRunningTexture++;
-			renderRequest.used_texture = static_cast<TEXTURE_ASSET_ID>(currentRunningTexture);
 		}
-		else if (!leftState && rightState) {
-			motion.velocity.x = speed;
-			if (motion.scale.x < 0) {
-				motion.scale.x = -motion.scale.x;
-			}
-			if (currentRunningTexture == (int)TEXTURE_ASSET_ID::RUN4) {
-				currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER;
-			}
-			currentRunningTexture++;
-			renderRequest.used_texture = static_cast<TEXTURE_ASSET_ID>(currentRunningTexture);
-		}
-		else {
-			motion.velocity.x = 0;
+		else if (action == GLFW_RELEASE) {
+			// set x acceleration to FRICTION in opposite direction of current x velocity
+			motion.acceleration.x = FRICTION * -motion.velocity.x/abs(motion.velocity.x);
 			renderRequest.used_texture = TEXTURE_ASSET_ID::OLIVER;
+		}
+	}
+
+	// player jump
+	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+		auto& motions = registry.motions;
+		Motion& motion = motions.get(player);
+		// stop jump if player has died
+		if (!registry.deathTimers.has(player)) {
+			motion.velocity.y = -250.f;
+			motion.grounded = false;
 		}
 	}
 
