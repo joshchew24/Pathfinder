@@ -144,13 +144,15 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			if(!registry.players.has(motions_registry.entities[i])) // don't remove the player
 				registry.remove_all_components_of(motions_registry.entities[i]);
 		}
+	}
 
-		// if entity is player and below window screen
-		if (motion.position.y - abs(motion.scale.y) / 2 > window_height_px && registry.players.has(motions_registry.entities[i])) {
-			if (!registry.deathTimers.has(motions_registry.entities[i])) {
-				registry.deathTimers.emplace(motions_registry.entities[i]);
-				Mix_PlayChannel(-1, chicken_dead_sound, 0);
-			}
+	Motion& pmotion = registry.motions.get(player);
+
+	// if entity is player and below window screen
+	if (pmotion.position.y - abs(pmotion.scale.y) / 2 > window_height_px) {
+		if (!registry.deathTimers.has(player)) {
+			registry.deathTimers.emplace(player);
+			Mix_PlayChannel(-1, chicken_dead_sound, 0);
 		}
 	}
 
