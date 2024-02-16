@@ -43,6 +43,7 @@ Entity createPlatform(RenderSystem* renderer, vec2 position, vec2 size)
 	motion.velocity = { 0, 0 };
 	motion.position = position;
 	motion.scale = size;
+	motion.fixed = true;
 
 	// Create and (empty) Eagle component to be able to refer to all eagles
 	registry.renderRequests.insert(
@@ -120,6 +121,7 @@ Entity createPencil(RenderSystem* renderer, vec2 position, vec2 size)
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = size;
+	motion.fixed = true;
 
 	// Create a RenderRequest for the pencil
 	registry.pencil.emplace(entity);

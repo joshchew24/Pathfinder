@@ -40,25 +40,30 @@ void PhysicsSystem::step(float elapsed_ms)
 	for (uint i = 0; i < motion_registry.size(); i++)
 	{
 		Motion& motion = motion_registry.components[i];
+		if (motion.fixed) continue;
 		float step_seconds = elapsed_ms / 1000.f;
+		// apply gravity
 		if (motion.grounded) {
 			motion.acceleration.y = 0.f;
 			motion.velocity.y = 0.f;
 		}
 		else {
 			motion.acceleration.y = 9.f;
+			motion.velocity.y += motion.acceleration.y;
 		}
-		if (motion.velocity != vec2(0.0) && motion.acceleration != vec2(0.0)) {
+		// HANDLE HORIZONTAL MOVEMENT
+		// if in motion and accelerating, apply acceleration
+		if (motion.velocity.x != 0.0 && motion.acceleration.x != 0.0) {
 			// this conditional ASSUMES we are decelerating due to friction, and should stop at 0
-			if (glm::length(motion.velocity) < glm::length(motion.acceleration)) {
-				motion.velocity = vec2(0.0);
+			if (abs(motion.velocity.x) < abs(motion.acceleration.x)) {
+				motion.velocity.x = 0.0;
 			}
 			else {
-				motion.velocity = clamp(motion.velocity + motion.acceleration, vec2(-TERMINAL_VELOCITY), vec2(TERMINAL_VELOCITY));
+				motion.velocity.x = clamp(motion.velocity.x + motion.acceleration.x, -TERMINAL_VELOCITY, TERMINAL_VELOCITY);
 			}
 		}
 		else {
-			motion.acceleration = vec2(0.0);
+			motion.acceleration.x = 0.0f;
 		}
 		motion.position += motion.velocity * step_seconds;
 	}
