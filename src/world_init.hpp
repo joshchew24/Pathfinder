@@ -19,4 +19,6 @@ Entity createBoulder(RenderSystem* renderer, vec2 position);
 
 Entity createPencil(RenderSystem* renderer, vec2 pos, vec2 size);
 
+Entity createCheckpoint(RenderSystem* renderer, vec2 pos);
+
 

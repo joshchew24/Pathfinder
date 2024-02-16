@@ -33,6 +33,11 @@ struct Eatable
 
 };
 
+struct Checkpoint
+{
+
+};
+
 // All data relevant to the shape and motion of entities
 struct Motion {
 	vec2 position = { 0, 0 };
@@ -127,12 +132,13 @@ struct Mesh
 enum class TEXTURE_ASSET_ID {
 	EARTH = 0,
 	BOULDER = EARTH + 1,
-	OLIVER = BOULDER + 1,
+	CHECKPOINT = BOULDER + 1,
+	OLIVER = CHECKPOINT + 1,
 	RUN1 = OLIVER + 1,
 	RUN2 = RUN1 + 1,
 	RUN3 = RUN2 + 1,
 	RUN4 = RUN3 + 1,
-  PENCIL = RUN4 + 1,
+    PENCIL = RUN4 + 1,
 	TEXTURE_COUNT = PENCIL + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
