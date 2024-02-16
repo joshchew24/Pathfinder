@@ -7,6 +7,7 @@
 #include <sstream>
 
 #include "physics_system.hpp"
+#include "movement_system.hpp"
 
 // Game configuration
 const size_t MAX_BOULDERS = 5;
@@ -207,6 +208,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	// reduce window brightness if any of the present chickens is dying
 	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
 
+	movementSystem.handle_inputs();
 	return true;
 }
 
@@ -315,17 +317,9 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	// player movement
 	if ((key == GLFW_KEY_RIGHT || key == GLFW_KEY_LEFT) && !registry.deathTimers.has(player)) {
 		RenderRequest& renderRequest = registry.renderRequests.get(player);
-		auto& motions = registry.motions;
-		Motion& motion = motions.get(player);
 		if (action == GLFW_PRESS) {
-			// set the velocity if it's not 0
-			motion.acceleration.x = 0.0;
-			float vel = 250.f;
+			movementSystem.press(key);
 			if (key == GLFW_KEY_LEFT) {
-				motion.velocity.x = vel * -1.f;
-				if (motion.scale.x > 0) {
-					motion.scale.x = -motion.scale.x;
-				}
 				if (currentRunningTexture == (int)TEXTURE_ASSET_ID::RUN4) {
 					currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER;
 				}
@@ -333,10 +327,6 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 				renderRequest.used_texture = static_cast<TEXTURE_ASSET_ID>(currentRunningTexture);
 			}
 			else if (key == GLFW_KEY_RIGHT) {
-				motion.velocity.x = vel;
-				if (motion.scale.x < 0) {
-					motion.scale.x = -motion.scale.x;
-				}
 				if (currentRunningTexture == (int)TEXTURE_ASSET_ID::RUN4) {
 					currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER;
 				}
@@ -345,8 +335,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 			}
 		}
 		else if (action == GLFW_RELEASE) {
-			// set x acceleration to FRICTION in opposite direction of current x velocity
-			motion.acceleration.x = FRICTION * -motion.velocity.x/abs(motion.velocity.x);
+			movementSystem.release(key);
 			renderRequest.used_texture = TEXTURE_ASSET_ID::OLIVER;
 		}
 	}
@@ -355,8 +344,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
 		auto& motions = registry.motions;
 		Motion& motion = motions.get(player);
-		// stop jump if player has died
-		if (!registry.deathTimers.has(player)) {
+		if (motion.grounded && !registry.deathTimers.has(player)) {
 			motion.velocity.y = -250.f;
 			motion.grounded = false;
 		}
