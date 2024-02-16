@@ -7,6 +7,7 @@
 #include <sstream>
 
 #include "physics_system.hpp"
+#include <iostream>
 
 // Game configuration
 const size_t MAX_BOULDERS = 5;
@@ -87,7 +88,7 @@ GLFWwindow* WorldSystem::create_window() {
 	glfwSetCursorPosCallback(window, cursor_pos_redirect);
 
 	// Set cursor mode to hidden
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
 	//////////////////////////////////////
 	// Loading music and sounds with SDL
@@ -145,11 +146,20 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
+
 	next_boulder_spawn -= elapsed_ms_since_last_update * current_speed;
 	if (registry.deadlys.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
 		// Reset timer
 		next_boulder_spawn = (BOULDER_DELAY_MS / 2) + uniform_dist(rng) * (BOULDER_DELAY_MS / 2);
-		createBoulder(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), -100.f));
+		auto boulder = createBoulder(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), -100.f));
+		Motion& bMotion = registry.motions.get(boulder);
+		Motion& pMotion = registry.motions.get(player);
+
+		// Calculate the direction vector from boulder to player
+		vec2 direction = normalize(pMotion.position - bMotion.position);
+
+		float speed = 800.0f;
+		bMotion.velocity = lerp(bMotion.velocity, direction * speed, 0.9f); 
 	}
 
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -223,7 +233,10 @@ void WorldSystem::restart_game() {
 	registry.colors.insert(player, {1, 0.8f, 0.8f});
 	
 	// Create pencil
-	pencil = createPencil(renderer, { window_width_px / 2, window_height_px / 2 }, { 100.f, 100.f });
+	double xpos, ypos;
+	glfwGetCursorPos(window, &xpos, &ypos);
+	vec2 scale = { 50.f, 50.f };
+	pencil = createPencil(renderer, {xpos + scale.x/2, ypos - scale.y/2}, scale);
 }
 
 // Compute collisions between entities
@@ -374,6 +387,6 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 	Motion& motion = registry.motions.get(pencil);
-	motion.position.x = mouse_position.x + 50.f;
-	motion.position.y = mouse_position.y - 50.f;
+	motion.position.x = mouse_position.x + (motion.scale.x /2);
+	motion.position.y = mouse_position.y - (motion.scale.y /2);
 }

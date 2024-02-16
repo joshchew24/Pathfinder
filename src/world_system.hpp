@@ -32,6 +32,12 @@ public:
 	// Steps the game ahead by ms milliseconds
 	bool step(float elapsed_ms);
 
+	// Linear intepolation
+	template<typename T>
+	T lerp(const T& a, const T& b, float t) {
+		return (1 - t) * a + t * b;
+	}
+
 	// Check for collisions
 	void handle_collisions();
 
