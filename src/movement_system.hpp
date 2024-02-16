@@ -16,7 +16,7 @@ private:
 	const float FRICTION = 5.f;
 
 public:
-	MovementSystem() {};
+	MovementSystem() {}
 
 	void press(int key) {
 		if (key == GLFW_KEY_LEFT) {
@@ -54,7 +54,6 @@ public:
 	void handle_inputs() {
 		if (last == 0) return;
 		Entity& player = registry.players.entities[0];
-		RenderRequest& renderRequest = registry.renderRequests.get(player);
 		auto& motions = registry.motions;
 		Motion& motion = motions.get(player);
 		motion.acceleration.x = 0.0;
@@ -64,7 +63,6 @@ public:
 			if (motion.scale.x > 0) {
 				motion.scale.x = -motion.scale.x;
 			}
-			printf("go left\n");
 			return;
 		}
 		if (last == GLFW_KEY_RIGHT && right) {
@@ -72,7 +70,6 @@ public:
 			if (motion.scale.x < 0) {
 				motion.scale.x = -motion.scale.x;
 			}
-			printf("go right\n");
 			return;
 		}
 	}
