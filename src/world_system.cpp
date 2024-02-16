@@ -221,12 +221,7 @@ void WorldSystem::restart_game() {
 	// Reset the game speed
 	current_speed = 1.f;
 
-	//set all key states to false
-	leftState = false;
-	rightState = false;
-	upState = false;
-	downState = false;
-
+	movementSystem.reset();
 
 	// Remove all entities that we created
 	// All that have a motion, we could also iterate over all bug, eagles, ... but that would be more cumbersome
@@ -345,7 +340,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		auto& motions = registry.motions;
 		Motion& motion = motions.get(player);
 		if (motion.grounded && !registry.deathTimers.has(player)) {
-			motion.velocity.y = -250.f;
+			motion.velocity.y = -400.f;
 			motion.grounded = false;
 		}
 	}

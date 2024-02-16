@@ -73,6 +73,12 @@ public:
 			return;
 		}
 	}
+	
+	void reset() {
+		left = false;
+		right = false;
+		last = 0;
+	}
 };
 
 extern MovementSystem movementSystem;
