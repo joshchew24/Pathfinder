@@ -6,6 +6,8 @@
 // stlib
 #include <deque>
 
+#include "tiny_ecs_registry.hpp"
+
 class MovementSystem {
 private:
 	bool left = false;
@@ -43,7 +45,15 @@ public:
 	}
 
 	void handle_inputs() {
-		
+		if (last == 0) return;
+		if (last == GLFW_KEY_LEFT && left) {
+			printf("go left\n");
+			return;
+		}
+		if (last == GLFW_KEY_RIGHT && right) {
+			printf("go right\n");
+			return;
+		}
 	}
 };
 

@@ -7,6 +7,7 @@
 #include <sstream>
 
 #include "physics_system.hpp"
+#include "movement_system.hpp"
 
 // Game configuration
 const size_t MAX_BOULDERS = 5;
@@ -182,6 +183,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	// reduce window brightness if any of the present chickens is dying
 	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
 
+	movementSystem.handle_inputs();
 	return true;
 }
 
@@ -284,6 +286,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		auto& motions = registry.motions;
 		Motion& motion = motions.get(player);
 		if (action == GLFW_PRESS) {
+			movementSystem.press(key);
 			// set the velocity if it's not 0
 			motion.acceleration.x = 0.0;
 			float vel = 250.f;
@@ -311,6 +314,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 			}
 		}
 		else if (action == GLFW_RELEASE) {
+			movementSystem.release(key);
 			// set x acceleration to FRICTION in opposite direction of current x velocity
 			motion.acceleration.x = FRICTION * -motion.velocity.x/abs(motion.velocity.x);
 			renderRequest.used_texture = TEXTURE_ASSET_ID::OLIVER;
