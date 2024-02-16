@@ -72,7 +72,7 @@ GLFWwindow* WorldSystem::create_window() {
 	glfwWindowHint(GLFW_RESIZABLE, 0);
 
 	// Create the main window (for rendering, keyboard, and mouse input)
-	window = glfwCreateWindow(window_width_px, window_height_px, "Chicken Game Assignment", nullptr, nullptr);
+	window = glfwCreateWindow(window_width_px, window_height_px, "Pathfinder", nullptr, nullptr);
 	if (window == nullptr) {
 		fprintf(stderr, "Failed to glfwCreateWindow");
 		return nullptr;
@@ -239,10 +239,16 @@ void WorldSystem::restart_game() {
 	registry.list_all_components();
 
 	//platform
-	registry.platforms.emplace(createPlatform(renderer, { 700, window_height_px - 20 }, { 700.f, 600.f }));
-	registry.platforms.emplace(createPlatform(renderer, { window_width_px / 2, window_height_px - 20 }, { 700.f, 400.f }));
+	createPlatform(renderer, { 700, window_height_px - 20 }, { 700.f, 600.f });
 
-	// Create a new chicken
+	createPlatform(renderer, { window_width_px / 2, window_height_px - 20 }, { 700.f, 400.f });
+
+	createPlatform(renderer, { window_width_px - window_width_px, window_height_px - 100}, {400.f, 400.f});
+
+	createPlatform(renderer, { window_width_px - 200, window_height_px - 60 }, { 500.f, 400.f });
+
+	createCheckpoint(renderer, { window_width_px - 300, window_height_px - 305 });
+
 	player = createOliver(renderer, { window_width_px/2, window_height_px - 400 });
 	registry.colors.insert(player, {1, 0.8f, 0.8f});
 	
