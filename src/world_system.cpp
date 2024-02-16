@@ -134,7 +134,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 	// Removing out of screen entities
 	auto& motions_registry = registry.motions;
-
 	// Remove entities that leave the screen on the left side
 	// Iterate backwards to be able to remove without unterfering with the next object to visit
 	// (the containers exchange the last element with the current)
@@ -151,15 +150,18 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	if (registry.deadlys.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
 		// Reset timer
 		next_boulder_spawn = (BOULDER_DELAY_MS / 2) + uniform_dist(rng) * (BOULDER_DELAY_MS / 2);
-		auto boulder = createBoulder(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), -100.f));
-		Motion& bMotion = registry.motions.get(boulder);
-		Motion& pMotion = registry.motions.get(player);
+		vec2 bPosition = { 50.f + uniform_dist(rng) * (window_width_px - 100.f), -100.f };
 
 		// Calculate the direction vector from boulder to player
-		vec2 direction = normalize(pMotion.position - bMotion.position);
+		vec2 pPosition = { 0.f, 0.f };
+		if (motions_registry.has(player) && !registry.deathTimers.has(player)) {
+			pPosition = motions_registry.get(player).position;
+		}
+		vec2 direction = normalize(pPosition - bPosition);
 
 		float speed = 800.0f;
-		bMotion.velocity = lerp(bMotion.velocity, direction * speed, 0.9f); 
+		vec2 bVelocity = lerp(vec2(0,100.f), direction * speed, 0.9f);
+		createBoulder(renderer, bPosition, bVelocity);
 	}
 
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

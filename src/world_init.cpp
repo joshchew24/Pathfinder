@@ -76,7 +76,7 @@ Entity createLine(vec2 position, vec2 scale)
 	return entity;
 }
 
-Entity createBoulder(RenderSystem* renderer, vec2 position)
+Entity createBoulder(RenderSystem* renderer, vec2 position, vec2 velocity)
 {
 	auto entity = Entity();
 
@@ -87,7 +87,7 @@ Entity createBoulder(RenderSystem* renderer, vec2 position)
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
-	motion.velocity = { 0, 100.f };
+	motion.velocity = velocity;
 	motion.position = position;
 	motion.gravityScale = 12.f;
 
