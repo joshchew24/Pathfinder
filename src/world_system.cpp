@@ -147,6 +147,16 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
+	Motion& pmotion = registry.motions.get(player);
+
+	// if entity is player and below window screen
+	if (pmotion.position.y - abs(pmotion.scale.y) / 2 > window_height_px) {
+		if (!registry.deathTimers.has(player)) {
+			registry.deathTimers.emplace(player);
+			Mix_PlayChannel(-1, chicken_dead_sound, 0);
+		}
+	}
+
 	next_boulder_spawn -= elapsed_ms_since_last_update * current_speed;
 	if (registry.deadlys.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
 		// Reset timer
@@ -216,10 +226,16 @@ void WorldSystem::restart_game() {
 	registry.list_all_components();
 
 	//platform
-	registry.platforms.emplace(createPlatform(renderer, { 700, window_height_px - 20 }, { 700.f, 600.f }));
-	registry.platforms.emplace(createPlatform(renderer, { window_width_px / 2, window_height_px - 20 }, { 700.f, 400.f }));
+	createPlatform(renderer, { 700, window_height_px - 20 }, { 700.f, 600.f });
 
-	// Create a new chicken
+	createPlatform(renderer, { window_width_px / 2, window_height_px - 20 }, { 700.f, 400.f });
+
+	createPlatform(renderer, { window_width_px - window_width_px, window_height_px - 100}, {400.f, 400.f});
+
+	createPlatform(renderer, { window_width_px - 200, window_height_px - 60 }, { 500.f, 400.f });
+
+	createCheckpoint(renderer, { window_width_px - 300, window_height_px - 305 });
+
 	player = createOliver(renderer, { window_width_px/2, window_height_px - 400 });
 	registry.colors.insert(player, {1, 0.8f, 0.8f});
 	
@@ -310,7 +326,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
 		auto& motions = registry.motions;
 		Motion& motion = motions.get(player);
-		if (motion.grounded) {
+		if (motion.grounded && !registry.deathTimers.has(player)) {
 			motion.velocity.y = -250.f;
 			motion.grounded = false;
 		}

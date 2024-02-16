@@ -51,19 +51,31 @@ void PhysicsSystem::step(float elapsed_ms)
 			motion.acceleration.y = 9.f;
 			motion.velocity.y += motion.acceleration.y;
 		}
-		// HANDLE HORIZONTAL MOVEMENT
-		// if in motion and accelerating, apply acceleration
-		if (motion.velocity.x != 0.0 && motion.acceleration.x != 0.0) {
-			// this conditional ASSUMES we are decelerating due to friction, and should stop at 0
-			if (abs(motion.velocity.x) < abs(motion.acceleration.x)) {
-				motion.velocity.x = 0.0;
+    
+		// if player hits top, left, or right, change velocity so the player bounces off boundary
+		if (registry.players.has(motion_registry.entities[i])) {
+			if (motion.position.x - abs(motion.scale.x) / 2 < 0) {
+				motion.velocity.x = 250.f;
 			}
-			else {
-				motion.velocity.x = clamp(motion.velocity.x + motion.acceleration.x, -TERMINAL_VELOCITY, TERMINAL_VELOCITY);
+			else if (motion.position.x + abs(motion.scale.x) / 2 > window_width_px) {
+				motion.velocity.x = -250.f;
 			}
-		}
-		else {
-			motion.acceleration.x = 0.0f;
+			else if (motion.position.y - abs(motion.scale.y) / 2 < 0) {
+				motion.velocity.y *= -1;
+			}
+			
+      if (motion.velocity.x != 0.0 && motion.acceleration.x != 0.0) {
+        // this conditional ASSUMES we are decelerating due to friction, and should stop at 0
+        if (abs(motion.velocity.x) < abs(motion.acceleration.x)) {
+          motion.velocity.x = 0.0;
+        }
+        else {
+          motion.velocity.x = clamp(motion.velocity.x + motion.acceleration.x, -TERMINAL_VELOCITY, TERMINAL_VELOCITY);
+        }
+      }
+      else {
+        motion.acceleration.x = 0.0f;
+      }
 		}
 		motion.position += motion.velocity * step_seconds;
 	}

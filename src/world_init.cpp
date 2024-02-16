@@ -46,6 +46,7 @@ Entity createPlatform(RenderSystem* renderer, vec2 position, vec2 size)
 	motion.fixed = true;
 
 	// Create and (empty) Eagle component to be able to refer to all eagles
+	registry.platforms.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::EARTH,
@@ -128,6 +129,32 @@ Entity createPencil(RenderSystem* renderer, vec2 position, vec2 size)
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::PENCIL, 
+		  EFFECT_ASSET_ID::TEXTURED,
+		  GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity createCheckpoint(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = position;
+	motion.scale = {70.f, 100.f};
+
+	// Create a RenderRequest for the pencil
+	registry.checkpoints.emplace(entity);
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::CHECKPOINT,
 		  EFFECT_ASSET_ID::TEXTURED,
 		  GEOMETRY_BUFFER_ID::SPRITE });
 
