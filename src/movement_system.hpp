@@ -13,6 +13,8 @@ private:
 	bool left = false;
 	bool right = false;
 	int last = 0;
+	const float FRICTION = 5.f;
+
 public:
 	MovementSystem() {};
 
@@ -41,16 +43,35 @@ public:
 				return;
 			}
 		}
+		// we only reach this case if no button is pressed
+		Entity& player = registry.players.entities[0];
+		auto& motions = registry.motions;
+		Motion& motion = motions.get(player);
+		motion.acceleration.x = FRICTION * -motion.velocity.x / abs(motion.velocity.x);
 		last = 0;
 	}
 
 	void handle_inputs() {
 		if (last == 0) return;
+		Entity& player = registry.players.entities[0];
+		RenderRequest& renderRequest = registry.renderRequests.get(player);
+		auto& motions = registry.motions;
+		Motion& motion = motions.get(player);
+		motion.acceleration.x = 0.0;
+		float vel = 250.f;
 		if (last == GLFW_KEY_LEFT && left) {
+			motion.velocity.x = vel * -1.f;
+			if (motion.scale.x > 0) {
+				motion.scale.x = -motion.scale.x;
+			}
 			printf("go left\n");
 			return;
 		}
 		if (last == GLFW_KEY_RIGHT && right) {
+			motion.velocity.x = vel;
+			if (motion.scale.x < 0) {
+				motion.scale.x = -motion.scale.x;
+			}
 			printf("go right\n");
 			return;
 		}
