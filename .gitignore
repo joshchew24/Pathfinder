@@ -1,2 +1,4 @@
 .vs/
 out/
+ext/project_path.hpp
+ext/project_path.hpp.in

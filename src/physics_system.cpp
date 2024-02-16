@@ -48,17 +48,29 @@ void PhysicsSystem::step(float elapsed_ms)
 		else {
 			motion.acceleration.y = 9.f;
 		}
-		if (motion.velocity != vec2(0.0) && motion.acceleration != vec2(0.0)) {
-			// this conditional ASSUMES we are decelerating due to friction, and should stop at 0
-			if (glm::length(motion.velocity) < glm::length(motion.acceleration)) {
-				motion.velocity = vec2(0.0);
+		// if player hits top, left, or right, change velocity so the player bounces off boundary
+		if (registry.players.has(motion_registry.entities[i])) {
+			if (motion.position.x - abs(motion.scale.x) / 2 < 0) {
+				motion.velocity.x = 250.f;
+			}
+			else if (motion.position.x + abs(motion.scale.x) / 2 > window_width_px) {
+				motion.velocity.x = -250.f;
+			}
+			else if (motion.position.y - abs(motion.scale.y) / 2 < 0) {
+				motion.velocity.y *= -1;
+			}
+			if (motion.velocity != vec2(0.0) && motion.acceleration != vec2(0.0)) {
+				// this conditional ASSUMES we are decelerating due to friction, and should stop at 0
+				if (glm::length(motion.velocity) < glm::length(motion.acceleration)) {
+					motion.velocity = vec2(0.0);
+				}
+				else {
+					motion.velocity = clamp(motion.velocity + motion.acceleration, vec2(-TERMINAL_VELOCITY), vec2(TERMINAL_VELOCITY));
+				}
 			}
 			else {
-				motion.velocity = clamp(motion.velocity + motion.acceleration, vec2(-TERMINAL_VELOCITY), vec2(TERMINAL_VELOCITY));
+				motion.acceleration = vec2(0.0);
 			}
-		}
-		else {
-			motion.acceleration = vec2(0.0);
 		}
 		motion.position += motion.velocity * step_seconds;
 	}

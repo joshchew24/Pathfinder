@@ -144,6 +144,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			if(!registry.players.has(motions_registry.entities[i])) // don't remove the player
 				registry.remove_all_components_of(motions_registry.entities[i]);
 		}
+
+		// if entity is player and below window screen
+		if (motion.position.y - abs(motion.scale.y) / 2 > window_height_px && registry.players.has(motions_registry.entities[i])) {
+			if (!registry.deathTimers.has(motions_registry.entities[i])) {
+				registry.deathTimers.emplace(motions_registry.entities[i]);
+				Mix_PlayChannel(-1, chicken_dead_sound, 0);
+			}
+		}
 	}
 
 	next_boulder_spawn -= elapsed_ms_since_last_update * current_speed;
@@ -321,8 +329,11 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
 		auto& motions = registry.motions;
 		Motion& motion = motions.get(player);
-		motion.velocity.y = -250.f;
-		motion.grounded = false;
+		// stop jump if player has died
+		if (!registry.deathTimers.has(player)) {
+			motion.velocity.y = -250.f;
+			motion.grounded = false;
+		}
 	}
 
 
