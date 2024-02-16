@@ -88,7 +88,7 @@ GLFWwindow* WorldSystem::create_window() {
 	glfwSetCursorPosCallback(window, cursor_pos_redirect);
 
 	// Set cursor mode to hidden
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
 	//////////////////////////////////////
 	// Loading music and sounds with SDL
@@ -134,7 +134,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 	// Removing out of screen entities
 	auto& motions_registry = registry.motions;
-
 	// Remove entities that leave the screen on the left side
 	// Iterate backwards to be able to remove without unterfering with the next object to visit
 	// (the containers exchange the last element with the current)
@@ -147,6 +146,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 
 	Motion& pmotion = registry.motions.get(player);
+	vec2 pPosition = pmotion.position;
 
 	// if entity is player and below window screen
 	if (pmotion.position.y - abs(pmotion.scale.y) / 2 > window_height_px) {
@@ -162,6 +162,21 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		next_boulder_spawn = (BOULDER_DELAY_MS / 2) + uniform_dist(rng) * (BOULDER_DELAY_MS / 2);
 		createBoulder(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), -100.f));
 	}
+
+	// iterate over boulders and use lerp to move towards player
+	for (int i = (int)motions_registry.components.size() - 1; i >= 0; --i) {
+		Motion& motion = motions_registry.components[i];
+		if (registry.deadlys.has(motions_registry.entities[i])) {
+			vec2 bPosition = motion.position;
+			vec2 toPlayer = normalize(pPosition - bPosition);
+			if (bPosition.y < pPosition.y + 50.f) {
+				motion.position.x = lerp<float>(bPosition.x, pPosition.x, 0.001f);
+				motion.velocity.x += toPlayer.x * 0.1f;
+			}
+		}
+	}	
+
+
 
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	// TODO A2: HANDLE EGG SPAWN HERE
@@ -238,7 +253,10 @@ void WorldSystem::restart_game() {
 	registry.colors.insert(player, {1, 0.8f, 0.8f});
 	
 	// Create pencil
-	pencil = createPencil(renderer, { window_width_px / 2, window_height_px / 2 }, { 100.f, 100.f });
+	pencil = createPencil(renderer, { window_width_px / 2, window_height_px / 2 }, { 50.f, 50.f });
+
+	// Center cursor to pencil location
+	glfwSetCursorPos(window, window_width_px / 2 - 25.f, window_height_px / 2 + 25.f);
 }
 
 // Compute collisions between entities
@@ -381,6 +399,6 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 	Motion& motion = registry.motions.get(pencil);
-	motion.position.x = mouse_position.x + 50.f;
-	motion.position.y = mouse_position.y - 50.f;
+	motion.position.x = mouse_position.x + 25.f;
+	motion.position.y = mouse_position.y - 25.f;
 }
