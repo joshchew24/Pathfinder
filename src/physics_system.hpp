@@ -16,6 +16,6 @@ public:
 	}
 
 private: 
-	float gravityConstant = 9.8f;
+	float gravity = 9.8f;
 	const float TERMINAL_VELOCITY = 250.f;
 };
