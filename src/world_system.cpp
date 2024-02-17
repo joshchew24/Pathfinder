@@ -171,8 +171,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			vec2 bPosition = motion.position;
 			vec2 toPlayer = normalize(pPosition - bPosition);
 			if (bPosition.y < pPosition.y + 50.f) {
-				motion.position.x = lerp<float>(bPosition.x, pPosition.x, 0.001f);
-				motion.velocity.x += toPlayer.x * 0.1f;
+				motion.position.x = lerp<float>(bPosition.x, pPosition.x, 0.002f);
+				motion.velocity.x += toPlayer.x * 0.2f;
 			}
 		}
 	}	
