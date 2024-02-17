@@ -324,6 +324,10 @@ void WorldSystem::save_checkpoint() {
 
 void WorldSystem::load_checkpoint() {
 	std::ifstream i("../save.json");
+	// Ensure file exists
+	if (!i.good())
+		return;
+	
 	json j = json::parse(i);
 	
 	// reset game to default then reposition player
