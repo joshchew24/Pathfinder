@@ -177,7 +177,7 @@ Entity createCheckpoint(RenderSystem* renderer, vec2 position)
 	motion.scale = {70.f, 100.f};
 	motion.fixed = true;
 
-	// Create a RenderRequest for the pencil
+	// Create a RenderRequest for the checkpoint flag
 	registry.checkpoints.emplace(entity);
 	registry.renderRequests.insert(
 		entity,

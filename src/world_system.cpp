@@ -48,6 +48,7 @@ namespace {
 	}
 }
 
+
 // World initialization
 // Note, this has a lot of OpenGL specific things, could be moved to the renderer
 GLFWwindow* WorldSystem::create_window() {
@@ -236,22 +237,23 @@ void WorldSystem::restart_game() {
 	registry.list_all_components();
 
 	//platform
-	createWall(renderer, { 900, window_height_px - 90 }, { 1000.f, 600.f });
+    	createWall(renderer, { 900, window_height_px - 90 }, { 1000.f, 600.f });
 
-	createPlatform(renderer, { 900, window_height_px - 392 }, { 999.f, 5.f });
-
-
-	createWall(renderer, { window_width_px - window_width_px, window_height_px - 100}, {400.f, 400.f});
-
-	createPlatform(renderer, { window_width_px - window_width_px, window_height_px - 302 }, { 399.f, 5.f });
+    	createPlatform(renderer, { 900, window_height_px - 392 }, { 999.f, 5.f });
 
 
-	createWall(renderer, { window_width_px - 200, window_height_px - 60 }, { 500.f, 400.f });
+    	createWall(renderer, { window_width_px - window_width_px, window_height_px - 100}, {400.f, 400.f});
 
-	createPlatform(renderer, { window_width_px - 200, window_height_px - 262 }, { 499.f, 5.f });
+    	createPlatform(renderer, { window_width_px - window_width_px, window_height_px - 302 }, { 399.f, 5.f });
 
 
-	createCheckpoint(renderer, { window_width_px - 300, window_height_px - 305 });
+    	createWall(renderer, { window_width_px - 200, window_height_px - 60 }, { 500.f, 400.f });
+
+    	createPlatform(renderer, { window_width_px - 200, window_height_px - 262 }, { 499.f, 5.f });
+
+
+
+    	createCheckpoint(renderer, { window_width_px - 300, window_height_px - 305 });
 
 	player = createOliver(renderer, { window_width_px/2, 460 });
 	registry.colors.insert(player, {1, 0.8f, 0.8f});
@@ -302,11 +304,49 @@ void WorldSystem::handle_collisions() {
 				Motion& pMotion = registry.motions.get(entity);
 				pMotion.onlyGoDown = true;
 			}
+
+			// Checking Player - Checkpoint collisions
+			else if (registry.checkpoints.has(entity_other)) {
+				save_checkpoint();
+			}
 		}
 	}
 
 	// Remove all collisions from this simulation step
 	registry.collisions.clear();
+}
+
+void WorldSystem::save_checkpoint() {
+	Motion m = registry.motions.get(player);
+	json j;
+	// Save position, but not velocity; no need to preserve momentum from time of save
+	j["position"]["x"] = m.position[0];
+	j["position"]["y"] = m.position[1];
+	j["scale"]["x"] = m.scale[0];
+	j["scale"]["y"] = m.scale[1];
+	j["gravity"] = m.gravityScale;
+
+	std::ofstream o("../save.json");
+	o << j.dump() << std::endl;
+}
+
+void WorldSystem::load_checkpoint() {
+	std::ifstream i("../save.json");
+	// Ensure file exists
+	if (!i.good())
+		return;
+	
+	json j = json::parse(i);
+	
+	// reset game to default then reposition player
+	restart_game();
+	
+	Motion& m = registry.motions.get(player);
+	m.position[0] = j["position"]["x"];
+	m.position[1] = j["position"]["y"];
+	m.scale[0] = j["scale"]["x"];
+	m.scale[1] = j["scale"]["y"];
+	m.gravityScale = j["gravity"];
 }
 
 // Should the game be over ?
@@ -364,6 +404,11 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		glfwGetWindowSize(window, &w, &h);
 
         restart_game();
+	}
+
+	// Loading game
+	if (action == GLFW_RELEASE && key == GLFW_KEY_L) {
+		load_checkpoint();
 	}
 
 	// Debugging
