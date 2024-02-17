@@ -239,22 +239,22 @@ void WorldSystem::restart_game() {
 	//platform
 	createWall(renderer, { 900, window_height_px - 90 }, { 1000.f, 600.f });
 
-	createPlatform(renderer, { 900, window_height_px - 392 }, { 999.f, 3.f });
+	createPlatform(renderer, { 900, window_height_px - 392 }, { 999.f, 5.f });
 
 
 	createWall(renderer, { window_width_px - window_width_px, window_height_px - 100}, {400.f, 400.f});
 
-	createPlatform(renderer, { window_width_px - window_width_px, window_height_px - 302 }, { 399.f, 3.f });
+	createPlatform(renderer, { window_width_px - window_width_px, window_height_px - 302 }, { 399.f, 5.f });
 
 
 	createWall(renderer, { window_width_px - 200, window_height_px - 60 }, { 500.f, 400.f });
 
-	createPlatform(renderer, { window_width_px - 200, window_height_px - 262 }, { 499.f, 3.f });
+	createPlatform(renderer, { window_width_px - 200, window_height_px - 262 }, { 499.f, 5.f });
 
 
 	createCheckpoint(renderer, { window_width_px - 300, window_height_px - 305 });
 
-	player = createOliver(renderer, { window_width_px/2, 100 });
+	player = createOliver(renderer, { window_width_px/2, 460 });
 	registry.colors.insert(player, {1, 0.8f, 0.8f});
 	
 	// Create pencil
