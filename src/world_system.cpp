@@ -236,17 +236,24 @@ void WorldSystem::restart_game() {
 	registry.list_all_components();
 
 	//platform
-	createPlatform(renderer, { 700, window_height_px - 20 }, { 700.f, 600.f });
+	createWall(renderer, { 900, window_height_px - 90 }, { 1000.f, 600.f });
 
-	createPlatform(renderer, { window_width_px / 2, window_height_px - 20 }, { 700.f, 400.f });
+	createPlatform(renderer, { 900, window_height_px - 391 }, { 999.f, 3.f });
 
-	createPlatform(renderer, { window_width_px - window_width_px, window_height_px - 100}, {400.f, 400.f});
 
-	createPlatform(renderer, { window_width_px - 200, window_height_px - 60 }, { 500.f, 400.f });
+	createWall(renderer, { window_width_px - window_width_px, window_height_px - 100}, {400.f, 400.f});
+
+	createPlatform(renderer, { window_width_px - window_width_px, window_height_px - 301 }, { 399.f, 3.f });
+
+
+	createWall(renderer, { window_width_px - 200, window_height_px - 60 }, { 500.f, 400.f });
+
+	createPlatform(renderer, { window_width_px - 200, window_height_px - 262 }, { 499.f, 3.f });
+
 
 	createCheckpoint(renderer, { window_width_px - 300, window_height_px - 305 });
 
-	player = createOliver(renderer, { window_width_px/2, window_height_px - 400 });
+	player = createOliver(renderer, { window_width_px/2, 100 });
 	registry.colors.insert(player, {1, 0.8f, 0.8f});
 	
 	// Create pencil
@@ -260,6 +267,7 @@ void WorldSystem::restart_game() {
 void WorldSystem::handle_collisions() {
 	// Loop over all collisions detected by the physics system
 	auto& collisionsRegistry = registry.collisions;
+	Motion& pMotion = registry.motions.get(player);
 	for (uint i = 0; i < collisionsRegistry.components.size(); i++) {
 		// The entity and its collider
 		Entity entity = collisionsRegistry.entities[i];
@@ -289,6 +297,10 @@ void WorldSystem::handle_collisions() {
 
 					// !!! TODO A1: create a new struct called LightUp in components.hpp and add an instance to the chicken entity by modifying the ECS registry
 				}
+			}
+			else if (registry.walls.has(entity_other)) {
+				Motion& pMotion = registry.motions.get(entity);
+				pMotion.onlyGoDown = true;
 			}
 		}
 	}

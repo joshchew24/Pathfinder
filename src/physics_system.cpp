@@ -39,9 +39,21 @@ void PhysicsSystem::step(float elapsed_ms)
 	auto& motion_registry = registry.motions;
 	for (uint i = 0; i < motion_registry.size(); i++)
 	{
-		Motion& motion = motion_registry.components[i];
-		if (motion.fixed) continue;
 		float step_seconds = elapsed_ms / 1000.f;
+		Motion& motion = motion_registry.components[i];
+		if (motion.fixed) {
+			continue;
+		}
+
+		if (motion.onlyGoDown) {
+			motion.acceleration.x = 0;
+			motion.velocity.x = 0;
+			motion.acceleration.y = gravity;
+			motion.velocity.y = clamp(motion.velocity.y + motion.acceleration.y, -400.f, 400.f);
+			motion.position += motion.velocity * step_seconds;
+			motion.onlyGoDown = false;
+			continue;
+		}
 		// apply gravity
 		if (motion.grounded) {
 			motion.acceleration.y = 0.f;
@@ -73,7 +85,7 @@ void PhysicsSystem::step(float elapsed_ms)
           motion.velocity.x = 0.0;
         }
         else {
-          motion.velocity.x = clamp(motion.velocity.x + motion.acceleration.x, -TERMINAL_VELOCITY, TERMINAL_VELOCITY);
+			motion.velocity.x = clamp(motion.velocity.x + motion.acceleration.x, -TERMINAL_VELOCITY, TERMINAL_VELOCITY);
         }
       }
       else {
