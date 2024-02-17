@@ -38,6 +38,10 @@ struct Checkpoint
 
 };
 
+struct Wall
+{
+
+};
 
 // All data relevant to the shape and motion of entities
 struct Motion {
@@ -49,6 +53,7 @@ struct Motion {
 	float gravityScale = 1.0f;
 	bool grounded = false;
 	bool fixed = false;
+	bool onlyGoDown = false;
 };
 
 // Stucture to store collision information
@@ -133,7 +138,8 @@ struct Mesh
 
 enum class TEXTURE_ASSET_ID {
 	EARTH = 0,
-	BOULDER = EARTH + 1,
+	PLATFORM = EARTH + 1,
+	BOULDER = PLATFORM + 1,
 	CHECKPOINT = BOULDER + 1,
 	OLIVER = CHECKPOINT + 1,
 	RUN1 = OLIVER + 1,
