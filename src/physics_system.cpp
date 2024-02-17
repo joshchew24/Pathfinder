@@ -48,7 +48,7 @@ void PhysicsSystem::step(float elapsed_ms)
 			motion.velocity.y = 0.f;
 		}
 		else {
-			motion.acceleration.y = 9.f;
+			motion.acceleration.y = gravity;
 			motion.velocity.y = clamp(motion.velocity.y + motion.acceleration.y, -TERMINAL_VELOCITY, TERMINAL_VELOCITY);
 		}
     
@@ -63,6 +63,7 @@ void PhysicsSystem::step(float elapsed_ms)
 				motion.velocity.x = 0.f;
 			}
 			else if (motion.position.y - abs(motion.scale.y) / 2 < 0) {
+				motion.position.y += 1.f;
 				motion.velocity.y = 0.f;
 			}
 			
