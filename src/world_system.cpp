@@ -252,9 +252,10 @@ void WorldSystem::restart_game() {
     	createPlatform(renderer, { window_width_px - 200, window_height_px - 262 }, { 499.f, 5.f });
 
 
+
     	createCheckpoint(renderer, { window_width_px - 300, window_height_px - 305 });
 
-    	player = createOliver(renderer, { window_width_px/2, 460 });
+	player = createOliver(renderer, { window_width_px/2, 460 });
 	registry.colors.insert(player, {1, 0.8f, 0.8f});
 	
 	// Create pencil
@@ -298,11 +299,6 @@ void WorldSystem::handle_collisions() {
 
 					// !!! TODO A1: create a new struct called LightUp in components.hpp and add an instance to the chicken entity by modifying the ECS registry
 				}
-			}
-
-			// Checking Player - Checkpoint collisions
-			else if (registry.checkpoints.has(entity_other)) {
-				save_checkpoint();
 			}
 			else if (registry.walls.has(entity_other)) {
 				Motion& pMotion = registry.motions.get(entity);
