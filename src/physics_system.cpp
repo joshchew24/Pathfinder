@@ -49,7 +49,7 @@ void PhysicsSystem::step(float elapsed_ms)
 		}
 		else {
 			motion.acceleration.y = gravity;
-			motion.velocity.y = clamp(motion.velocity.y + motion.acceleration.y, -400.f, 400.f);
+			motion.velocity.y = clamp(motion.velocity.y + motion.acceleration.y, -600.f, 600.f);
 		}
     
 		// if player hits top, left, or right, change velocity so the player bounces off boundary

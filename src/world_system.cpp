@@ -340,7 +340,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		auto& motions = registry.motions;
 		Motion& motion = motions.get(player);
 		if (motion.grounded && !registry.deathTimers.has(player)) {
-			motion.velocity.y = -400.f;
+			motion.velocity.y = -600.f;
 			motion.grounded = false;
 		}
 	}
