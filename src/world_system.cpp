@@ -307,6 +307,10 @@ void WorldSystem::handle_collisions() {
 			else if (registry.walls.has(entity_other)) {
 				Motion& pMotion = registry.motions.get(entity);
 				pMotion.onlyGoDown = true;
+
+			// Checking Player - Checkpoint collisions
+			else if (registry.checkpoints.has(entity_other)) {
+				save_checkpoint();
 			}
 		}
 	}
