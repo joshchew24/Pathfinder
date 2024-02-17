@@ -31,6 +31,7 @@ class RenderSystem {
 	// Make sure these paths remain in sync with the associated enumerators.
 	const std::array<std::string, texture_count> texture_paths = {
 			textures_path("earthBlock.png"),
+			textures_path("platform.png"),
 			textures_path("Free/Traps/Rock Head/Idle.png"),
 			textures_path("idleFlag.png"),
 			textures_path("idle.png"),
