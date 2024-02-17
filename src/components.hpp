@@ -38,6 +38,7 @@ struct Checkpoint
 
 };
 
+
 // All data relevant to the shape and motion of entities
 struct Motion {
 	vec2 position = { 0, 0 };

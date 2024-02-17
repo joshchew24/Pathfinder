@@ -48,6 +48,7 @@ namespace {
 	}
 }
 
+
 // World initialization
 // Note, this has a lot of OpenGL specific things, could be moved to the renderer
 GLFWwindow* WorldSystem::create_window() {
@@ -295,11 +296,45 @@ void WorldSystem::handle_collisions() {
 					// !!! TODO A1: create a new struct called LightUp in components.hpp and add an instance to the chicken entity by modifying the ECS registry
 				}
 			}
+
+			// Checking Player - Checkpoint collisions
+			else if (registry.checkpoints.has(entity_other)) {
+				save_checkpoint();
+			}
 		}
 	}
 
 	// Remove all collisions from this simulation step
 	registry.collisions.clear();
+}
+
+void WorldSystem::save_checkpoint() {
+	Motion m = registry.motions.get(player);
+	json j;
+	// Save position, but not velocity; no need to preserve momentum from time of save
+	j["position"]["x"] = m.position[0];
+	j["position"]["y"] = m.position[1];
+	j["scale"]["x"] = m.scale[0];
+	j["scale"]["y"] = m.scale[1];
+	j["gravity"] = m.gravityScale;
+
+	std::ofstream o("../save.json");
+	o << j.dump() << std::endl;
+}
+
+void WorldSystem::load_checkpoint() {
+	std::ifstream i("../save.json");
+	json j = json::parse(i);
+	
+	// reset game to default then reposition player
+	restart_game();
+	
+	Motion& m = registry.motions.get(player);
+	m.position[0] = j["position"]["x"];
+	m.position[1] = j["position"]["y"];
+	m.scale[0] = j["scale"]["x"];
+	m.scale[1] = j["scale"]["y"];
+	m.gravityScale = j["gravity"];
 }
 
 // Should the game be over ?
@@ -357,6 +392,11 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		glfwGetWindowSize(window, &w, &h);
 
         restart_game();
+	}
+
+	// Loading game
+	if (action == GLFW_RELEASE && key == GLFW_KEY_L) {
+		load_checkpoint();
 	}
 
 	// Debugging
