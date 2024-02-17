@@ -172,8 +172,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			vec2 bPosition = motion.position;
 			vec2 toPlayer = normalize(pPosition - bPosition);
 			if (bPosition.y < pPosition.y + 50.f) {
-				motion.position.x = lerp<float>(bPosition.x, pPosition.x, 0.001f);
-				motion.velocity.x += toPlayer.x * 0.1f;
+				motion.position.x = lerp<float>(bPosition.x, pPosition.x, 0.002f);
+				motion.velocity.x += toPlayer.x * 0.2f;
 			}
 		}
 	}	
@@ -222,12 +222,7 @@ void WorldSystem::restart_game() {
 	// Reset the game speed
 	current_speed = 1.f;
 
-	//set all key states to false
-	leftState = false;
-	rightState = false;
-	upState = false;
-	downState = false;
-
+	movementSystem.reset();
 
 	// Remove all entities that we created
 	// All that have a motion, we could also iterate over all bug, eagles, ... but that would be more cumbersome
@@ -384,7 +379,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		auto& motions = registry.motions;
 		Motion& motion = motions.get(player);
 		if (motion.grounded && !registry.deathTimers.has(player)) {
-			motion.velocity.y = -250.f;
+			motion.velocity.y = -600.f;
 			motion.grounded = false;
 		}
 	}

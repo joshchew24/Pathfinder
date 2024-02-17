@@ -66,12 +66,6 @@ private:
 	Entity player;
 	Entity pencil;
 
-	//Move state
-	bool leftState;
-	bool rightState;
-	bool upState;
-	bool downState;
-
 	//To set running animation
 	int currentRunningTexture = (int) TEXTURE_ASSET_ID::OLIVER;
 

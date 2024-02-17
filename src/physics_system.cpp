@@ -48,20 +48,23 @@ void PhysicsSystem::step(float elapsed_ms)
 			motion.velocity.y = 0.f;
 		}
 		else {
-			motion.acceleration.y = 9.f;
-			motion.velocity.y += motion.acceleration.y;
+			motion.acceleration.y = gravity;
+			motion.velocity.y = clamp(motion.velocity.y + motion.acceleration.y, -600.f, 600.f);
 		}
     
 		// if player hits top, left, or right, change velocity so the player bounces off boundary
 		if (registry.players.has(motion_registry.entities[i])) {
 			if (motion.position.x - abs(motion.scale.x) / 2 < 0) {
-				motion.velocity.x = 250.f;
+				motion.position.x += 1.f;
+				motion.velocity.x = 0.f;
 			}
 			else if (motion.position.x + abs(motion.scale.x) / 2 > window_width_px) {
-				motion.velocity.x = -250.f;
+				motion.position.x -= 1.f;
+				motion.velocity.x = 0.f;
 			}
 			else if (motion.position.y - abs(motion.scale.y) / 2 < 0) {
-				motion.velocity.y *= -1;
+				motion.position.y += 1.f;
+				motion.velocity.y = 0.f;
 			}
 			
       if (motion.velocity.x != 0.0 && motion.acceleration.x != 0.0) {
