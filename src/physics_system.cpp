@@ -36,6 +36,7 @@ bool rectangleCollides(const Motion& motion1, const Motion& motion2) {
 
 void PhysicsSystem::step(float elapsed_ms)
 {
+	elapsed_ms = clamp(elapsed_ms, 0.f, 8.f);
 	auto& motion_registry = registry.motions;
 	for (uint i = 0; i < motion_registry.size(); i++)
 	{
@@ -59,7 +60,7 @@ void PhysicsSystem::step(float elapsed_ms)
 			motion.acceleration.y = 0.f;
 			motion.velocity.y = 0.f;
 		}
-		else {
+		else if(!motion.notAffectedByGravity){
 			motion.acceleration.y = gravity;
 			motion.velocity.y = clamp(motion.velocity.y + motion.acceleration.y, -600.f, 600.f);
 		}

@@ -27,6 +27,8 @@ public:
 	ComponentContainer<Pencil> pencil;
 	ComponentContainer<Checkpoint> checkpoints;
 	ComponentContainer<Wall> walls;
+	ComponentContainer<advancedAI> advancedAIs;
+	ComponentContainer<levelEnd> levelEnds;
 
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
@@ -48,6 +50,8 @@ public:
 		registry_list.push_back(&pencil);
 		registry_list.push_back(&checkpoints);
 		registry_list.push_back(&walls);
+		registry_list.push_back(&advancedAIs);
+		registry_list.push_back(&levelEnds);
 	}
 
 	void clear_all_components() {
