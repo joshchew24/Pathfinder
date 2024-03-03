@@ -16,30 +16,32 @@ private:
 	const float FRICTION = 5.f;
 
 public:
+	const static int LEFT_KEY = GLFW_KEY_A;
+	const static int RIGHT_KEY = GLFW_KEY_D;
 	MovementSystem() {}
 
 	void press(int key) {
-		if (key == GLFW_KEY_LEFT) {
+		if (key == LEFT_KEY) {
 			left = true;
 		}
-		else if (key == GLFW_KEY_RIGHT) {
+		else if (key == RIGHT_KEY) {
 			right = true;
 		}
 		last = key;
 	}
 
 	void release(int key) {
-		if (key == GLFW_KEY_LEFT) {
+		if (key == LEFT_KEY) {
 			left = false;
 			if (right) {
-				last = GLFW_KEY_RIGHT;
+				last = RIGHT_KEY;
 				return;
 			}
 		}
-		else if (key == GLFW_KEY_RIGHT) {
+		else if (key == RIGHT_KEY) {
 			right = false;
 			if (left) {
-				last = GLFW_KEY_LEFT;
+				last = LEFT_KEY;
 				return;
 			}
 		}
@@ -58,14 +60,14 @@ public:
 		Motion& motion = motions.get(player);
 		motion.acceleration.x = 0.0;
 		float vel = 250.f;
-		if (last == GLFW_KEY_LEFT && left) {
+		if (last == LEFT_KEY && left) {
 			motion.velocity.x = vel * -1.f;
 			if (motion.scale.x > 0) {
 				motion.scale.x = -motion.scale.x;
 			}
 			return;
 		}
-		if (last == GLFW_KEY_RIGHT && right) {
+		if (last == RIGHT_KEY && right) {
 			motion.velocity.x = vel;
 			if (motion.scale.x < 0) {
 				motion.scale.x = -motion.scale.x;
