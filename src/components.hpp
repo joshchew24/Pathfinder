@@ -43,6 +43,15 @@ struct Wall
 
 };
 
+struct advancedAI
+{
+
+};
+
+struct levelEnd {
+
+};
+
 // All data relevant to the shape and motion of entities
 struct Motion {
 	vec2 position = { 0, 0 };
@@ -54,6 +63,7 @@ struct Motion {
 	bool grounded = false;
 	bool fixed = false;
 	bool onlyGoDown = false;
+	bool notAffectedByGravity = false;
 };
 
 // Stucture to store collision information
@@ -140,8 +150,10 @@ enum class TEXTURE_ASSET_ID {
 	EARTH = 0,
 	PLATFORM = EARTH + 1,
 	BOULDER = PLATFORM + 1,
-	CHECKPOINT = BOULDER + 1,
-	OLIVER = CHECKPOINT + 1,
+	CHASEBOULDER = BOULDER + 1,
+	CHECKPOINT = CHASEBOULDER + 1,
+	LEVELEND = CHECKPOINT + 1,
+	OLIVER = LEVELEND + 1,
 	RUN1 = OLIVER + 1,
 	RUN2 = RUN1 + 1,
 	RUN3 = RUN2 + 1,

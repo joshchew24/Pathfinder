@@ -134,6 +134,36 @@ Entity createBoulder(RenderSystem* renderer, vec2 position)
 	return entity;
 }
 
+Entity createChaseBoulder(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.position = position;
+	motion.gravityScale = 0.f;
+	motion.notAffectedByGravity = true;
+
+	// Setting initial values, scale is negative to make it face the opposite way
+	motion.scale = vec2({ -BOULDER_BB_WIDTH, BOULDER_BB_HEIGHT });
+
+	registry.deadlys.emplace(entity);
+	registry.advancedAIs.emplace(entity);
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::CHASEBOULDER,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
 Entity createPencil(RenderSystem* renderer, vec2 position, vec2 size)
 {
 	auto entity = Entity();
@@ -182,6 +212,33 @@ Entity createCheckpoint(RenderSystem* renderer, vec2 position)
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::CHECKPOINT,
+		  EFFECT_ASSET_ID::TEXTURED,
+		  GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity createEndpoint(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = position;
+	motion.scale = { 70.f, 100.f };
+	motion.fixed = true;
+
+	// Create a RenderRequest for the checkpoint flag
+	registry.levelEnds.emplace(entity);
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::LEVELEND,
 		  EFFECT_ASSET_ID::TEXTURED,
 		  GEOMETRY_BUFFER_ID::SPRITE });
 
