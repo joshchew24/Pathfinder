@@ -362,18 +362,18 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	// player movement
-	if ((key == GLFW_KEY_RIGHT || key == GLFW_KEY_LEFT) && !registry.deathTimers.has(player)) {
+	if ((key == movementSystem.RIGHT_KEY || key == movementSystem.LEFT_KEY) && !registry.deathTimers.has(player)) {
 		RenderRequest& renderRequest = registry.renderRequests.get(player);
 		if (action == GLFW_PRESS) {
 			movementSystem.press(key);
-			if (key == GLFW_KEY_LEFT) {
+			if (key == movementSystem.LEFT_KEY) {
 				if (currentRunningTexture == (int)TEXTURE_ASSET_ID::RUN4) {
 					currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER;
 				}
 				currentRunningTexture++;
 				renderRequest.used_texture = static_cast<TEXTURE_ASSET_ID>(currentRunningTexture);
 			}
-			else if (key == GLFW_KEY_RIGHT) {
+			else if (key == movementSystem.RIGHT_KEY) {
 				if (currentRunningTexture == (int)TEXTURE_ASSET_ID::RUN4) {
 					currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER;
 				}
@@ -412,11 +412,11 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	// Debugging
-	if (key == GLFW_KEY_D) {
-		if (action == GLFW_RELEASE)
-			debugging.in_debug_mode = false;
-		else
-			debugging.in_debug_mode = true;
+	if (key == GLFW_KEY_I) {
+		if (action == GLFW_PRESS) {
+			debugging.in_debug_mode = !debugging.in_debug_mode;
+			printf("Debug mode %s\n", debugging.in_debug_mode ? "enabled" : "disabled");
+		}
 	}
 
 	// Control the current speed with `<` `>`
