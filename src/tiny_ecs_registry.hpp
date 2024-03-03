@@ -27,6 +27,9 @@ public:
 	ComponentContainer<Pencil> pencil;
 	ComponentContainer<Checkpoint> checkpoints;
 	ComponentContainer<Wall> walls;
+	ComponentContainer<Drawing> drawings;
+	ComponentContainer<DrawnLine> drawnLines;
+	ComponentContainer<DrawnPoint> drawnPoints;
 
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
@@ -48,6 +51,9 @@ public:
 		registry_list.push_back(&pencil);
 		registry_list.push_back(&checkpoints);
 		registry_list.push_back(&walls);
+		registry_list.push_back(&drawings);
+		registry_list.push_back(&drawnLines);
+		registry_list.push_back(&drawnPoints);
 	}
 
 	void clear_all_components() {

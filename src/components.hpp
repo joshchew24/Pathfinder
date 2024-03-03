@@ -21,6 +21,27 @@ struct Pencil
 
 };
 
+// Top-level drawing abstraction component
+struct Drawing
+{
+
+};
+
+// Drawn Points
+struct DrawnPoint
+{
+	Entity drawing;
+	vec2 position;
+};
+
+// Drawn Lines
+struct DrawnLine
+{
+	Entity drawing;
+	DrawnPoint p1;
+	DrawnPoint p2;
+};
+
 // Eagles have a hard shell
 struct Deadly
 {

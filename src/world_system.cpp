@@ -8,6 +8,7 @@
 
 #include "physics_system.hpp"
 #include "movement_system.hpp"
+#include "drawing_system.hpp"
 
 // Game configuration
 const size_t MAX_BOULDERS = 5;
@@ -86,8 +87,10 @@ GLFWwindow* WorldSystem::create_window() {
 	glfwSetWindowUserPointer(window, this);
 	auto key_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2, int _3) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_key(_0, _1, _2, _3); };
 	auto cursor_pos_redirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_move({ _0, _1 }); };
+	auto mouse_button_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_click(_0, _1, _2);};
 	glfwSetKeyCallback(window, key_redirect);
 	glfwSetCursorPosCallback(window, cursor_pos_redirect);
+	glfwSetMouseButtonCallback(window, mouse_button_redirect); 
 
 	// Set cursor mode to hidden
 	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
@@ -210,6 +213,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
 
 	movementSystem.handle_inputs();
+	drawings.drawLines();
 	return true;
 }
 
@@ -441,4 +445,20 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 	Motion& motion = registry.motions.get(pencil);
 	motion.position.x = mouse_position.x + 25.f;
 	motion.position.y = mouse_position.y - 25.f;
+
+	drawings.setDrawPos(mouse_position);
 }
+
+void WorldSystem::on_mouse_click(int button, int action, int mod) {
+	printf("mouse button event!\n");
+	static const int DRAW_BUTTON = GLFW_MOUSE_BUTTON_LEFT;
+	if (button == DRAW_BUTTON) {
+	       if (action == GLFW_PRESS) {
+		       drawings.start_drawing();
+	       }
+	       else if (action == GLFW_RELEASE) {
+		       drawings.stop_drawing();
+	       }
+	}
+}
+
