@@ -19,6 +19,8 @@ public:
 	
 	void drawLines();
 
+	bool line_collides(Entity& line, float min_x, float min_y, float max_x, float max_y);
+
 private:
 	vec2 drawPos{0,0};
 	bool is_drawing = false;

@@ -38,8 +38,8 @@ struct DrawnPoint
 struct DrawnLine
 {
 	Entity drawing;
-	DrawnPoint p1;
-	DrawnPoint p2;
+	vec2 p1;
+	vec2 p2;
 };
 
 // Eagles have a hard shell

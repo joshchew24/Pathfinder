@@ -30,6 +30,7 @@ void DrawingSystem::start_drawing() {
 void DrawingSystem::stop_drawing() {
 	// Stop drawing and signal to our system instance to construct lines
 	is_drawing = false;
+	just_finished_drawing = true;
 	printf("stopping drawing!\n");
 }
 
@@ -38,10 +39,37 @@ void DrawingSystem::setDrawPos(const vec2 &pos) {
 }
 
 void build_lines() {
-	if (registry.drawnPoints.entities.size() < 2)
+	auto& points = registry.drawnPoints.entities;
+	auto& lines = registry.drawnLines.entities;
+	if (points.size() < 2)
 		return;
-	Entity &p1 = NULL;
-	Entity &p2 = NULL;
+
+	// Only build new lines; don't waste resources on re-building
+	if (points.size() - 1 <= lines.size()) // lines are drawn for every point already
+	       return;
+
+	for (unsigned int i = lines.size();
+
+	DrawnPoint& prev_point = registry.drawnPoints.get(points[0]);
+	DrawnPoint& curr_point = registry.drawnPoints.get(points[1]);
+
+	for (auto& point_ent : points) {
+		curr_point = registry.drawnPoints.get(point_ent);
+		
+		if (prev_point.drawing != curr_point.drawing) {
+			prev_point = curr_point;
+			continue;
+		}
+	
+		if (curr_point.position != prev_point.position) {
+			Entity line = Entity();
+			registry.drawnLines.insert(line, 
+					{curr_point.drawing, 
+					prev_point.position, curr_point.position});
+		}
+
+		prev_point = curr_point;
+	}
 
 	printf("making lines...\n");
 }
@@ -68,9 +96,20 @@ void DrawingSystem::step(float elapsed_ms) {
 
 
 void DrawingSystem::drawLines() {
-	auto to_draw = registry.drawnPoints.entities;
-	for (auto& line : to_draw) {
-		auto& point = registry.drawnPoints.get(line);
-		createLine(point.position, vec2(20,20));	
+	auto to_draw = registry.drawnLines.entities;
+	for (auto& line_ent : to_draw) {
+		auto& line = registry.drawnLines.get(line_ent);
+		createLine(line.p1, vec2(20, 20));
+		createLine(line.p2, vec2(20,20));
 	}	
+}
+
+
+// Takes 4 bounding box inputs to check against a particular line
+bool DrawingSystem::line_collides(Entity& line,
+	       	float min_x, float min_y, float max_x, float max_y) {
+	// Calculate slope intercept of line
+	// Calculate y values bounded by the overlap of (bbox U line) x coords
+	// plugged into the line eqn
+	// Check if bounded y is within [min_y, max_y]
 }
