@@ -29,6 +29,8 @@ public:
 	ComponentContainer<Wall> walls;
 	ComponentContainer<advancedAI> advancedAIs;
 	ComponentContainer<levelEnd> levelEnds;
+	ComponentContainer<Boulder> boulders;
+	ComponentContainer<PaintCan> paintCans;
 
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
@@ -52,6 +54,8 @@ public:
 		registry_list.push_back(&walls);
 		registry_list.push_back(&advancedAIs);
 		registry_list.push_back(&levelEnds);
+		registry_list.push_back(&boulders);
+		registry_list.push_back(&paintCans);
 	}
 
 	void clear_all_components() {

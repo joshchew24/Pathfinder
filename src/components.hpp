@@ -47,8 +47,17 @@ struct advancedAI
 {
 
 };
+struct Boulder
+{
 
-struct levelEnd {
+};
+
+struct levelEnd 
+{
+
+};
+struct PaintCan
+{
 
 };
 
@@ -160,7 +169,8 @@ enum class TEXTURE_ASSET_ID {
 	RUN4 = RUN3 + 1,
 	PENCIL = RUN4 + 1,
 	BACKGROUND = PENCIL + 1,
-	TEXTURE_COUNT = BACKGROUND + 1
+	PAINTCAN = PENCIL + 1,
+	TEXTURE_COUNT = PAINTCAN + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
