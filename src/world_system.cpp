@@ -409,6 +409,7 @@ void WorldSystem::handle_collisions() {
 
 void WorldSystem::next_level() {
 	if (level == maxLevel) {
+		level = 0;
 		restart_game();
 	}
 	else {
