@@ -66,7 +66,7 @@ private:
 	//level index
 	int level;
 	LevelManager levelManager;
-	int maxLevel = 3;
+	int maxLevel = 2;
 
 	float msPerFrame = 16.67;
 

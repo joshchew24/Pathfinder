@@ -179,8 +179,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
-	next_boulder_spawn -= elapsed_ms_since_last_update * current_speed;
-	if (registry.deadlys.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
+	next_boulder_spawn -= elapsed_ms_since_last_update * current_speed * 2;
+	if (level >= 1 && registry.deadlys.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
 		// Reset timer
 		next_boulder_spawn = (BOULDER_DELAY_MS / 2) + uniform_dist(rng) * (BOULDER_DELAY_MS / 2);
 		createBoulder(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), -100.f));
@@ -199,7 +199,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}	
 
-	if(!registry.deathTimers.has(player))
+	if(!registry.deathTimers.has(player) && level >= 2)
 	{
 		FrameCount += elapsed_ms_since_last_update;
 		if (FrameCount / msPerFrame >= FrameInterval) {
@@ -336,7 +336,9 @@ void WorldSystem::restart_game() {
 	// Center cursor to pencil location
 	glfwSetCursorPos(window, window_width_px / 2 - 25.f, window_height_px / 2 + 25.f);
 
-	advancedBoulder = createChaseBoulder(renderer, { window_width_px / 2, 100 });
+	if (level >= 2) {
+		advancedBoulder = createChaseBoulder(renderer, { window_width_px / 2, 100 });
+	}
 
 }
 
