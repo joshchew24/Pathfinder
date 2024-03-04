@@ -49,7 +49,7 @@ int main()
 		physics.step(elapsed_ms);
 		world.handle_collisions();
 		std::stringstream title_ss;
-		title_ss << "Level: ";// << level + 1;
+		title_ss << "Level: " << world.level + 1;
 		glfwSetWindowTitle(window, title_ss.str().c_str());
 
 		renderer.draw();
