@@ -129,6 +129,14 @@ std::vector<ColoredVertex> convexHull(std::vector<ColoredVertex> vertices, int n
 	return res;
 }
 
+void normalizeProj(vec2& proj) {
+	float magnitude = sqrt(proj.x * proj.x + proj.y * proj.y);
+	if (magnitude > 1e-9) {
+		proj.x /= magnitude;
+		proj.y /= magnitude;
+	}
+}
+
 // Separating Axis Theorem between mesh and motion entity
 bool SATcollision(const Mesh* mesh, const Motion& motion1, const Motion& motion2) {
 	float bot = motion2.position.y + abs(motion2.scale.y) / 2.f;
@@ -137,7 +145,6 @@ bool SATcollision(const Mesh* mesh, const Motion& motion1, const Motion& motion2
 	float left = motion2.position.x - abs(motion2.scale.x) / 2.f;
 	std::vector<ColoredVertex> vertices = convexHull(mesh->vertices, mesh->vertices.size());
 	std::vector<vec2> trsPositions = std::vector<vec2>();
-
 	// modify positions so they're in the right spots
 	for (int i = 0; i < vertices.size(); i++) {
 		trsPositions.push_back(translateRotateScale(vertices[i].position, motion1));
@@ -149,6 +156,7 @@ bool SATcollision(const Mesh* mesh, const Motion& motion1, const Motion& motion2
 				int j = i + 1;
 				j = j % trsPositions.size();
 				vec2 proj = { -(trsPositions[j].y - trsPositions[i].y), trsPositions[j].x - trsPositions[i].x };
+				normalizeProj(proj);
 				float min_r1 = INFINITY, max_r1 = -INFINITY;
 				for (int p = 0; p < trsPositions.size(); p++) {
 					float val = (trsPositions[p].x * proj.x + trsPositions[p].y * proj.y);
@@ -163,14 +171,14 @@ bool SATcollision(const Mesh* mesh, const Motion& motion1, const Motion& motion2
 				float botLeft = bot * proj.y + left * proj.x;
 				float botRight = bot * proj.y + right * proj.x;
 				min_r2 = min(min_r2, topLeft);
-				min_r2 = min(topLeft, topRight);
-				min_r2 = min(topRight, botLeft);
-				min_r2 = min(botLeft, botRight);
+				min_r2 = min(min_r2, topRight);
+				min_r2 = min(min_r2, botLeft);
+				min_r2 = min(min_r2, botRight);
 
 				max_r2 = max(max_r2, topLeft);
-				max_r2 = max(topLeft, topRight);
-				max_r2 = max(topRight, botLeft);
-				max_r2 = max(botLeft, botRight);
+				max_r2 = max(max_r2, topRight);
+				max_r2 = max(max_r2, botLeft);
+				max_r2 = max(max_r2, botRight);
 
 				if (!(max_r2 >= min_r1 && max_r1 >= min_r2)) {
 					return false;
@@ -195,20 +203,23 @@ bool SATcollision(const Mesh* mesh, const Motion& motion1, const Motion& motion2
 					max_r1 = max(max_r1, val);
 				}
 
-				float min_r2, max_r2;
+				float min_r2 = FLT_MAX, max_r2 = FLT_MIN;
 
 				// do top left
 				float topLeft = top * proj.y + left * proj.x;
 				float topRight = top * proj.y + right * proj.x;
 				float botLeft = bot * proj.y + left * proj.x;
 				float botRight = bot * proj.y + right * proj.x;
-				min_r2 = min(topLeft, topRight);
-				min_r2 = min(topRight, botLeft);
-				min_r2 = min(botLeft, botRight);
+				min_r2 = min(min_r2, topLeft);
+				min_r2 = min(min_r2, topRight);
+				min_r2 = min(min_r2, botLeft);
+				min_r2 = min(min_r2, botRight);
 
-				max_r2 = max(topLeft, topRight);
-				max_r2 = max(topRight, botLeft);
-				max_r2 = max(botLeft, botRight);
+				max_r2 = max(max_r2, topLeft);
+				max_r2 = max(max_r2, topRight);
+				max_r2 = max(max_r2, botLeft);
+				max_r2 = max(max_r2, botRight);
+
 
 				if (!(max_r2 >= min_r1 && max_r1 >= min_r2)) {
 					return false;
