@@ -34,6 +34,7 @@ int main()
 	world.init(&renderer);
 
 	// variable timestep loop
+	int frame_counter = 20;
 	auto t = Clock::now();
 	while (!world.is_over()) {
 		// Processes system messages, if this wasn't present the window would become unresponsive
@@ -48,9 +49,12 @@ int main()
 		world.step(elapsed_ms);
 		physics.step(elapsed_ms);
 		world.handle_collisions();
-		std::stringstream title_ss;
-		title_ss << "Level: " << world.level + 1;
-		glfwSetWindowTitle(window, title_ss.str().c_str());
+		if (frame_counter++ == 20) {
+			frame_counter = 0;
+			std::stringstream title_ss;
+			title_ss << "Pathfinder - Level: " << world.level + 1 << ", FPS: " << (int) (1000/elapsed_ms);
+			glfwSetWindowTitle(window, title_ss.str().c_str());
+		}
 
 		renderer.draw();
 	}
