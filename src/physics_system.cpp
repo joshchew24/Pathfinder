@@ -80,18 +80,18 @@ void PhysicsSystem::step(float elapsed_ms)
 				motion.velocity.y = 0.f;
 			}
 			
-      if (motion.velocity.x != 0.0 && motion.acceleration.x != 0.0) {
-        // this conditional ASSUMES we are decelerating due to friction, and should stop at 0
-        if (abs(motion.velocity.x) < abs(motion.acceleration.x)) {
-          motion.velocity.x = 0.0;
-        }
-        else {
-			motion.velocity.x = clamp(motion.velocity.x + motion.acceleration.x, -TERMINAL_VELOCITY, TERMINAL_VELOCITY);
-        }
-      }
-      else {
-        motion.acceleration.x = 0.0f;
-      }
+			if (motion.velocity.x != 0.0 && motion.acceleration.x != 0.0) {
+				// this conditional ASSUMES we are decelerating due to friction, and should stop at 0
+				if (abs(motion.velocity.x) < abs(motion.acceleration.x)) {
+					motion.velocity.x = 0.0;
+				}
+				else {
+					motion.velocity.x = clamp(motion.velocity.x + motion.acceleration.x, -TERMINAL_VELOCITY, TERMINAL_VELOCITY);
+				}
+			}
+			else {
+				motion.acceleration.x = 0.0f;
+			}
 		}
 		motion.position += motion.velocity * step_seconds;
 	}
