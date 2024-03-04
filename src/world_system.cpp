@@ -164,7 +164,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 
 	Motion& pmotion = registry.motions.get(player);
-	vec2 pPosition = pmotion.position;
+	//vec2 pPosition = pmotion.position;
 
 	// if entity is player and below window screen
 	if (pmotion.position.y - abs(pmotion.scale.y) / 2 > window_height_px) {
@@ -181,18 +181,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		createBoulder(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), -100.f));
 	}
 
-	// iterate over boulders and use lerp to move towards player
-	for (int i = (int)motions_registry.components.size() - 1; i >= 0; --i) {
-		Motion& motion = motions_registry.components[i];
-		if (registry.deadlys.has(motions_registry.entities[i]) && !registry.advancedAIs.has(motions_registry.entities[i])) {
-			vec2 bPosition = motion.position;
-			vec2 toPlayer = normalize(pPosition - bPosition);
-			if (bPosition.y < pPosition.y + 50.f) {
-				motion.position.x = lerp<float>(bPosition.x, pPosition.x, 0.002f);
-				motion.velocity.x += toPlayer.x * 0.2f;
-			}
-		}
-	}	
 
 	if(!registry.deathTimers.has(player))
 	{
@@ -329,6 +317,9 @@ void WorldSystem::restart_game() {
 	
 	// Create pencil
 	pencil = createPencil(renderer, { window_width_px / 2, window_height_px / 2 }, { 50.f, 50.f });
+
+	// Create test paint can
+	createPaintCan(renderer, { window_width_px / 4, window_height_px / 3 }, { 25.f, 50.f });
 
 	// Center cursor to pencil location
 	glfwSetCursorPos(window, window_width_px / 2 - 25.f, window_height_px / 2 + 25.f);
