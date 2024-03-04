@@ -41,7 +41,8 @@ class RenderSystem {
 			textures_path("Run2.png"),
 			textures_path("Run3.png"),
 			textures_path("Run4.png"),
-			textures_path("pencil.png")
+			textures_path("pencil.png"),
+			textures_path("background0.png")
       };
 
 	std::array<GLuint, effect_count> effects;
@@ -51,7 +52,8 @@ class RenderSystem {
 		shader_path("egg"),
 		shader_path("chicken"),
 		shader_path("textured"),
-		shader_path("wind") };
+		shader_path("wind"),
+		shader_path("background")};
 
 	std::array<GLuint, geometry_count> vertex_buffers;
 	std::array<GLuint, geometry_count> index_buffers;
