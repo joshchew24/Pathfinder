@@ -4,7 +4,6 @@
 
 // stlib
 #include <cassert>
-#include <sstream>
 
 #include "physics_system.hpp"
 #include "movement_system.hpp"
@@ -147,10 +146,6 @@ std::pair<float, float> advancedAIlerp(float x0, float y0, float x1, float y1, f
 
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
-	std::stringstream title_ss;
-	title_ss << "Level: " << level + 1;
-	glfwSetWindowTitle(window, title_ss.str().c_str());
-
 	// Remove debug info from the last step
 	while (registry.debugComponents.entities.size() > 0)
 	    registry.remove_all_components_of(registry.debugComponents.entities.back());
