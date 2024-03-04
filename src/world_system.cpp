@@ -186,18 +186,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		createBoulder(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), -100.f));
 	}
 
-	// iterate over boulders and use lerp to move towards player
-	//for (int i = (int)motions_registry.components.size() - 1; i >= 0; --i) {
-	//	Motion& motion = motions_registry.components[i];
-	//	if (registry.deadlys.has(motions_registry.entities[i])) {
-	//		vec2 bPosition = motion.position;
-	//		vec2 toPlayer = normalize(pPosition - bPosition);
-	//		if (bPosition.y < pPosition.y + 50.f) {
-	//			motion.position.x = lerp<float>(bPosition.x, pPosition.x, 0.002f);
-	//			motion.velocity.x += toPlayer.x * 0.2f;
-	//		}
-	//	}
-	//}	
 
 	if(!registry.deathTimers.has(player))
 	{
