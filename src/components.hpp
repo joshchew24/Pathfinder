@@ -24,7 +24,9 @@ struct Pencil
 // Top-level drawing abstraction component
 struct Drawing
 {
-
+	size_t first_point_idx = 0; 	// index into point components
+	size_t num_points = 0;		// incremented while drawing
+	size_t drawn_points = 0; 	//  == num_points when drawing is finished
 };
 
 // Drawn Points
@@ -38,8 +40,10 @@ struct DrawnPoint
 struct DrawnLine
 {
 	Entity drawing;
-	vec2 p1;
-	vec2 p2;
+	// Indices of DrawnPoint components
+	// need to store index instead of ptr due to vector resize memory mgmt
+	size_t p1_idx; 
+	size_t p2_idx; 
 };
 
 // Eagles have a hard shell

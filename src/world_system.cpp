@@ -227,6 +227,7 @@ void WorldSystem::restart_game() {
 	current_speed = 1.f;
 
 	movementSystem.reset();
+	drawings.reset();
 
 	// Remove all entities that we created
 	// All that have a motion, we could also iterate over all bug, eagles, ... but that would be more cumbersome

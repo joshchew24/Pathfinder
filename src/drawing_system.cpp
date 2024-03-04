@@ -9,19 +9,19 @@ static const float pointdraw_freq_ms = 50.f;
 DrawingSystem::DrawingSystem() {
 }
 
-
-// DrawingSystem::~DrawingSystem() {
-// 	// Destroy all points and lines
-// }
-//
-// DrawingSystem::reset() {
-// }
+void DrawingSystem::reset() {
+	registry.drawnLines.clear();
+	registry.drawnPoints.clear();
+	registry.drawings.clear();
+}
 
 
 void DrawingSystem::start_drawing() {
-	// Create new drawing
+	// Create new drawing (and its first point)
 	Entity drawing = Entity();
-	registry.drawings.insert(drawing, {});
+	unsigned int point_idx = registry.drawnPoints.entities.size();
+
+	registry.drawings.insert(drawing, {point_idx, 0, 1});
 	is_drawing = true;
 	printf("starting drawing!\n");
 } 
@@ -30,7 +30,7 @@ void DrawingSystem::start_drawing() {
 void DrawingSystem::stop_drawing() {
 	// Stop drawing and signal to our system instance to construct lines
 	is_drawing = false;
-	just_finished_drawing = true;
+	just_finished_drawing = true; // TODO: replace this mechanism with rendering while drawing
 	printf("stopping drawing!\n");
 }
 
@@ -39,39 +39,26 @@ void DrawingSystem::setDrawPos(const vec2 &pos) {
 }
 
 void build_lines() {
-	auto& points = registry.drawnPoints.entities;
-	auto& lines = registry.drawnLines.entities;
-	if (points.size() < 2)
-		return;
+	for (auto& drawing_ent : registry.drawings.entities) {
+		Drawing& drawing = registry.drawings.get(drawing_ent);
+		if (drawing.drawn_points >= drawing.num_points) 
+			continue; // don't do redundant work
+		if (drawing.num_points < 2)
+			continue; // not enough points in drawing to make a line
 
-	// Only build new lines; don't waste resources on re-building
-	if (points.size() - 1 <= lines.size()) // lines are drawn for every point already
-	       return;
+		size_t first = drawing.first_point_idx;
+		size_t last = first + drawing.num_points;
 
-	for (unsigned int i = lines.size();
-
-	DrawnPoint& prev_point = registry.drawnPoints.get(points[0]);
-	DrawnPoint& curr_point = registry.drawnPoints.get(points[1]);
-
-	for (auto& point_ent : points) {
-		curr_point = registry.drawnPoints.get(point_ent);
-		
-		if (prev_point.drawing != curr_point.drawing) {
-			prev_point = curr_point;
-			continue;
+		// Hold indexes into point component array
+		size_t prev_idx = first;
+		for (size_t point_idx = first + 1; point_idx < last; point_idx++) {
+			Entity line_ent = Entity();
+			registry.drawnLines.insert(line_ent, {drawing_ent, prev_idx, point_idx});	
+			prev_idx = point_idx;
+			drawing.drawn_points++;
+			printf("drawn points: %d\n", drawing.drawn_points);
 		}
-	
-		if (curr_point.position != prev_point.position) {
-			Entity line = Entity();
-			registry.drawnLines.insert(line, 
-					{curr_point.drawing, 
-					prev_point.position, curr_point.position});
-		}
-
-		prev_point = curr_point;
 	}
-
-	printf("making lines...\n");
 }
 
 void DrawingSystem::step(float elapsed_ms) {
@@ -84,24 +71,37 @@ void DrawingSystem::step(float elapsed_ms) {
 	ms_since_last_update -= pointdraw_freq_ms;
 
 	if (just_finished_drawing) {
-		build_lines();
+		// Drawing finished trigger; do whatever u want here
 		just_finished_drawing = false;
 	}
 	if (is_drawing) {
-		auto drawing = registry.drawings.entities.back();
+		auto& drawing_ent = registry.drawings.entities.back();	
+		auto& drawing = registry.drawings.get(drawing_ent);
+		auto& points = registry.drawnPoints.components;
+		if (points.size() != 0 && points.back().position == drawPos)
+			return; // avoid duplicate points
+
 		Entity point = Entity();
-		registry.drawnPoints.insert(point, {drawing, drawPos});
+		registry.drawnPoints.insert(point, {drawing_ent, drawPos});
+		drawing.num_points++;
+		printf("# points: %d\n", drawing.num_points);
 	}
+
+	build_lines();
 }
 
 
 void DrawingSystem::drawLines() {
 	auto to_draw = registry.drawnLines.entities;
-	for (auto& line_ent : to_draw) {
-		auto& line = registry.drawnLines.get(line_ent);
-		createLine(line.p1, vec2(20, 20));
-		createLine(line.p2, vec2(20,20));
-	}	
+	vec2 rect{20,20};
+ 	for (auto& line_ent : to_draw) {
+		DrawnLine& line = registry.drawnLines.get(line_ent);
+		auto& p1 = registry.drawnPoints.components[line.p1_idx];
+		auto& p2 = registry.drawnPoints.components[line.p2_idx];
+		createLine(p1.position, rect);
+		createLine(p2.position, rect);
+ 	}
+	
 }
 
 
@@ -112,4 +112,5 @@ bool DrawingSystem::line_collides(Entity& line,
 	// Calculate y values bounded by the overlap of (bbox U line) x coords
 	// plugged into the line eqn
 	// Check if bounded y is within [min_y, max_y]
+	return false;
 }
