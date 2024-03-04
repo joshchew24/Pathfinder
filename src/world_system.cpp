@@ -247,7 +247,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 				currentNode++;
 			}
 			else {
-				auto interpolatedPoint = advancedAIlerp(x0, y0, x1, y1, 0.057);
+				auto interpolatedPoint = advancedAIlerp(x0, y0, x1, y1, 0.05);
 				eMotion.position.x = interpolatedPoint.first;
 				eMotion.position.y = interpolatedPoint.second;
 			}
@@ -296,7 +296,7 @@ void WorldSystem::createLevel() {
 		initWall w = currentLevel.walls[i];
 		createWall(renderer, {w.x, w.y}, {w.xSize, w.ySize});
 		int platformHeight = abs(w.y - window_height_px) + w.ySize / 2 + 2;
-		createPlatform(renderer, {w.x, window_height_px - platformHeight}, {w.xSize - 1, 10.f});
+		createPlatform(renderer, {w.x, window_height_px - platformHeight}, {w.xSize - 10, 10.f});
 	}
 	createCheckpoint(renderer, { currentLevel.checkpoint.first, currentLevel.checkpoint.second });
 	createEndpoint(renderer, { currentLevel.endPoint.first, currentLevel.endPoint.second });
@@ -326,6 +326,8 @@ void WorldSystem::restart_game() {
 
 	// Debugging for memory/component leaks
 	registry.list_all_components();
+	
+	createBackground(renderer);
 
 	//platform
 	createLevel();
@@ -377,7 +379,15 @@ void WorldSystem::handle_collisions() {
 			}
 			else if (registry.walls.has(entity_other)) {
 				Motion& pMotion = registry.motions.get(entity);
-				pMotion.onlyGoDown = true;
+				Motion& wMotion = registry.motions.get(entity_other);
+				float leftMax = wMotion.position.x - wMotion.scale.x / 2 + 50;
+				float rightMax = wMotion.position.x + wMotion.scale.x / 2 - 50;
+				if (pMotion.position.x <= leftMax) {
+					pMotion.position.x = leftMax - 70;
+				}
+				else {
+					pMotion.position.x = rightMax + 70;
+				}
 			}
 
 			// Checking Player - Checkpoint collisions
@@ -457,18 +467,18 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	// player movement
 	if ((key == movementSystem.RIGHT_KEY || key == movementSystem.LEFT_KEY) && !registry.deathTimers.has(player)) {
 		RenderRequest& renderRequest = registry.renderRequests.get(player);
-		if (action == GLFW_PRESS) {
+		if (action == GLFW_PRESS || action == GLFW_REPEAT) {
 			movementSystem.press(key);
 			if (key == movementSystem.LEFT_KEY) {
 				if (currentRunningTexture == (int)TEXTURE_ASSET_ID::RUN4) {
-					currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER;
+					currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER - 1;
 				}
 				currentRunningTexture++;
 				renderRequest.used_texture = static_cast<TEXTURE_ASSET_ID>(currentRunningTexture);
 			}
 			else if (key == movementSystem.RIGHT_KEY) {
 				if (currentRunningTexture == (int)TEXTURE_ASSET_ID::RUN4) {
-					currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER;
+					currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER - 1;
 				}
 				currentRunningTexture++;
 				renderRequest.used_texture = static_cast<TEXTURE_ASSET_ID>(currentRunningTexture);
