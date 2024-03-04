@@ -151,7 +151,7 @@ Entity createChaseBoulder(RenderSystem* renderer, vec2 position)
 	motion.notAffectedByGravity = true;
 
 	// Setting initial values, scale is negative to make it face the opposite way
-	motion.scale = vec2({ -BOULDER_BB_WIDTH, BOULDER_BB_HEIGHT });
+	motion.scale = vec2({ -BOULDER_BB_WIDTH / 1.3, BOULDER_BB_HEIGHT / 1.3 });
 
 	registry.deadlys.emplace(entity);
 	registry.advancedAIs.emplace(entity);
@@ -239,6 +239,32 @@ Entity createEndpoint(RenderSystem* renderer, vec2 position)
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::LEVELEND,
+		  EFFECT_ASSET_ID::TEXTURED,
+		  GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity createBackground(RenderSystem* renderer)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = {window_width_px/ 2, window_height_px / 2};
+	motion.scale = { window_width_px - 10, window_height_px - 10 };
+	motion.fixed = true;
+
+	// Create a RenderRequest for the checkpoint flag
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::BACKGROUND,
 		  EFFECT_ASSET_ID::TEXTURED,
 		  GEOMETRY_BUFFER_ID::SPRITE });
 

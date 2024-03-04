@@ -46,15 +46,15 @@ void PhysicsSystem::step(float elapsed_ms)
 			continue;
 		}
 
-		if (motion.onlyGoDown) {
-			motion.acceleration.x = 0;
-			motion.velocity.x = 0;
-			motion.acceleration.y = gravity;
-			motion.velocity.y = clamp(motion.velocity.y + motion.acceleration.y, -400.f, 400.f);
-			motion.position += motion.velocity * step_seconds;
-			motion.onlyGoDown = false;
-			continue;
-		}
+		//if (motion.onlyGoDown) {
+		//	motion.acceleration.x = 0;
+		//	motion.velocity.x = 0;
+		//	motion.acceleration.y = gravity;
+		//	motion.velocity.y = clamp(motion.velocity.y + motion.acceleration.y, -400.f, 400.f);
+		//	motion.position += motion.velocity * step_seconds;
+		//	motion.onlyGoDown = false;
+		//	continue;
+		//}
 		// apply gravity
 		if (motion.grounded) {
 			motion.acceleration.y = 0.f;
