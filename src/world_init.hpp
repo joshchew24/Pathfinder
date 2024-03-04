@@ -22,3 +22,5 @@ Entity createPencil(RenderSystem* renderer, vec2 pos, vec2 size);
 Entity createCheckpoint(RenderSystem* renderer, vec2 pos);
 
 Entity createWall(RenderSystem* renderer, vec2 position, vec2 size);
+
+Entity createPaintCan(RenderSystem* renderer, vec2 pos, vec2 size);

@@ -43,6 +43,16 @@ struct Wall
 
 };
 
+struct Boulder
+{
+
+};
+
+struct PaintCan
+{
+
+};
+
 // All data relevant to the shape and motion of entities
 struct Motion {
 	vec2 position = { 0, 0 };
@@ -147,7 +157,8 @@ enum class TEXTURE_ASSET_ID {
 	RUN3 = RUN2 + 1,
 	RUN4 = RUN3 + 1,
     PENCIL = RUN4 + 1,
-	TEXTURE_COUNT = PENCIL + 1
+	PAINTCAN = PENCIL + 1,
+	TEXTURE_COUNT = PAINTCAN + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 

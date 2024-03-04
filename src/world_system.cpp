@@ -148,7 +148,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 
 	Motion& pmotion = registry.motions.get(player);
-	vec2 pPosition = pmotion.position;
+	//vec2 pPosition = pmotion.position;
 
 	// if entity is player and below window screen
 	if (pmotion.position.y - abs(pmotion.scale.y) / 2 > window_height_px) {
@@ -166,17 +166,17 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 
 	// iterate over boulders and use lerp to move towards player
-	for (int i = (int)motions_registry.components.size() - 1; i >= 0; --i) {
-		Motion& motion = motions_registry.components[i];
-		if (registry.deadlys.has(motions_registry.entities[i])) {
-			vec2 bPosition = motion.position;
-			vec2 toPlayer = normalize(pPosition - bPosition);
-			if (bPosition.y < pPosition.y + 50.f) {
-				motion.position.x = lerp<float>(bPosition.x, pPosition.x, 0.002f);
-				motion.velocity.x += toPlayer.x * 0.2f;
-			}
-		}
-	}	
+	//for (int i = (int)motions_registry.components.size() - 1; i >= 0; --i) {
+	//	Motion& motion = motions_registry.components[i];
+	//	if (registry.deadlys.has(motions_registry.entities[i])) {
+	//		vec2 bPosition = motion.position;
+	//		vec2 toPlayer = normalize(pPosition - bPosition);
+	//		if (bPosition.y < pPosition.y + 50.f) {
+	//			motion.position.x = lerp<float>(bPosition.x, pPosition.x, 0.002f);
+	//			motion.velocity.x += toPlayer.x * 0.2f;
+	//		}
+	//	}
+	//}	
 
 
 
@@ -237,6 +237,8 @@ void WorldSystem::restart_game() {
 	registry.list_all_components();
 
 	//platform
+		createPlatform(renderer, { window_width_px/2, window_height_px/3}, { 100.f, 50.f });
+
     	createWall(renderer, { 900, window_height_px - 90 }, { 1000.f, 600.f });
 
     	createPlatform(renderer, { 900, window_height_px - 392 }, { 999.f, 5.f });
@@ -251,9 +253,9 @@ void WorldSystem::restart_game() {
 
     	createPlatform(renderer, { window_width_px - 200, window_height_px - 262 }, { 499.f, 5.f });
 
-
-
     	createCheckpoint(renderer, { window_width_px - 300, window_height_px - 305 });
+
+		createPaintCan(renderer, {window_width_px / 3, window_height_px / 4}, { 25.f, 50.f });
 
 	player = createOliver(renderer, { window_width_px/2, 460 });
 	registry.colors.insert(player, {1, 0.8f, 0.8f});
@@ -301,7 +303,7 @@ void WorldSystem::handle_collisions() {
 				}
 			}
 			else if (registry.walls.has(entity_other)) {
-				Motion& pMotion = registry.motions.get(entity);
+				pMotion = registry.motions.get(entity);
 				pMotion.onlyGoDown = true;
 			}
 
