@@ -1,6 +1,14 @@
 #include "world_init.hpp"
 #include "tiny_ecs_registry.hpp"
 
+vec2 translateRotateScale(vec3 position, const Motion& motion) {
+	vec2 positions = { position.x, position.y };
+	float scaled_x = positions[0] * motion.scale.x;
+	float scaled_y = positions[1] * motion.scale.y;
+	positions = { scaled_x * cosf(motion.angle) - scaled_y * sinf(motion.angle) + motion.position.x, scaled_x * sinf(motion.angle) + scaled_y * cosf(motion.angle) + motion.position.y };
+	return positions;
+}
+
 Entity createOliver(RenderSystem* renderer, vec2 pos)
 {
 	auto entity = Entity();
