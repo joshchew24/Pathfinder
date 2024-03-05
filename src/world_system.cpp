@@ -125,7 +125,7 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
 	fprintf(stderr, "Loaded music\n");
 
 	//init levels
-	WorldSystem::level = 0;
+	WorldSystem::level = 2;
 	LevelManager lm;
 	lm.initLevel();
 	lm.printLevelsInfo();
@@ -187,7 +187,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		FrameCount += elapsed_ms_since_last_update;
 		if (FrameCount / msPerFrame >= FrameInterval) {
 			aiSystem.updateGrid(levelManager.levels[level].walls);
-			//System.printGrid();
+			//aiSystem.printGrid();
 			Motion& eMotion = registry.motions.get(advancedBoulder);
 			Motion& pMotion = registry.motions.get(player);
 			bestPath = aiSystem.bestPath(eMotion, pMotion);
@@ -325,6 +325,8 @@ void WorldSystem::restart_game() {
 
 	if (level >= 2) {
 		advancedBoulder = createChaseBoulder(renderer, { window_width_px / 2, 100 });
+		bestPath = {};
+		currentNode = 0;
 		createPaintCan(renderer, { window_width_px - 300, window_height_px / 2 }, { 25.f, 50.f });
 	}
 
