@@ -12,6 +12,7 @@ const int gridHeight = window_height_px / gridSize;
 
 int grid[gridHeight][gridWidth];
 
+
 void AISystem::init() {
     for (int i = 0; i < gridHeight; i++) {
         for (int j = 0; j < gridWidth; j++) {
@@ -107,7 +108,47 @@ std::vector<std::pair<int, int>> AISystem::bestPath(Motion& eMotion, Motion& pMo
     return path;
 }
 
-
+//// Define function pointers for chasePlayer and canSeePlayer
+//typedef void (*ActionFunction)(Entity, const vec2&, ECSRegistry&);
+//typedef bool (*ConditionFunction)(Entity, const vec2&, ECSRegistry&);
+//
+//struct DecisionNode {
+//    ConditionFunction condition;
+//    ActionFunction action;
+//    DecisionNode* true_branch;
+//    DecisionNode* false_branch;
+//};
+//
+//DecisionNode* createDecisionTree() {
+//    // Leaf node for chase player action
+//    DecisionNode* chaseNode = new DecisionNode;
+//    chaseNode->condition = canSeePlayer;
+//    chaseNode->action = chasePlayer;
+//    chaseNode->true_branch = nullptr;
+//    chaseNode->false_branch = nullptr;
+//
+//    // Root node
+//    DecisionNode* rootNode = chaseNode;
+//
+//    return rootNode;
+//}
+//
+//void traverseDecisionTree(DecisionNode* node, Entity boulderEntity, const vec2& player_position, ECSRegistry& registry) {
+//    if (node == nullptr) {
+//        return;
+//    }
+//
+//    // Evaluate condition
+//    if (node->condition(boulderEntity, player_position, registry)) {
+//        // Condition is true, perform action
+//        node->action(boulderEntity, player_position, registry);
+//        traverseDecisionTree(node->true_branch, boulderEntity, player_position, registry);
+//    }
+//    else {
+//        // Condition is false, traverse false branch
+//        traverseDecisionTree(node->false_branch, boulderEntity, player_position, registry);
+//    }
+//}
 
 void AISystem::step(float elapsed_ms) {
     elapsed_ms_since_last_update += elapsed_ms;
@@ -138,26 +179,55 @@ void AISystem::step(float elapsed_ms) {
 
     if (player_found) {
         // Boulder AI
-        Motion& pmotion = registry.motions.get(player);
-        vec2 pPosition = pmotion.position;
-        vec2 pScale = pmotion.scale;
-        // Using lerp to move towards player
-        for (int i = (int)motions_registry.components.size() - 1; i >= 0; --i) {
-            Motion& motion = motions_registry.components[i];
-            Entity entity = motions_registry.entities[i];
-            if (registry.boulders.has(entity)) {
-                vec2 bPosition = motion.position;
-                vec2 toPlayer = normalize(pPosition - bPosition);
-                if (hasLineOfSight(vec2(bPosition.x, bPosition.y + motion.scale.y/2), pPosition)) {
-                    vec2 targetVelocity = toPlayer * 300.f;
-                    motion.position.x = lerp<float>(bPosition.x, pPosition.x, 0.003f);
-                    motion.velocity.x = lerp<float>(motion.velocity.x, targetVelocity.x, 0.5f);
-                    motion.acceleration.y = motion.acceleration.y * 10;
-                }
+        auto& boulderRegistry = registry.boulders;
+        for (auto& boulderEntity : boulderRegistry.entities) {
+            // Check if the boulder can see the player
+            if (canSeePlayer(boulderEntity, vec2(player_position.x, player_position.y), registry)) {
+                // Chase the player
+                chasePlayer(boulderEntity, player_position, registry);
             }
         }
         // PaintCan AI
-        updatePaintCanMovement(player_position);
+        auto& paintCanRegistry = registry.paintCans;
+        auto& platformContainer = registry.platforms;
+        auto& motionRegistry = registry.motions;
+        float safeDistance = 150.f;
+
+        for (auto& paintCanEntity : paintCanRegistry.entities) {
+            Motion& paintCanMotion = motionRegistry.get(paintCanEntity);
+            if (!paintCanMotion.grounded) continue;
+            bool playerIsClose = glm::distance(paintCanMotion.position, player_position) < safeDistance;
+
+            // Move away from player if too close, ignoring platform edges
+            if (playerIsClose) {
+                if (paintCanMotion.position.x < player_position.x) {
+                    paintCanMotion.velocity.x = -200.f;
+                }
+                else {
+                    paintCanMotion.velocity.x = 200.f;
+                }
+            }
+            else {
+                for (auto& platformEntity : platformContainer.entities) {
+                    Motion& platformMotion = motionRegistry.get(platformEntity);
+                    if (rectangleCollides(paintCanMotion, platformMotion)) {
+                        double platformLeftEdge = platformMotion.position.x - (platformMotion.scale.x / 2.0);
+                        double platformRightEdge = platformMotion.position.x + (platformMotion.scale.x / 2.0);
+
+                        // Check and reverse direction at platform edges 
+                        if (!playerIsClose && (paintCanMotion.position.x <= platformLeftEdge + paintCanMotion.scale.x ||
+                            paintCanMotion.position.x >= platformRightEdge - paintCanMotion.scale.x)) {
+                            paintCanMotion.velocity.x *= -1;
+                        }
+
+                        if (paintCanMotion.velocity.x == 0) {
+                            paintCanMotion.velocity.x = (rand() % 2) == 0 ? -200.f : 200.f;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -173,70 +243,25 @@ bool AISystem::hasLineOfSight(const vec2& start, const vec2& end) {
         Motion& motion = motions_registry.components[i];
         Entity entity = motions_registry.entities[i];
 
-        if (!registry.platforms.has(entity)) continue;
+        if (registry.platforms.has(entity)) {
+            vec2 platformPos = motion.position;
+            vec2 platformSize = motion.scale;
 
-        vec2 platformPos = motion.position;
-        vec2 platformSize = motion.scale;
+            // Calculate platform's AABB
+            float platformLeft = platformPos.x - platformSize.x / 2.0f;
+            float platformRight = platformPos.x + platformSize.x / 2.0f;
+            float platformTop = platformPos.y + platformSize.y / 2.0f;
+            float platformBottom = platformPos.y - platformSize.y / 2.0f;
 
-        // Calculate platform's AABB
-        float platformLeft = platformPos.x - platformSize.x / 2.0f;
-        float platformRight = platformPos.x + platformSize.x / 2.0f;
-        float platformTop = platformPos.y + platformSize.y / 2.0f;
-        float platformBottom = platformPos.y - platformSize.y / 2.0f;
+            bool intersectsX = (platformLeft <= maxX && platformRight >= minX);
+            bool intersectsY = (platformBottom <= maxY && platformTop >= minY);
 
-        // Check if the platform intersects the line range in x and y 
-        bool intersectsX = (platformLeft <= maxX && platformRight >= minX);
-        bool intersectsY = (platformBottom <= maxY && platformTop >= minY);
-
-        if (intersectsX && intersectsY) {
-            return false;
-        }
-    }
-    return true;
-}
-
-void AISystem::updatePaintCanMovement(const vec2& player_position) {
-    auto& paintCanRegistry = registry.paintCans;
-    auto& platformContainer = registry.platforms;
-    auto& motionRegistry = registry.motions;
-    float safeDistance = 150.f;
-
-    for (auto& paintCanEntity : paintCanRegistry.entities) {
-        Motion& paintCanMotion = motionRegistry.get(paintCanEntity);
-        if (!paintCanMotion.grounded) continue;
-
-        bool playerIsClose = glm::distance(paintCanMotion.position, player_position) < safeDistance;
-
-        // Move away from player if too close, ignoring platform edges
-        if (playerIsClose) {
-            if (paintCanMotion.position.x < player_position.x) {
-                paintCanMotion.velocity.x = -200.f; 
-            }
-            else {
-                paintCanMotion.velocity.x = 200.f; 
-            }
-        }
-        else {
-            for (auto& platformEntity : platformContainer.entities) {
-                Motion& platformMotion = motionRegistry.get(platformEntity);
-                if (rectangleCollides(paintCanMotion, platformMotion)) {
-                    double platformLeftEdge = platformMotion.position.x - (platformMotion.scale.x / 2.0);
-                    double platformRightEdge = platformMotion.position.x + (platformMotion.scale.x / 2.0);
-
-                    // Check and reverse direction at platform edges 
-                    if (!playerIsClose && (paintCanMotion.position.x <= platformLeftEdge + paintCanMotion.scale.x ||
-                        paintCanMotion.position.x >= platformRightEdge - paintCanMotion.scale.x)) {
-                        paintCanMotion.velocity.x *= -1;
-                    }
-
-                    if (paintCanMotion.velocity.x == 0) {
-                        paintCanMotion.velocity.x = (rand() % 2) == 0 ? -200.f : 200.f;
-                    }
-                    break;
-                }
+            if (intersectsX && intersectsY) {
+                return false;
             }
         }
     }
+    return true; 
 }
 
 bool AISystem::rectangleCollides(const Motion& motion1, const Motion& motion2) {
@@ -245,4 +270,29 @@ bool AISystem::rectangleCollides(const Motion& motion1, const Motion& motion2) {
     bool x_val = (motion1.position[0] - abs(motion1.scale.x / 2.f)) < (motion2.position[0] + abs(motion2.scale.x) / 2.f) &&
         (motion2.position[0] - abs(motion2.scale.x / 2.f) < (motion1.position[0] + abs(motion1.scale.x) / 2.f));
     return y_val && x_val;
+}
+
+// Function to check if the boulder can see the player
+bool AISystem::canSeePlayer(Entity& boulderEntity, const vec2& playerPosition, ECSRegistry& registry) {
+    auto& motions_registry = registry.motions;
+    Motion& boulderMotion = motions_registry.get(boulderEntity);
+    vec2 boulderPosition = boulderMotion.position;
+
+    // Check if there's a line of sight between the boulder and the player
+    return hasLineOfSight(boulderPosition, playerPosition);
+}
+
+// Function to make the boulder chase the player
+void AISystem::chasePlayer(Entity& boulderEntity, const vec2& playerPosition, ECSRegistry& registry) {
+    auto& motions_registry = registry.motions;
+    Motion& boulderMotion = motions_registry.get(boulderEntity);
+    vec2 boulderPosition = boulderMotion.position;
+    vec2 toPlayer = normalize(playerPosition - boulderPosition);
+
+    // Set target velocity towards the player
+    vec2 targetVelocity = toPlayer * 300.f;
+
+    // Move the boulder towards the player using linear interpolation
+    boulderMotion.position.x = lerp<float>(boulderPosition.x, playerPosition.x, 0.003f);
+    boulderMotion.velocity.x = lerp<float>(boulderMotion.velocity.x, targetVelocity.x, 0.5f);
 }

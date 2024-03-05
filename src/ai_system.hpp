@@ -33,13 +33,18 @@ public:
 
 	bool hasLineOfSight(const vec2& start, const vec2& end);
 
-	void updatePaintCanMovement(const vec2& player_position);
-
 	bool rectangleCollides(const Motion& motion1, const Motion& motion2);
+
+	bool canSeePlayer(Entity& boulderEntity, const vec2& playerPosition, ECSRegistry& registry);
+
+	void chasePlayer(Entity& boulderEntity, const vec2& playerPosition, ECSRegistry& registry);
 
 	// Linear intepolation
 	template<typename T>
 	T lerp(const T& a, const T& b, float t) {
 		return (1 - t) * a + t * b;
 	}
+
+
 };
+
