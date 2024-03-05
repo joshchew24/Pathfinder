@@ -9,6 +9,7 @@
 #include "physics_system.hpp"
 #include "render_system.hpp"
 #include "world_system.hpp"
+#include "drawing_system.hpp"
 #include "ai_system.hpp"
 
 using Clock = std::chrono::high_resolution_clock;
@@ -52,6 +53,8 @@ int main()
 		physics.step(elapsed_ms);
 		ai.step(elapsed_ms);
 		world.handle_collisions();
+		drawings.step(elapsed_ms);
+    
 		if (frame_counter++ == 20) {
 			frame_counter = 0;
 			std::stringstream title_ss;
