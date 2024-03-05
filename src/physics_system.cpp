@@ -76,6 +76,7 @@ int compare(const void* vp1, const void* vp2) {
 
 // Graham Scan for generating convex hull (and avoid concave mesh shapes)
 // reference code: https://www.geeksforgeeks.org/convex-hull-using-graham-scan/
+// changed so graham scan works on float values: orientation function now uses threshold instead of absolute 0 value
 std::vector<ColoredVertex> convexHull(std::vector<ColoredVertex> vertices, int n) {
 	std::vector<ColoredVertex> res = std::vector<ColoredVertex>();
 	float ymin = vertices[0].position.y;
@@ -138,6 +139,7 @@ void normalizeProj(vec2& proj) {
 }
 
 // Separating Axis Theorem between mesh and motion entity
+// modified so that the vertice positions would be translated, rotated, and scaled beforehand
 bool SATcollision(const Mesh* mesh, const Motion& motion1, const Motion& motion2) {
 	float bot = motion2.position.y + abs(motion2.scale.y) / 2.f;
 	float top = motion2.position.y - abs(motion2.scale.y) / 2.f;

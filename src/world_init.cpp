@@ -283,7 +283,7 @@ Entity createPaintCan(RenderSystem* renderer, vec2 position, vec2 size)
 	auto entity = Entity();
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::PAINT);
 	registry.meshPtrs.emplace(entity, &mesh);
 
 	// Initialize the motion
@@ -298,9 +298,9 @@ Entity createPaintCan(RenderSystem* renderer, vec2 position, vec2 size)
 	registry.paintCans.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::PAINTCAN,
-		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE });
+		{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
+		 EFFECT_ASSET_ID::CHICKEN,
+		 GEOMETRY_BUFFER_ID::PAINT });
 
 	return entity;
 }
