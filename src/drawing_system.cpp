@@ -94,16 +94,17 @@ void DrawingSystem::step(float elapsed_ms) {
 		point_ents.push_back(point);
 		prev_point = point;
 	}
-
-	for (auto& line : registry.drawnLines.entities)
-		check_player_collision(line);
 }
 
 
 
 // Takes 4 bounding box inputs to check against a particular line
-bool DrawingSystem::line_collides(vec2 line_p1, vec2 line_p2,
+bool DrawingSystem::line_collides(Entity& line,
 	       	float min_x, float min_y, float max_x, float max_y) {
+	const DrawnLine& l = registry.drawnLines.get(line);
+	const vec2& line_p1 = registry.drawnPoints.get(l.p1).position;
+	const vec2& line_p2 = registry.drawnPoints.get(l.p2).position;
+
 	// get upper/lower bounds on each dimension for the LINE
 	const float lower_x = std::min(line_p1[0], line_p2[0]);
 	const float upper_x = std::max(line_p1[0], line_p2[0]);
@@ -112,7 +113,7 @@ bool DrawingSystem::line_collides(vec2 line_p1, vec2 line_p2,
 	// Determine whether there is intersection
 	const bool y_intersects = !(upper_y < min_y || lower_y > max_y);
 	const bool x_intersects = !(upper_x < min_x || lower_x > max_x);
-	
+
 	if (!y_intersects || !x_intersects)
 		return false;
 
@@ -125,28 +126,35 @@ bool DrawingSystem::line_collides(vec2 line_p1, vec2 line_p2,
 	x_overlap[0] = std::max(min_x, lower_x);
 	x_overlap[1] = std::min(max_x, upper_x);
 	vec2 test_y = slope * x_overlap + intercept;
-	return (test_y[0] >= min_y && test_y[1] <= max_y);
-}
+	// Same for x against y values; we check both to guard against perfect vert/horizontal lines
+	vec2 y_overlap;
+	y_overlap[0] = std::max(min_y, lower_y);
+	y_overlap[1] = std::min(max_y, upper_y);
+	vec2 test_x = (1/slope) * (y_overlap - intercept);
 
-// Debug code for now; assumes bounding box is static w.r.t. scale
-bool DrawingSystem::check_player_collision(Entity& line) {
-	auto& player = registry.players.entities.back();
-	const DrawnLine& l = registry.drawnLines.get(line);
-	const DrawnPoint& p1 = registry.drawnPoints.get(l.p1);
-	const DrawnPoint& p2 = registry.drawnPoints.get(l.p2);
-	Motion& m = registry.motions.get(player); 
-	vec4 bbox;
-	bbox[0] = m.position[0] + abs(m.scale[0])/2;
-	bbox[1] = m.position[1] + abs(m.scale[1])/2;
-	bbox[2] = m.position[0] - abs(m.scale[0])/2;
-	bbox[3] = m.position[1] - abs(m.scale[1])/2;
-	
-	bool result = line_collides(p1.position, p2.position, bbox[2], bbox[3], bbox[0], bbox[1]);
-	// debug code
-	if (result) {
+	const bool result = (test_y[0] >= min_y && test_y[1] <= max_y) ||
+			(test_x[0] >= min_x && test_x[1] <= max_x);
+
+	// DEBUG code
+	if (result && debugging.in_debug_mode) { 
 		auto& r = registry.renderRequests.get(line);
 		r.used_geometry = GEOMETRY_BUFFER_ID::DEBUG_LINE;
 	}
 	return result;
 }
 
+// Debugging function; assumes player bounding box is static w.r.t scale
+bool DrawingSystem::check_player_collision(Entity& line) {
+	const auto &player = registry.players.entities.back();
+	const Motion &m = registry.motions.get(player);
+
+	const float width = abs(m.scale[0]);
+	const float height = abs(m.scale[1]);
+	vec4 bbox;
+	bbox[0] = m.position[0] - width/2;
+	bbox[1] = m.position[1] - height/2;
+	bbox[2] = m.position[0] + width/2;
+	bbox[3] = m.position[1] + height/2;
+
+	return line_collides(line, bbox[0], bbox[1], bbox[2], bbox[3]);
+}
