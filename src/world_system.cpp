@@ -405,11 +405,19 @@ void WorldSystem::next_level() {
 }
 
 void WorldSystem::save_checkpoint() {
+	// find checkpoint position to save the player at the checkpoint spot
+	Motion m1;
+	for (int i = 0; i < registry.renderRequests.size(); i++) {
+		if (registry.renderRequests.components[i].used_texture == TEXTURE_ASSET_ID::CHECKPOINT) {
+			m1 = registry.motions.get(registry.renderRequests.entities[i]);
+			break;
+		}
+	}
 	Motion m = registry.motions.get(player);
 	json j;
 	// Save position, but not velocity; no need to preserve momentum from time of save
-	j["position"]["x"] = m.position[0];
-	j["position"]["y"] = m.position[1];
+	j["position"]["x"] = m1.position[0];
+	j["position"]["y"] = m1.position[1];
 	j["scale"]["x"] = m.scale[0];
 	j["scale"]["y"] = m.scale[1];
 	j["gravity"] = m.gravityScale;
