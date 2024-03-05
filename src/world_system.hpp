@@ -49,11 +49,11 @@ public:
 	// Should the game be over ?
 	bool is_over()const;
 
-	void WorldSystem::initLevels();
+	void initLevels();
 
-	void WorldSystem::createLevel();
+	void createLevel();
 
-	void WorldSystem::next_level();
+	void next_level();
 private:
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);

@@ -8,7 +8,7 @@
 #include "physics_system.hpp"
 #include "movement_system.hpp"
 #include "drawing_system.hpp"
-#include <ai_system.hpp>;
+#include <ai_system.hpp>
 
 // Game configuration
 const size_t MAX_BOULDERS = 5;
