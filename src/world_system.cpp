@@ -325,7 +325,7 @@ void WorldSystem::restart_game() {
 
 	if (level >= 2) {
 		advancedBoulder = createChaseBoulder(renderer, { window_width_px / 2, 100 });
-		createPaintCan(renderer, { window_width_px - 300, window_height_px / 2 }, { 25.f, 50.f });
+		createPaintCan(renderer, { window_width_px - 300, window_height_px / 2 }, { 55.f, 55.f });
 	}
 
 }
