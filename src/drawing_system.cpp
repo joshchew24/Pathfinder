@@ -19,6 +19,7 @@ void DrawingSystem::reset() {
 		registry.remove_all_components_of(registry.drawnPoints.entities.back());
 	while (registry.drawings.entities.size() > 0)
 		registry.remove_all_components_of(registry.drawings.entities.back());
+	map_drawings_points_id.clear();
 }
 
 
@@ -108,31 +109,26 @@ bool DrawingSystem::line_collides(vec2 line_p1, vec2 line_p2,
 	const float upper_x = std::max(line_p1[0], line_p2[0]);
 	const float lower_y = std::min(line_p1[1], line_p2[1]);
 	const float upper_y = std::max(line_p1[1], line_p2[1]);
-	// Determine whether there is intersection before proceeding
+	// Determine whether there is intersection
 	const bool y_intersects = !(upper_y < min_y || lower_y > max_y);
 	const bool x_intersects = !(upper_x < min_x || lower_x > max_x);
+	
+	if (!y_intersects || !x_intersects)
+		return false;
 
-	return y_intersects && x_intersects;
-
-	//if (rise == 0) { // avoid dividing by zero
-	//	return 	}
-	//// Calculate slope intercept of line, then find all intersecting points
-	//const float slope = rise / run;
-	//const float intercept = line_p2[1] - slope * line_p2[0]; 
-	//// Calculate y values bounded by the overlap of (bbox U line) x coords
-	//// plugged into the line eqn
-	//if (upper_x < min_x || lower_x > max_x)
-	//	return false; // no overlap means no collision
-	//vec2 x_overlap;
-	//x_overlap[0] = std::max(min_x, lower_x);
-	//x_overlap[1] = std::min(max_x, upper_x);
-	//vec2 y_bounds;
-	//y_bounds[0] = slope * x_overlap[0] + intercept;
-	//y_bounds[1] = slope * x_overlap[1] + intercept;
-	//// Check if bounded y is within [min_y, max_y]
-	//return (y_bounds[0] >= min_y && y_bounds[1] <= max_y);
+	const float rise = line_p2[1] - line_p1[1];
+	const float run = line_p2[0] - line_p1[0] + 0.000001f; // adding arbitrarily small error to avoid dividing by 0
+	const float slope = rise / run;
+	const float intercept = line_p2[1] - slope * line_p2[0];
+	// Check if line eqn. output is within the bounding box for overlapping x values
+	vec2 x_overlap;
+	x_overlap[0] = std::max(min_x, lower_x);
+	x_overlap[1] = std::min(max_x, upper_x);
+	vec2 test_y = slope * x_overlap + intercept;
+	return (test_y[0] >= min_y && test_y[1] <= max_y);
 }
 
+// Debug code for now; assumes bounding box is static w.r.t. scale
 bool DrawingSystem::check_player_collision(Entity& line) {
 	auto& player = registry.players.entities.back();
 	const DrawnLine& l = registry.drawnLines.get(line);
@@ -146,6 +142,7 @@ bool DrawingSystem::check_player_collision(Entity& line) {
 	bbox[3] = m.position[1] - abs(m.scale[1])/2;
 	
 	bool result = line_collides(p1.position, p2.position, bbox[2], bbox[3], bbox[0], bbox[1]);
+	// debug code
 	if (result) {
 		auto& r = registry.renderRequests.get(line);
 		r.used_geometry = GEOMETRY_BUFFER_ID::DEBUG_LINE;
