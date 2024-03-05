@@ -64,6 +64,26 @@ struct Wall
 
 };
 
+struct advancedAI
+{
+
+};
+
+struct Boulder
+{
+
+};
+
+struct levelEnd 
+{
+
+};
+
+struct PaintCan
+{
+
+};
+
 // All data relevant to the shape and motion of entities
 struct Motion {
 	vec2 position = { 0, 0 };
@@ -75,6 +95,7 @@ struct Motion {
 	bool grounded = false;
 	bool fixed = false;
 	bool onlyGoDown = false;
+	bool notAffectedByGravity = false;
 };
 
 // Stucture to store collision information
@@ -161,14 +182,18 @@ enum class TEXTURE_ASSET_ID {
 	EARTH = 0,
 	PLATFORM = EARTH + 1,
 	BOULDER = PLATFORM + 1,
-	CHECKPOINT = BOULDER + 1,
-	OLIVER = CHECKPOINT + 1,
+	CHASEBOULDER = BOULDER + 1,
+	CHECKPOINT = CHASEBOULDER + 1,
+	LEVELEND = CHECKPOINT + 1,
+	OLIVER = LEVELEND + 1,
 	RUN1 = OLIVER + 1,
 	RUN2 = RUN1 + 1,
 	RUN3 = RUN2 + 1,
 	RUN4 = RUN3 + 1,
-    PENCIL = RUN4 + 1,
-	TEXTURE_COUNT = PENCIL + 1
+	PENCIL = RUN4 + 1,
+	PAINTCAN = PENCIL + 1,
+	BACKGROUND = PAINTCAN + 1,
+	TEXTURE_COUNT = BACKGROUND + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
@@ -178,7 +203,8 @@ enum class EFFECT_ASSET_ID {
 	CHICKEN = EGG + 1,
 	TEXTURED = CHICKEN + 1,
 	WIND = TEXTURED + 1,
-	EFFECT_COUNT = WIND + 1
+	BACKGROUND = WIND + 1,
+	EFFECT_COUNT = BACKGROUND + 1
 };
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 

@@ -4,11 +4,11 @@
 
 // stlib
 #include <cassert>
-#include <sstream>
 
 #include "physics_system.hpp"
 #include "movement_system.hpp"
 #include "drawing_system.hpp"
+#include <ai_system.hpp>;
 
 // Game configuration
 const size_t MAX_BOULDERS = 5;
@@ -127,8 +127,24 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
 	Mix_PlayMusic(background_music, -1);
 	fprintf(stderr, "Loaded music\n");
 
+	//init levels
+	WorldSystem::level = 0;
+	LevelManager lm;
+	lm.initLevel();
+	lm.printLevelsInfo();
+	this->levelManager = lm;
 	// Set all states to default
     restart_game();
+}
+
+std::pair<float, float> advancedAIlerp(float x0, float y0, float x1, float y1, float t) {
+	//printf("x0:%f\n", x0);
+	//printf("x1:%f\n", x1);
+	//printf("y0:%f\n", y0);
+	//printf("y1:%f\n", y1);
+	float x = x0 + t * (x1 - x0);
+	float y = y0 + t * (y1 - y0);
+	return { x, y };
 }
 
 // Update our game world
@@ -151,7 +167,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 
 	Motion& pmotion = registry.motions.get(player);
-	vec2 pPosition = pmotion.position;
+	//vec2 pPosition = pmotion.position;
 
 	// if entity is player and below window screen
 	if (pmotion.position.y - abs(pmotion.scale.y) / 2 > window_height_px) {
@@ -161,32 +177,76 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
-	next_boulder_spawn -= elapsed_ms_since_last_update * current_speed;
-	if (registry.deadlys.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
+	next_boulder_spawn -= elapsed_ms_since_last_update * current_speed * 2;
+	if (level >= 1 && registry.deadlys.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
 		// Reset timer
 		next_boulder_spawn = (BOULDER_DELAY_MS / 2) + uniform_dist(rng) * (BOULDER_DELAY_MS / 2);
 		createBoulder(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), -100.f));
 	}
 
-	// iterate over boulders and use lerp to move towards player
-	for (int i = (int)motions_registry.components.size() - 1; i >= 0; --i) {
-		Motion& motion = motions_registry.components[i];
-		if (registry.deadlys.has(motions_registry.entities[i])) {
-			vec2 bPosition = motion.position;
-			vec2 toPlayer = normalize(pPosition - bPosition);
-			if (bPosition.y < pPosition.y + 50.f) {
-				motion.position.x = lerp<float>(bPosition.x, pPosition.x, 0.002f);
-				motion.velocity.x += toPlayer.x * 0.2f;
+
+	if(!registry.deathTimers.has(player) && level >= 2)
+	{
+		FrameCount += elapsed_ms_since_last_update;
+		if (FrameCount / msPerFrame >= FrameInterval) {
+			aiSystem.updateGrid(levelManager.levels[level].walls);
+			//System.printGrid();
+			Motion& eMotion = registry.motions.get(advancedBoulder);
+			Motion& pMotion = registry.motions.get(player);
+			bestPath = aiSystem.bestPath(eMotion, pMotion);
+			currentNode = 0;
+			FrameCount = 0;
+		}
+
+		Motion& eMotion = registry.motions.get(advancedBoulder);
+
+		//std::cout << "Path found: ";
+		//for (const auto& p : bestPath) {
+		//	std::cout << "(" << p.first << ", " << p.second << ") ";
+
+		//}
+		//std::cout << std::endl;
+
+		if (bestPath.size() != 0 && currentNode < bestPath.size() - 1) {
+			float x0 = eMotion.position.x;
+			float y0 = eMotion.position.y;
+			float x1 = (bestPath[currentNode + 1].first) * gridSize;
+			float y1 = (bestPath[currentNode + 1].second + 1) * gridSize;
+
+			//printf("x0:%f\n", x0);
+			//printf("x1:%f\n", x1);
+
+			//printf("y0:%f\n", y0);
+			//printf("y1:%f\n", y1);
+
+			if (x0 > x1) {
+				x1 = (bestPath[currentNode + 1].first) * gridSize;
+			}
+
+			if (y0 > y1) {
+				y1 = (bestPath[currentNode + 1].second) * gridSize;
+			}
+
+			float distance = std::sqrt(std::pow(x1 - x0, 2) + std::pow(y1 - y0, 2));
+			//printf("distance:%f\n", distance);
+			if (distance < 1) {
+				currentNode++;
+			}
+			else {
+				auto interpolatedPoint = advancedAIlerp(x0, y0, x1, y1, 0.05);
+				eMotion.position.x = interpolatedPoint.first;
+				eMotion.position.y = interpolatedPoint.second;
 			}
 		}
-	}	
+	}
 
-
-
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A2: HANDLE EGG SPAWN HERE
-	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 2
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	//advanced AI
+	//for (int x = 0; x <= window_width_px; x += gridSize) {
+	//	createLine({ x, window_height_px / 2 }, { 3, window_height_px });
+	//}
+	//for (int y = 0; y <= window_height_px; y += gridSize) {
+	//	createLine({ window_width_px / 2, y }, { window_width_px, 3 });
+	//}
 
 	// Processing the chicken state
 	assert(registry.screenStates.components.size() <= 1);
@@ -216,6 +276,20 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	return true;
 }
 
+void WorldSystem::createLevel() {
+	Level currentLevel = this->levelManager.levels[WorldSystem::level];
+	for (int i = 0; i < currentLevel.walls.size(); ++i) {
+		initWall w = currentLevel.walls[i];
+		createWall(renderer, {w.x, w.y}, {w.xSize, w.ySize});
+		int platformHeight = abs(w.y - window_height_px) + w.ySize / 2 + 2;
+		createPlatform(renderer, {w.x, window_height_px - platformHeight}, {w.xSize - 10, 10.f});
+	}
+	createCheckpoint(renderer, { currentLevel.checkpoint.first, currentLevel.checkpoint.second });
+	createEndpoint(renderer, { currentLevel.endPoint.first, currentLevel.endPoint.second });
+	player = createOliver(renderer, { currentLevel.playerPos.first, currentLevel.playerPos.second });
+	registry.colors.insert(player, { 1, 0.8f, 0.8f });
+}
+
 // Reset the world state to its initial state
 void WorldSystem::restart_game() {
 	// Debugging for memory/component leaks
@@ -239,34 +313,25 @@ void WorldSystem::restart_game() {
 
 	// Debugging for memory/component leaks
 	registry.list_all_components();
+	
+	createBackground(renderer);
 
 	//platform
-    	createWall(renderer, { 900, window_height_px - 90 }, { 1000.f, 600.f });
-
-    	createPlatform(renderer, { 900, window_height_px - 392 }, { 999.f, 5.f });
-
-
-    	createWall(renderer, { window_width_px - window_width_px, window_height_px - 100}, {400.f, 400.f});
-
-    	createPlatform(renderer, { window_width_px - window_width_px, window_height_px - 302 }, { 399.f, 5.f });
-
-
-    	createWall(renderer, { window_width_px - 200, window_height_px - 60 }, { 500.f, 400.f });
-
-    	createPlatform(renderer, { window_width_px - 200, window_height_px - 262 }, { 499.f, 5.f });
-
-
-
-    	createCheckpoint(renderer, { window_width_px - 300, window_height_px - 305 });
-
-	player = createOliver(renderer, { window_width_px/2, 460 });
-	registry.colors.insert(player, {1, 0.8f, 0.8f});
+	createLevel();
 	
 	// Create pencil
 	pencil = createPencil(renderer, { window_width_px / 2, window_height_px / 2 }, { 50.f, 50.f });
 
+	// Create test paint can
+
 	// Center cursor to pencil location
 	glfwSetCursorPos(window, window_width_px / 2 - 25.f, window_height_px / 2 + 25.f);
+
+	if (level >= 2) {
+		advancedBoulder = createChaseBoulder(renderer, { window_width_px / 2, 100 });
+		createPaintCan(renderer, { window_width_px - 300, window_height_px / 2 }, { 25.f, 50.f });
+	}
+
 }
 
 // Compute collisions between entities
@@ -306,18 +371,41 @@ void WorldSystem::handle_collisions() {
 			}
 			else if (registry.walls.has(entity_other)) {
 				Motion& pMotion = registry.motions.get(entity);
-				pMotion.onlyGoDown = true;
+				Motion& wMotion = registry.motions.get(entity_other);
+				float leftMax = wMotion.position.x - wMotion.scale.x / 2 + 50;
+				float rightMax = wMotion.position.x + wMotion.scale.x / 2 - 50;
+				if (pMotion.position.x <= leftMax) {
+					pMotion.position.x = leftMax - 70;
+				}
+				else {
+					pMotion.position.x = rightMax + 70;
+				}
 			}
 
 			// Checking Player - Checkpoint collisions
 			else if (registry.checkpoints.has(entity_other)) {
 				save_checkpoint();
 			}
+
+			else if (registry.levelEnds.has(entity_other)) {
+				next_level();
+			}
 		}
 	}
 
 	// Remove all collisions from this simulation step
 	registry.collisions.clear();
+}
+
+void WorldSystem::next_level() {
+	if (level == maxLevel) {
+		level = 0;
+		restart_game();
+	}
+	else {
+		level++;
+		restart_game();
+	}
 }
 
 void WorldSystem::save_checkpoint() {
@@ -329,6 +417,7 @@ void WorldSystem::save_checkpoint() {
 	j["scale"]["x"] = m.scale[0];
 	j["scale"]["y"] = m.scale[1];
 	j["gravity"] = m.gravityScale;
+	j["level"] = level;
 
 	std::ofstream o("../save.json");
 	o << j.dump() << std::endl;
@@ -341,16 +430,19 @@ void WorldSystem::load_checkpoint() {
 		return;
 	
 	json j = json::parse(i);
-	
-	// reset game to default then reposition player
-	restart_game();
-	
-	Motion& m = registry.motions.get(player);
-	m.position[0] = j["position"]["x"];
-	m.position[1] = j["position"]["y"];
-	m.scale[0] = j["scale"]["x"];
-	m.scale[1] = j["scale"]["y"];
-	m.gravityScale = j["gravity"];
+
+	int currentLevel = j["level"];
+	if (currentLevel == level) {
+		// reset game to default then reposition player
+		restart_game();
+		Motion& m = registry.motions.get(player);
+		m.position[0] = j["position"]["x"];
+		m.position[1] = j["position"]["y"];
+		m.scale[0] = j["scale"]["x"];
+		m.scale[1] = j["scale"]["y"];
+		m.gravityScale = j["gravity"];
+	}
+
 }
 
 // Should the game be over ?
@@ -368,18 +460,18 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	// player movement
 	if ((key == movementSystem.RIGHT_KEY || key == movementSystem.LEFT_KEY) && !registry.deathTimers.has(player)) {
 		RenderRequest& renderRequest = registry.renderRequests.get(player);
-		if (action == GLFW_PRESS) {
+		if (action == GLFW_PRESS || action == GLFW_REPEAT) {
 			movementSystem.press(key);
 			if (key == movementSystem.LEFT_KEY) {
 				if (currentRunningTexture == (int)TEXTURE_ASSET_ID::RUN4) {
-					currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER;
+					currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER - 1;
 				}
 				currentRunningTexture++;
 				renderRequest.used_texture = static_cast<TEXTURE_ASSET_ID>(currentRunningTexture);
 			}
 			else if (key == movementSystem.RIGHT_KEY) {
 				if (currentRunningTexture == (int)TEXTURE_ASSET_ID::RUN4) {
-					currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER;
+					currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER - 1;
 				}
 				currentRunningTexture++;
 				renderRequest.used_texture = static_cast<TEXTURE_ASSET_ID>(currentRunningTexture);

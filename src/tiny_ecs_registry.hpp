@@ -30,6 +30,10 @@ public:
 	ComponentContainer<Drawing> drawings;
 	ComponentContainer<DrawnLine> drawnLines;
 	ComponentContainer<DrawnPoint> drawnPoints;
+	ComponentContainer<advancedAI> advancedAIs;
+	ComponentContainer<levelEnd> levelEnds;
+	ComponentContainer<Boulder> boulders;
+	ComponentContainer<PaintCan> paintCans;
 
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
@@ -54,6 +58,10 @@ public:
 		registry_list.push_back(&drawings);
 		registry_list.push_back(&drawnLines);
 		registry_list.push_back(&drawnPoints);
+		registry_list.push_back(&advancedAIs);
+		registry_list.push_back(&levelEnds);
+		registry_list.push_back(&boulders);
+		registry_list.push_back(&paintCans);
 	}
 
 	void clear_all_components() {
