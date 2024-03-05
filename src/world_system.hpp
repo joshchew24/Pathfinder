@@ -20,6 +20,9 @@
 class WorldSystem
 {
 public:
+	//level index
+	int level;
+
 	WorldSystem();
 
 	// Creates a window
@@ -63,8 +66,6 @@ private:
 	// restart level
 	void restart_game();
 
-	//level index
-	int level;
 	LevelManager levelManager;
 	int maxLevel = 2;
 

@@ -1,6 +1,7 @@
 // internal
 #include "physics_system.hpp"
 #include "world_init.hpp"
+#include <iostream>
 
 // Returns the local bounding coordinates scaled by the current size of the entity
 vec2 get_bounding_box(const Motion& motion)
@@ -42,6 +43,7 @@ void PhysicsSystem::step(float elapsed_ms)
 	{
 		float step_seconds = elapsed_ms / 1000.f;
 		Motion& motion = motion_registry.components[i];
+		Entity entity = motion_registry.entities[i];
 		if (motion.fixed) {
 			continue;
 		}
@@ -59,6 +61,10 @@ void PhysicsSystem::step(float elapsed_ms)
 		if (motion.grounded) {
 			motion.acceleration.y = 0.f;
 			motion.velocity.y = 0.f;
+		}
+		else if (registry.boulders.has(entity)) {
+			motion.acceleration.y = gravity/20;
+			motion.velocity.y = clamp(motion.velocity.y + motion.acceleration.y, -600.f, 600.f);
 		}
 		else if(!motion.notAffectedByGravity){
 			motion.acceleration.y = gravity;
@@ -80,19 +86,21 @@ void PhysicsSystem::step(float elapsed_ms)
 				motion.velocity.y = 0.f;
 			}
 			
-      if (motion.velocity.x != 0.0 && motion.acceleration.x != 0.0) {
-        // this conditional ASSUMES we are decelerating due to friction, and should stop at 0
-        if (abs(motion.velocity.x) < abs(motion.acceleration.x)) {
-          motion.velocity.x = 0.0;
-        }
-        else {
-			motion.velocity.x = clamp(motion.velocity.x + motion.acceleration.x, -TERMINAL_VELOCITY, TERMINAL_VELOCITY);
-        }
-      }
-      else {
-        motion.acceleration.x = 0.0f;
-      }
+			if (motion.velocity.x != 0.0 && motion.acceleration.x != 0.0) {
+				// this conditional ASSUMES we are decelerating due to friction, and should stop at 0
+				if (abs(motion.velocity.x) < abs(motion.acceleration.x)) {
+					motion.velocity.x = 0.0;
+				}
+				else {
+					motion.velocity.x = clamp(motion.velocity.x + motion.acceleration.x, -TERMINAL_VELOCITY, TERMINAL_VELOCITY);
+				}
+			}
+			else {
+				motion.acceleration.x = 0.0f;
+			}
 		}
+		updatePaintCanGroundedState();
+
 		motion.position += motion.velocity * step_seconds;
 	}
 
@@ -130,4 +138,34 @@ void PhysicsSystem::step(float elapsed_ms)
 		}
 	}
 	player.grounded = touching_any_platform;
+
+}
+
+void PhysicsSystem::updatePaintCanGroundedState() {
+	auto& paintCanRegistry = registry.paintCans;
+	auto& platformContainer = registry.platforms;
+
+	for (auto& paintCanEntity : paintCanRegistry.entities) {
+		Motion& paintCanMotion = registry.motions.get(paintCanEntity);
+		bool isTouchingPlatform = false;
+
+		for (auto& platformEntity : platformContainer.entities) {
+			Motion& platformMotion = registry.motions.get(platformEntity);
+
+			if (rectangleCollides(paintCanMotion, platformMotion)) {
+				isTouchingPlatform = true;
+				paintCanMotion.grounded = true;
+				paintCanMotion.velocity.y = 0;
+
+
+				float platformTop = platformMotion.position.y + platformMotion.scale.y / 2.0f;
+				paintCanMotion.position.y = platformTop - paintCanMotion.scale.y / 2.0f;
+				break; 
+			}
+		}
+
+		if (!isTouchingPlatform) {
+			paintCanMotion.grounded = false;
+		}
+	}
 }

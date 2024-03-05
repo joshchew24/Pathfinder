@@ -42,6 +42,7 @@ class RenderSystem {
 			textures_path("Run3.png"),
 			textures_path("Run4.png"),
 			textures_path("pencil.png"),
+			textures_path("paintcan.png"),
 			textures_path("background0.png")
       };
 

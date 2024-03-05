@@ -9,6 +9,7 @@
 #include "physics_system.hpp"
 #include "render_system.hpp"
 #include "world_system.hpp"
+#include "ai_system.hpp"
 
 using Clock = std::chrono::high_resolution_clock;
 
@@ -19,6 +20,7 @@ int main()
 	WorldSystem world;
 	RenderSystem renderer;
 	PhysicsSystem physics;
+	AISystem ai;
 
 	// Initializing window
 	GLFWwindow* window = world.create_window();
@@ -34,6 +36,7 @@ int main()
 	world.init(&renderer);
 
 	// variable timestep loop
+	int frame_counter = 20;
 	auto t = Clock::now();
 	while (!world.is_over()) {
 		// Processes system messages, if this wasn't present the window would become unresponsive
@@ -47,7 +50,14 @@ int main()
 
 		world.step(elapsed_ms);
 		physics.step(elapsed_ms);
+		ai.step(elapsed_ms);
 		world.handle_collisions();
+		if (frame_counter++ == 20) {
+			frame_counter = 0;
+			std::stringstream title_ss;
+			title_ss << "Pathfinder - Level: " << world.level + 1 << ", FPS: " << (int) (1000/elapsed_ms);
+			glfwSetWindowTitle(window, title_ss.str().c_str());
+		}
 
 		renderer.draw();
 	}
