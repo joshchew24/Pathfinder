@@ -24,9 +24,7 @@ struct Pencil
 // Top-level drawing abstraction component
 struct Drawing
 {
-	size_t first_point_idx = 0; 	// index into point components
-	size_t num_points = 0;		// incremented while drawing
-	size_t drawn_points = 0; 	//  == num_points when drawing is finished
+
 };
 
 // Drawn Points
@@ -40,10 +38,8 @@ struct DrawnPoint
 struct DrawnLine
 {
 	Entity drawing;
-	// Indices of DrawnPoint components
-	// need to store index instead of ptr due to vector resize memory mgmt
-	size_t p1_idx; 
-	size_t p2_idx; 
+	Entity p1; // first DrawnPoint ent
+	Entity p2; // second DrawnPoint ent
 };
 
 // Eagles have a hard shell
@@ -190,7 +186,8 @@ enum class GEOMETRY_BUFFER_ID {
 	CHICKEN = 0,
 	SPRITE = CHICKEN + 1,
 	EGG = SPRITE + 1,
-	DEBUG_LINE = EGG + 1,
+	DRAWN_LINE = EGG + 1,
+	DEBUG_LINE = DRAWN_LINE + 1,
 	SCREEN_TRIANGLE = DEBUG_LINE + 1,
 	GEOMETRY_COUNT = SCREEN_TRIANGLE + 1
 };

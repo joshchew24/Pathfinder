@@ -213,7 +213,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
 
 	movementSystem.handle_inputs();
-	drawings.drawLines();
 	return true;
 }
 
@@ -447,11 +446,10 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 	motion.position.x = mouse_position.x + 25.f;
 	motion.position.y = mouse_position.y - 25.f;
 
-	drawings.setDrawPos(mouse_position);
+	drawings.set_draw_pos(mouse_position);
 }
 
 void WorldSystem::on_mouse_click(int button, int action, int mod) {
-	printf("mouse button event!\n");
 	static const int DRAW_BUTTON = GLFW_MOUSE_BUTTON_LEFT;
 	if (button == DRAW_BUTTON) {
 	       if (action == GLFW_PRESS) {
