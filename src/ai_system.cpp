@@ -150,6 +150,42 @@ std::vector<std::pair<int, int>> AISystem::bestPath(Motion& eMotion, Motion& pMo
 //    }
 //}
 
+AISystem::AISystem() {
+    createAllDecisionTrees();
+}
+
+void AISystem::createAllDecisionTrees() {
+    //boulder AI
+    DecisionNode* chasePlayer = new DecisionNode{"chasePlayer", {}, nullptr, nullptr};
+    DecisionNode* canSeePlayer = new DecisionNode{"canSeePlayer", {}, chasePlayer, nullptr };
+    decisionTreeMap["boulder"] = canSeePlayer;
+}
+
+bool AISystem::boulderDecisionTreeSwitch(std::string choice, Entity& boulderEntity, const vec2& playerPosition, ECSRegistry& registry) {
+    if (choice == "canSeePlayer") {
+        auto& motions_registry = registry.motions;
+        Motion& boulderMotion = motions_registry.get(boulderEntity);
+        vec2 boulderPosition = boulderMotion.position;
+
+        // Check if there's a line of sight between the boulder and the player
+        return hasLineOfSight(boulderPosition, playerPosition);
+    }
+    else if (choice == "chasePlayer") {
+        auto& motions_registry = registry.motions;
+        Motion& boulderMotion = motions_registry.get(boulderEntity);
+        vec2 boulderPosition = boulderMotion.position;
+        vec2 toPlayer = normalize(playerPosition - boulderPosition);
+
+        // Set target velocity towards the player
+        vec2 targetVelocity = toPlayer * 300.f;
+
+        // Move the boulder towards the player using linear interpolation
+        boulderMotion.position.x = lerp<float>(boulderPosition.x, playerPosition.x, 0.003f);
+        boulderMotion.velocity.x = lerp<float>(boulderMotion.velocity.x, targetVelocity.x, 0.5f);
+    }
+    return true;
+}
+
 void AISystem::step(float elapsed_ms) {
     elapsed_ms_since_last_update += elapsed_ms;
 
@@ -182,9 +218,14 @@ void AISystem::step(float elapsed_ms) {
         auto& boulderRegistry = registry.boulders;
         for (auto& boulderEntity : boulderRegistry.entities) {
             // Check if the boulder can see the player
-            if (canSeePlayer(boulderEntity, vec2(player_position.x, player_position.y), registry)) {
-                // Chase the player
-                chasePlayer(boulderEntity, player_position, registry);
+            DecisionNode* start = decisionTreeMap["boulder"];
+            while (start != nullptr) {
+                if (boulderDecisionTreeSwitch(start->condition, boulderEntity, player_position, registry)) {
+                    start = start->trueCase;
+                }
+                else {
+                    start = start->falseCase;
+                }
             }
         }
         // PaintCan AI
@@ -272,27 +313,3 @@ bool AISystem::rectangleCollides(const Motion& motion1, const Motion& motion2) {
     return y_val && x_val;
 }
 
-// Function to check if the boulder can see the player
-bool AISystem::canSeePlayer(Entity& boulderEntity, const vec2& playerPosition, ECSRegistry& registry) {
-    auto& motions_registry = registry.motions;
-    Motion& boulderMotion = motions_registry.get(boulderEntity);
-    vec2 boulderPosition = boulderMotion.position;
-
-    // Check if there's a line of sight between the boulder and the player
-    return hasLineOfSight(boulderPosition, playerPosition);
-}
-
-// Function to make the boulder chase the player
-void AISystem::chasePlayer(Entity& boulderEntity, const vec2& playerPosition, ECSRegistry& registry) {
-    auto& motions_registry = registry.motions;
-    Motion& boulderMotion = motions_registry.get(boulderEntity);
-    vec2 boulderPosition = boulderMotion.position;
-    vec2 toPlayer = normalize(playerPosition - boulderPosition);
-
-    // Set target velocity towards the player
-    vec2 targetVelocity = toPlayer * 300.f;
-
-    // Move the boulder towards the player using linear interpolation
-    boulderMotion.position.x = lerp<float>(boulderPosition.x, playerPosition.x, 0.003f);
-    boulderMotion.velocity.x = lerp<float>(boulderMotion.velocity.x, targetVelocity.x, 0.5f);
-}

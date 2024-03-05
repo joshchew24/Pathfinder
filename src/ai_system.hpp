@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <queue>
-
+#include <functional>
 #include "tiny_ecs_registry.hpp"
 #include "common.hpp"
 #include <level_manager.hpp>
@@ -19,12 +19,21 @@ struct Node {
     }
 };
 
+struct DecisionNode {
+	std::string condition;
+	std::vector<std::string> parameters;
+	DecisionNode* trueCase;
+	DecisionNode* falseCase;
+};
+
 class AISystem
 {
 private:
 	float elapsed_ms_since_last_update = 0.0f;
+	std::map<std::string, DecisionNode*> decisionTreeMap;
 
 public:
+	AISystem();
 	void init();
 	void updateGrid(std::vector<initWall> walls);
 	void printGrid();
@@ -35,9 +44,9 @@ public:
 
 	bool rectangleCollides(const Motion& motion1, const Motion& motion2);
 
-	bool canSeePlayer(Entity& boulderEntity, const vec2& playerPosition, ECSRegistry& registry);
+	void createAllDecisionTrees();
 
-	void chasePlayer(Entity& boulderEntity, const vec2& playerPosition, ECSRegistry& registry);
+	bool boulderDecisionTreeSwitch(std::string choice, Entity& boulderEntity, const vec2& playerPosition, ECSRegistry& registry);
 
 	// Linear intepolation
 	template<typename T>
