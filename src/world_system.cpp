@@ -319,7 +319,7 @@ void WorldSystem::restart_game() {
 	pencil = createPencil(renderer, { window_width_px / 2, window_height_px / 2 }, { 50.f, 50.f });
 
 	// Create test paint can
-	createPaintCan(renderer, { window_width_px / 4, window_height_px / 3 }, { 25.f, 50.f });
+	createPaintCan(renderer, { window_width_px / 4, window_height_px / 3 }, { 55.f, 55.f });
 
 	// Center cursor to pencil location
 	glfwSetCursorPos(window, window_width_px / 2 - 25.f, window_height_px / 2 + 25.f);

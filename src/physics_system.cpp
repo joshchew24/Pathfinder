@@ -320,9 +320,23 @@ void PhysicsSystem::step(float elapsed_ms)
 		for(uint j = i+1; j<motion_container.components.size(); j++)
 		{
 			Motion& motion_j = motion_container.components[j];
-			if (rectangleCollides(motion_i, motion_j))
-			{
-				Entity entity_j = motion_container.entities[j];
+			Entity entity_j = motion_container.entities[j];
+
+			// check if entity_i is a mesh for the paint can
+			
+			if (registry.renderRequests.has(entity_i) && registry.renderRequests.get(entity_i).used_geometry == GEOMETRY_BUFFER_ID::PAINT
+				&& registry.meshPtrs.has(entity_i) && registry.meshPtrs.get(entity_i)->vertices.size() > 0 && SATcollision(registry.meshPtrs.get(entity_i), motion_i, motion_j)) {
+				registry.collisions.emplace_with_duplicates(entity_i, entity_j);
+				registry.collisions.emplace_with_duplicates(entity_j, entity_i);
+			}
+			else if (registry.renderRequests.has(entity_j) && registry.renderRequests.get(entity_j).used_geometry == GEOMETRY_BUFFER_ID::PAINT
+				&& registry.meshPtrs.has(entity_j) && registry.meshPtrs.get(entity_j)->vertices.size() > 0 && SATcollision(registry.meshPtrs.get(entity_j), motion_j, motion_i)) {
+				registry.collisions.emplace_with_duplicates(entity_i, entity_j);
+				registry.collisions.emplace_with_duplicates(entity_j, entity_i);
+			}
+			// if not true, check if entity_j is a mesh
+			// if either is true, do SATcollision with the other object instead
+			else if (rectangleCollides(motion_i, motion_j)) {
 				// Create a collisions event
 				// We are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity
 				registry.collisions.emplace_with_duplicates(entity_i, entity_j);
