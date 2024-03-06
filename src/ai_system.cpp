@@ -30,6 +30,12 @@ void AISystem::updateGrid(std::vector<initWall> walls) {
         if (bottom >= gridHeight) {
             bottom = gridHeight - 1;
         }
+        if (left <= 0) {
+            left = 0;
+        }
+        if (right >= gridWidth) {
+            right = gridWidth - 1;
+        }
         for (left; left <= right; left++) {
             for (top; top <= bottom; top++) {
                 grid[top][left] = 1;
