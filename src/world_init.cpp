@@ -304,3 +304,28 @@ Entity createPaintCan(RenderSystem* renderer, vec2 position, vec2 size)
 
 	return entity;
 }
+
+
+Entity createTutorial(RenderSystem* renderer) {
+	Entity e = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = {window_width_px/ 2, window_height_px / 2};
+	motion.scale = { window_width_px - 10, window_height_px - 10 };
+	motion.fixed = true;
+
+	// Create a RenderRequest for the checkpoint flag
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::TUTORIAL,
+		  EFFECT_ASSET_ID::TEXTURED,
+		  GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}

@@ -93,6 +93,7 @@ private:
 	float next_bug_spawn;
 	Entity player;
 	Entity pencil;
+	Entity tutorial;
 
 	//To set running animation
 	int currentRunningTexture = (int) TEXTURE_ASSET_ID::OLIVER;
