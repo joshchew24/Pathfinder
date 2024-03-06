@@ -48,7 +48,10 @@ public:
 
 	bool boulderDecisionTreeSwitch(std::string choice, Entity& boulderEntity, const vec2& playerPosition, ECSRegistry& registry);
 
-	// Linear intepolation
+	bool paintCanDecisionTree(std::string choice, Entity& paintCanEntity, const vec2& playerPosition, ECSRegistry& registry);
+
+
+
 	template<typename T>
 	T lerp(const T& a, const T& b, float t) {
 		return (1 - t) * a + t * b;

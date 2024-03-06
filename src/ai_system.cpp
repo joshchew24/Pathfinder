@@ -108,48 +108,6 @@ std::vector<std::pair<int, int>> AISystem::bestPath(Motion& eMotion, Motion& pMo
     return path;
 }
 
-//// Define function pointers for chasePlayer and canSeePlayer
-//typedef void (*ActionFunction)(Entity, const vec2&, ECSRegistry&);
-//typedef bool (*ConditionFunction)(Entity, const vec2&, ECSRegistry&);
-//
-//struct DecisionNode {
-//    ConditionFunction condition;
-//    ActionFunction action;
-//    DecisionNode* true_branch;
-//    DecisionNode* false_branch;
-//};
-//
-//DecisionNode* createDecisionTree() {
-//    // Leaf node for chase player action
-//    DecisionNode* chaseNode = new DecisionNode;
-//    chaseNode->condition = canSeePlayer;
-//    chaseNode->action = chasePlayer;
-//    chaseNode->true_branch = nullptr;
-//    chaseNode->false_branch = nullptr;
-//
-//    // Root node
-//    DecisionNode* rootNode = chaseNode;
-//
-//    return rootNode;
-//}
-//
-//void traverseDecisionTree(DecisionNode* node, Entity boulderEntity, const vec2& player_position, ECSRegistry& registry) {
-//    if (node == nullptr) {
-//        return;
-//    }
-//
-//    // Evaluate condition
-//    if (node->condition(boulderEntity, player_position, registry)) {
-//        // Condition is true, perform action
-//        node->action(boulderEntity, player_position, registry);
-//        traverseDecisionTree(node->true_branch, boulderEntity, player_position, registry);
-//    }
-//    else {
-//        // Condition is false, traverse false branch
-//        traverseDecisionTree(node->false_branch, boulderEntity, player_position, registry);
-//    }
-//}
-
 AISystem::AISystem() {
     createAllDecisionTrees();
 }
@@ -159,6 +117,15 @@ void AISystem::createAllDecisionTrees() {
     DecisionNode* chasePlayer = new DecisionNode{"chasePlayer", {}, nullptr, nullptr};
     DecisionNode* canSeePlayer = new DecisionNode{"canSeePlayer", {}, chasePlayer, nullptr };
     decisionTreeMap["boulder"] = canSeePlayer;
+
+    //Paint Can AI
+
+    DecisionNode* runFromPlayer = new DecisionNode{ "runFromPlayer", {}, nullptr, nullptr };
+    DecisionNode* moveOnPlatform = new DecisionNode{ "moveOnPlatform", {},nullptr, nullptr };
+    DecisionNode* playerTooClose = new DecisionNode{ "playerTooClose", {}, runFromPlayer, moveOnPlatform };
+    decisionTreeMap["paintCan"] = playerTooClose;
+    
+
 }
 
 bool AISystem::boulderDecisionTreeSwitch(std::string choice, Entity& boulderEntity, const vec2& playerPosition, ECSRegistry& registry) {
@@ -185,6 +152,52 @@ bool AISystem::boulderDecisionTreeSwitch(std::string choice, Entity& boulderEnti
     }
     return true;
 }
+
+bool AISystem::paintCanDecisionTree(std::string choice, Entity& paintCanEntity, const vec2& playerPosition, ECSRegistry& registry) {
+    auto& paintCanRegistry = registry.paintCans;
+    auto& platformContainer = registry.platforms;
+    auto& motionRegistry = registry.motions;
+    float safeDistance = 150.f;
+    bool playerIsClose;
+    Motion& paintCanMotion = motionRegistry.get(paintCanEntity);
+    if (paintCanMotion.grounded) {
+        if (paintCanMotion.velocity.x == 0) {
+            paintCanMotion.velocity.x = (rand() % 2) == 0 ? -200.f : 200.f;
+        }
+    }
+    if (choice == "playerTooClose") {
+        playerIsClose = glm::distance(paintCanMotion.position, playerPosition) < safeDistance;
+        // Move away from player if too close, ignoring platform edges
+        return playerIsClose;
+    }
+    else if (choice == "runFromPlayer") {
+        if (paintCanMotion.position.x < playerPosition.x) {
+            paintCanMotion.velocity.x = -200.f;
+        }
+        else {
+            paintCanMotion.velocity.x = 200.f;
+        }
+    }
+    else if (choice == "moveOnPlatform") {
+        for (auto& platformEntity : platformContainer.entities) {
+            Motion& platformMotion = motionRegistry.get(platformEntity);
+            if (rectangleCollides(paintCanMotion, platformMotion)) {
+                double platformLeftEdge = platformMotion.position.x - (platformMotion.scale.x / 2.0);
+                double platformRightEdge = platformMotion.position.x + (platformMotion.scale.x / 2.0);
+
+                // Check and reverse direction at platform edges 
+                if (paintCanMotion.position.x <= platformLeftEdge + paintCanMotion.scale.x ||
+                    paintCanMotion.position.x >= platformRightEdge - paintCanMotion.scale.x) {
+                    paintCanMotion.velocity.x *= -1;
+                }
+                break;
+            }
+        }
+    }
+    return true;
+}
+
+
 
 void AISystem::step(float elapsed_ms) {
     elapsed_ms_since_last_update += elapsed_ms;
@@ -217,7 +230,6 @@ void AISystem::step(float elapsed_ms) {
         // Boulder AI
         auto& boulderRegistry = registry.boulders;
         for (auto& boulderEntity : boulderRegistry.entities) {
-            // Check if the boulder can see the player
             DecisionNode* start = decisionTreeMap["boulder"];
             while (start != nullptr) {
                 if (boulderDecisionTreeSwitch(start->condition, boulderEntity, player_position, registry)) {
@@ -230,42 +242,17 @@ void AISystem::step(float elapsed_ms) {
         }
         // PaintCan AI
         auto& paintCanRegistry = registry.paintCans;
-        auto& platformContainer = registry.platforms;
         auto& motionRegistry = registry.motions;
-        float safeDistance = 150.f;
 
         for (auto& paintCanEntity : paintCanRegistry.entities) {
             Motion& paintCanMotion = motionRegistry.get(paintCanEntity);
-            if (!paintCanMotion.grounded) continue;
-            bool playerIsClose = glm::distance(paintCanMotion.position, player_position) < safeDistance;
-
-            // Move away from player if too close, ignoring platform edges
-            if (playerIsClose) {
-                if (paintCanMotion.position.x < player_position.x) {
-                    paintCanMotion.velocity.x = -200.f;
+            DecisionNode* start = decisionTreeMap["paintCan"];
+            while (start != nullptr) {
+                if (paintCanDecisionTree(start->condition, paintCanEntity, player_position, registry)) {
+                    start = start->trueCase;
                 }
                 else {
-                    paintCanMotion.velocity.x = 200.f;
-                }
-            }
-            else {
-                for (auto& platformEntity : platformContainer.entities) {
-                    Motion& platformMotion = motionRegistry.get(platformEntity);
-                    if (rectangleCollides(paintCanMotion, platformMotion)) {
-                        double platformLeftEdge = platformMotion.position.x - (platformMotion.scale.x / 2.0);
-                        double platformRightEdge = platformMotion.position.x + (platformMotion.scale.x / 2.0);
-
-                        // Check and reverse direction at platform edges 
-                        if (!playerIsClose && (paintCanMotion.position.x <= platformLeftEdge + paintCanMotion.scale.x ||
-                            paintCanMotion.position.x >= platformRightEdge - paintCanMotion.scale.x)) {
-                            paintCanMotion.velocity.x *= -1;
-                        }
-
-                        if (paintCanMotion.velocity.x == 0) {
-                            paintCanMotion.velocity.x = (rand() % 2) == 0 ? -200.f : 200.f;
-                        }
-                        break;
-                    }
+                    start = start->falseCase;
                 }
             }
         }
