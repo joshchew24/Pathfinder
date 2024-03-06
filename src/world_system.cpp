@@ -177,6 +177,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
+
 	next_boulder_spawn -= elapsed_ms_since_last_update * current_speed * 2;
 	if (level >= 1 && registry.deadlys.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
 		// Reset timer
@@ -277,6 +278,11 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 }
 
 void WorldSystem::createLevel() {
+	if (WorldSystem::level == 0) 
+		tutorial = createTutorial(renderer);
+	else if (registry.renderRequests.has(tutorial))
+		registry.renderRequests.remove(tutorial);
+
 	Level currentLevel = this->levelManager.levels[WorldSystem::level];
 	for (int i = 0; i < currentLevel.walls.size(); ++i) {
 		initWall w = currentLevel.walls[i];
@@ -287,7 +293,7 @@ void WorldSystem::createLevel() {
 	createCheckpoint(renderer, { currentLevel.checkpoint.first, currentLevel.checkpoint.second });
 	createEndpoint(renderer, { currentLevel.endPoint.first, currentLevel.endPoint.second });
 	player = createOliver(renderer, { currentLevel.playerPos.first, currentLevel.playerPos.second });
-	registry.colors.insert(player, { 1, 0.8f, 0.8f });
+	registry.colors.insert(player, { 1, 0.8f, 0.8f });	
 }
 
 // Reset the world state to its initial state
