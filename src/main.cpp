@@ -36,8 +36,15 @@ int main()
 	renderer.init(window);
 	world.init(&renderer);
 
+	
+	// report fps average across this many updates
+	const size_t NUM_UPDATES_AVERAGE = 25;
+	std::deque<int> frame_counts;
+	int frame_update_counter = 20;
+	int total_frame_count = 0;
+	int curr_fps = 0;
+
 	// variable timestep loop
-	int frame_counter = 20;
 	auto t = Clock::now();
 	while (!world.is_over()) {
 		// Processes system messages, if this wasn't present the window would become unresponsive
@@ -55,10 +62,23 @@ int main()
 		world.handle_collisions();
 		drawings.step(elapsed_ms);
     
-		if (frame_counter++ == 20) {
-			frame_counter = 0;
+		// fps reporting
+		if (frame_update_counter++ == 20) {
+			frame_update_counter = 0;
+			curr_fps = 1000 / elapsed_ms;
+			if (debugging.in_debug_mode) printf("actual FPS: %i\n", curr_fps);
+			frame_counts.push_back(curr_fps);
+			total_frame_count += curr_fps;
+
+			if (frame_counts.size() > NUM_UPDATES_AVERAGE) {
+				total_frame_count -= frame_counts.front();
+				frame_counts.pop_front();
+			}
+
+			curr_fps = total_frame_count / frame_counts.size();
+
 			std::stringstream title_ss;
-			title_ss << "Pathfinder - Level: " << world.level + 1 << ", FPS: " << (int) (1000/elapsed_ms);
+			title_ss << "Pathfinder - Level: " << world.level + 1 << ", FPS: " << curr_fps;
 			glfwSetWindowTitle(window, title_ss.str().c_str());
 		}
 
