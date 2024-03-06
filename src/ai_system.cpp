@@ -27,7 +27,7 @@ void AISystem::updateGrid(std::vector<initWall> walls) {
         int left = (w.x - w.xSize / 2) / gridSize;
         int top = (w.y - w.ySize / 2) / gridSize;
         int right = (w.x + w.xSize / 2) / gridSize;
-        int bottom = (w.x + w.ySize / 2) / gridSize;
+        int bottom = (w.y + w.ySize / 2) / gridSize;
         if (bottom >= gridHeight) {
             bottom = gridHeight - 1;
         }
@@ -75,6 +75,16 @@ std::vector<std::pair<int, int>> AISystem::bestPath(Motion& eMotion, Motion& pMo
     int targetY = ceil(pMotion.position.y / gridSize) - 1;
     const int dx[4] = { 1, 0, -1, 0 };
     const int dy[4] = { 0, 1, 0, -1 };
+
+    printf("targetX: %d ", targetX);
+    printf("targetY: %d ", targetY);
+    printf("gridHeight: %d ", gridHeight);
+
+    if (grid[targetY][targetX] == 1 || targetY >= gridHeight) {
+        return {};
+    }
+
+    /*printf("still calculating?");*/
 
     std::vector<std::pair<int, int>> path;
     int rows = gridHeight;
