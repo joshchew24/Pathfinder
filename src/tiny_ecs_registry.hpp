@@ -27,6 +27,9 @@ public:
 	ComponentContainer<Pencil> pencil;
 	ComponentContainer<Checkpoint> checkpoints;
 	ComponentContainer<Wall> walls;
+	ComponentContainer<Drawing> drawings;
+	ComponentContainer<DrawnLine> drawnLines;
+	ComponentContainer<DrawnPoint> drawnPoints;
 	ComponentContainer<advancedAI> advancedAIs;
 	ComponentContainer<levelEnd> levelEnds;
 	ComponentContainer<Boulder> boulders;
@@ -52,6 +55,9 @@ public:
 		registry_list.push_back(&pencil);
 		registry_list.push_back(&checkpoints);
 		registry_list.push_back(&walls);
+		registry_list.push_back(&drawings);
+		registry_list.push_back(&drawnLines);
+		registry_list.push_back(&drawnPoints);
 		registry_list.push_back(&advancedAIs);
 		registry_list.push_back(&levelEnds);
 		registry_list.push_back(&boulders);

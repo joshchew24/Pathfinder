@@ -21,6 +21,27 @@ struct Pencil
 
 };
 
+// Top-level drawing abstraction component
+struct Drawing
+{
+
+};
+
+// Drawn Points
+struct DrawnPoint
+{
+	Entity drawing;
+	vec2 position;
+};
+
+// Drawn Lines
+struct DrawnLine
+{
+	Entity drawing;
+	Entity p1; // first DrawnPoint ent
+	Entity p2; // second DrawnPoint ent
+};
+
 // Eagles have a hard shell
 struct Deadly
 {
@@ -192,7 +213,8 @@ enum class GEOMETRY_BUFFER_ID {
 	PAINT = CHICKEN + 1,
 	SPRITE = PAINT + 1,
 	EGG = SPRITE + 1,
-	DEBUG_LINE = EGG + 1,
+	DRAWN_LINE = EGG + 1,
+	DEBUG_LINE = DRAWN_LINE + 1,
 	SCREEN_TRIANGLE = DEBUG_LINE + 1,
 	GEOMETRY_COUNT = SCREEN_TRIANGLE + 1
 };

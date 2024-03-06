@@ -7,6 +7,7 @@
 
 #include "physics_system.hpp"
 #include "movement_system.hpp"
+#include "drawing_system.hpp"
 #include <ai_system.hpp>
 
 // Game configuration
@@ -86,8 +87,10 @@ GLFWwindow* WorldSystem::create_window() {
 	glfwSetWindowUserPointer(window, this);
 	auto key_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2, int _3) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_key(_0, _1, _2, _3); };
 	auto cursor_pos_redirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_move({ _0, _1 }); };
+	auto mouse_button_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_click(_0, _1, _2);};
 	glfwSetKeyCallback(window, key_redirect);
 	glfwSetCursorPosCallback(window, cursor_pos_redirect);
+	glfwSetMouseButtonCallback(window, mouse_button_redirect); 
 
 	// Set cursor mode to hidden
 	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
@@ -125,7 +128,7 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
 	fprintf(stderr, "Loaded music\n");
 
 	//init levels
-	WorldSystem::level = 0;
+	WorldSystem::level = 2;
 	LevelManager lm;
 	lm.initLevel();
 	lm.printLevelsInfo();
@@ -187,7 +190,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		FrameCount += elapsed_ms_since_last_update;
 		if (FrameCount / msPerFrame >= FrameInterval) {
 			aiSystem.updateGrid(levelManager.levels[level].walls);
-			//System.printGrid();
+			//aiSystem.printGrid();
 			Motion& eMotion = registry.motions.get(advancedBoulder);
 			Motion& pMotion = registry.motions.get(player);
 			bestPath = aiSystem.bestPath(eMotion, pMotion);
@@ -297,6 +300,7 @@ void WorldSystem::restart_game() {
 	current_speed = 1.f;
 
 	movementSystem.reset();
+	drawings.reset();
 
 	// Remove all entities that we created
 	// All that have a motion, we could also iterate over all bug, eagles, ... but that would be more cumbersome
@@ -325,7 +329,9 @@ void WorldSystem::restart_game() {
 
 	if (level >= 2) {
 		advancedBoulder = createChaseBoulder(renderer, { window_width_px / 2, 100 });
-		createPaintCan(renderer, { window_width_px - 300, window_height_px / 2 }, { 35.f, 55.f });
+		bestPath = {};
+		currentNode = 0;
+		createPaintCan(renderer, { window_width_px - 300, window_height_px / 2 }, { 25.f, 50.f });
 	}
 
 }
@@ -541,4 +547,19 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 	Motion& motion = registry.motions.get(pencil);
 	motion.position.x = mouse_position.x + 25.f;
 	motion.position.y = mouse_position.y - 25.f;
+
+	drawings.set_draw_pos(mouse_position);
 }
+
+void WorldSystem::on_mouse_click(int button, int action, int mod) {
+	static const int DRAW_BUTTON = GLFW_MOUSE_BUTTON_LEFT;
+	if (button == DRAW_BUTTON) {
+	       if (action == GLFW_PRESS) {
+		       drawings.start_drawing();
+	       }
+	       else if (action == GLFW_RELEASE) {
+		       drawings.stop_drawing();
+	       }
+	}
+}
+

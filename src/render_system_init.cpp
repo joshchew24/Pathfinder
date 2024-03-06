@@ -191,27 +191,40 @@ void RenderSystem::initializeGlGeometryBuffers()
 
 	//////////////////////////////////
 	// Initialize debug line
-	std::vector<ColoredVertex> line_vertices;
+	std::vector<ColoredVertex> line_vertices, line_vertices_debug;
 	std::vector<uint16_t> line_indices;
 
 	constexpr float depth = 0.5f;
 	constexpr vec3 red = { 0.8,0.1,0.1 };
+	constexpr vec3 black = { 0.0, 0.0, 0.0 };
 
 	// Corner points
-	line_vertices = {
+	line_vertices_debug = {
 		{{-0.5,-0.5, depth}, red},
 		{{-0.5, 0.5, depth}, red},
 		{{ 0.5, 0.5, depth}, red},
 		{{ 0.5,-0.5, depth}, red},
 	};
 
+	line_vertices = {
+		{{-0.5,-0.5, depth}, black},
+		{{-0.5, 0.5, depth}, black},
+		{{ 0.5, 0.5, depth}, black},
+		{{ 0.5,-0.5, depth}, black},
+	};
+
 	// Two triangles
 	line_indices = {0, 1, 3, 1, 2, 3};
 	
 	geom_index = (int)GEOMETRY_BUFFER_ID::DEBUG_LINE;
+	meshes[geom_index].vertices = line_vertices_debug;
+	meshes[geom_index].vertex_indices = line_indices;
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::DEBUG_LINE, line_vertices_debug, line_indices);
+
+	geom_index = (int)GEOMETRY_BUFFER_ID::DRAWN_LINE;
 	meshes[geom_index].vertices = line_vertices;
 	meshes[geom_index].vertex_indices = line_indices;
-	bindVBOandIBO(GEOMETRY_BUFFER_ID::DEBUG_LINE, line_vertices, line_indices);
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::DRAWN_LINE, line_vertices, line_indices);
 
 	///////////////////////////////////////////////////////
 	// Initialize screen triangle (yes, triangle, not quad; its more efficient).
