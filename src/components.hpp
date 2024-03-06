@@ -210,7 +210,8 @@ const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 
 enum class GEOMETRY_BUFFER_ID {
 	CHICKEN = 0,
-	SPRITE = CHICKEN + 1,
+	PAINT = CHICKEN + 1,
+	SPRITE = PAINT + 1,
 	EGG = SPRITE + 1,
 	DRAWN_LINE = EGG + 1,
 	DEBUG_LINE = DRAWN_LINE + 1,

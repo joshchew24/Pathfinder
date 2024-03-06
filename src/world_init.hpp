@@ -7,6 +7,9 @@
 const float BOULDER_BB_WIDTH = 0.3f * 300.f;
 const float BOULDER_BB_HEIGHT = 0.3f * 300.f;
 
+// used to translate, rotate, and scale the player
+vec2 translateRotateScale(vec3 position, const Motion& motion);
+
 // These are ahrd coded to the dimensions of the entity texture
 // the player
 Entity createOliver(RenderSystem* renderer, vec2 pos);
