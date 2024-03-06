@@ -311,21 +311,20 @@ Entity createTutorial(RenderSystem* renderer) {
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
-	registry.meshPtrs.emplace(entity, &mesh);
+	registry.meshPtrs.emplace(e, &mesh);
 
-	auto& motion = registry.motions.emplace(entity);
+	auto& motion = registry.motions.emplace(e);
 	motion.angle = 0.f;
 	motion.velocity = { 0, 0 };
-	motion.position = {window_width_px/ 2, window_height_px / 2};
-	motion.scale = { window_width_px - 10, window_height_px - 10 };
+	motion.position = {window_width_px / 2, window_height_px / 4};
+	motion.scale = { window_width_px * 0.7, window_height_px * 0.3 };
 	motion.fixed = true;
 
 	// Create a RenderRequest for the checkpoint flag
 	registry.renderRequests.insert(
-		entity,
-		{ TEXTURE_ASSET_ID::TUTORIAL,
+		e, { TEXTURE_ASSET_ID::TUTORIAL,
 		  EFFECT_ASSET_ID::TEXTURED,
 		  GEOMETRY_BUFFER_ID::SPRITE });
 
-	return entity;
+	return e;
 }

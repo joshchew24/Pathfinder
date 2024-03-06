@@ -3,6 +3,7 @@
 #include "world_init.hpp"
 #include <iostream>
 #include <stack>
+#include <cfloat>
 
 // Returns the local bounding coordinates scaled by the current size of the entity
 vec2 get_bounding_box(const Motion& motion)
