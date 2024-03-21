@@ -90,6 +90,15 @@ public:
 
 	mat3 createProjectionMatrix();
 
+	void RenderSystem::initParallaxRendering();
+
+	void RenderSystem::drawBackground();
+
+	bool RenderSystem::loadTextures(const char* fileName, GLuint &textureId);
+
+	float camera_x = 0.0f;
+	float camera_y = 0.0f;
+
 private:
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(Entity entity, const mat3& projection);
@@ -104,6 +113,18 @@ private:
 	GLuint off_screen_render_buffer_depth;
 
 	Entity screen_state_entity;
+
+	GLuint far_clouds;
+	GLuint near_clouds;
+	GLuint sky;
+	GLuint far_mountains;
+	GLuint mountains;
+	GLuint trees;
+	GLuint backGroundVao;
+	GLuint backGroundVbo;
+	GLuint backGroundShader;
+
+	GLuint globalVao;
 };
 
 bool loadEffectFromFile(

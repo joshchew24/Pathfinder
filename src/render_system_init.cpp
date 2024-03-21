@@ -13,13 +13,15 @@
 #include <iostream>
 #include <sstream>
 
+#include <SDL.h>
+
 // World initialization
 bool RenderSystem::init(GLFWwindow* window_arg)
 {
 	this->window = window_arg;
 
 	glfwMakeContextCurrent(window);
-	glfwSwapInterval(0); // vsync
+	glfwSwapInterval(1); // vsync
 
 	// Load OpenGL function pointers
 	const int is_fine = gl3w_init();
@@ -53,13 +55,16 @@ bool RenderSystem::init(GLFWwindow* window_arg)
 	GLuint vao;
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
+	globalVao = vao;
 	gl_has_errors();
 
+	initParallaxRendering();
+
+	glBindVertexArray(vao);
 	initScreenTexture();
     initializeGlTextures();
 	initializeGlEffects();
 	initializeGlGeometryBuffers();
-
 	return true;
 }
 
@@ -286,6 +291,70 @@ bool RenderSystem::initScreenTexture()
 	assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
 
 	return true;
+}
+
+bool RenderSystem::loadTextures(const char *fileName, GLuint &textureId) {
+
+	ivec2 dimensions = (ivec2)(0,0);
+
+	stbi_uc* data;
+	data = stbi_load(fileName, &dimensions.x, &dimensions.y, NULL, 4);
+
+	if (data == NULL)
+	{
+		const std::string message = "Could not load the file ";
+		fprintf(stderr, "%s", message.c_str());
+		assert(false);
+	}
+	glGenTextures(1, &textureId);
+	glBindTexture(GL_TEXTURE_2D, textureId);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, dimensions.x, dimensions.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	gl_has_errors();
+	stbi_image_free(data);
+	return true;
+}
+
+void RenderSystem::initParallaxRendering() {
+	GLfloat vertices[] = {
+	-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+	 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+	 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+	-1.0f, -1.0f, 0.0f, 0.0f, 0.0f
+	};
+
+	// Generate and bind VAO
+	glGenVertexArrays(1, &backGroundVao);
+	glBindVertexArray(backGroundVao);
+
+	// Generate and bind VBO
+	glGenBuffers(1, &backGroundVbo);
+	glBindBuffer(GL_ARRAY_BUFFER, backGroundVbo);
+
+	// Set vertex data
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	// Specify attribute pointers
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(1);
+
+	// Unbind VBO and VAO
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+	gl_has_errors();
+
+	loadTextures(textures_path("Layers/far-clouds.png").c_str(), far_clouds);
+	loadTextures(textures_path("Layers/near-clouds.png").c_str(), near_clouds);
+	loadTextures(textures_path("Layers/sky.png").c_str(), sky);
+	loadTextures(textures_path("Layers/far-mountains.png").c_str(), far_mountains);
+	loadTextures(textures_path("Layers/mountains.png").c_str(), mountains);
+	loadTextures(textures_path("Layers/trees.png").c_str(), trees);
+
+	loadEffectFromFile(shader_path("/background.vs.glsl").c_str(), shader_path("/background.fs.glsl").c_str(), backGroundShader);
 }
 
 bool gl_compile_shader(GLuint shader)
