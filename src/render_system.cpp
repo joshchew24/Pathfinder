@@ -3,6 +3,7 @@
 #include <SDL.h>
 #include <SDL_opengl.h>
 #include "tiny_ecs_registry.hpp"
+#include <glm/gtc/type_ptr.hpp>
 
 void RenderSystem::drawTexturedMesh(Entity entity,
 									const mat3 &projection)
@@ -131,43 +132,61 @@ void RenderSystem::drawBackground() {
 
 	glBindVertexArray(backGroundVao);
 
-	glUniform1f(glGetUniformLocation(backGroundShader, "parallaxFactor"), 0.01);
-	glUniform1i(glGetUniformLocation(backGroundShader, "texture1"), 0);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, far_clouds);
-	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-	gl_has_errors();
-
-	glUniform1f(glGetUniformLocation(backGroundShader, "parallaxFactor"), 0.01);
-	glUniform1i(glGetUniformLocation(backGroundShader, "texture1"), 1);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, far_mountains);
-	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-	gl_has_errors();
-
 	glUniform1f(glGetUniformLocation(backGroundShader, "parallaxFactor"), 0.001);
 	glUniform1i(glGetUniformLocation(backGroundShader, "texture1"), 2);
+	glUniform1f(glGetUniformLocation(backGroundShader, "transparency"), 1);
+	glm::vec3 translation1(0.0f, 0.14f, 0.0f);
+	glUniform3fv(glGetUniformLocation(backGroundShader, "transform"), 1, glm::value_ptr(translation1));
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, sky);
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 	gl_has_errors();
 
-	glUniform1f(glGetUniformLocation(backGroundShader, "parallaxFactor"), 0.01);
+	glUniform1f(glGetUniformLocation(backGroundShader, "parallaxFactor"), 0.002);
+	glUniform1i(glGetUniformLocation(backGroundShader, "texture1"), 0);
+	glUniform1f(glGetUniformLocation(backGroundShader, "transparency"), 3);
+	glm::vec3 translation(0.0f, 0.245f, 0.0f);
+	glUniform3fv(glGetUniformLocation(backGroundShader, "transform"), 1, glm::value_ptr(translation));
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, far_clouds);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	gl_has_errors();
+
+	glUniform1f(glGetUniformLocation(backGroundShader, "parallaxFactor"), 0.001);
+	glUniform1i(glGetUniformLocation(backGroundShader, "texture1"), 1);
+	glUniform1f(glGetUniformLocation(backGroundShader, "transparency"), 1);
+	glm::vec3 translation0(0.0f, 0.0f, 0.0f);
+	glUniform3fv(glGetUniformLocation(backGroundShader, "transform"), 1, glm::value_ptr(translation0));
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, far_mountains);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	gl_has_errors();
+
+	glUniform1f(glGetUniformLocation(backGroundShader, "parallaxFactor"), 0.006);
 	glUniform1i(glGetUniformLocation(backGroundShader, "texture1"), 3);
+	glUniform1f(glGetUniformLocation(backGroundShader, "transparency"), 1.5);
+	glm::vec3 translation2(0.0f, 0.23f, 0.0f);
+	glUniform3fv(glGetUniformLocation(backGroundShader, "transform"), 1, glm::value_ptr(translation2));
 	glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_2D, near_clouds);
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 	gl_has_errors();
 
-	glUniform1f(glGetUniformLocation(backGroundShader, "parallaxFactor"), 0.01);
+	glUniform1f(glGetUniformLocation(backGroundShader, "parallaxFactor"), 0.0017);
 	glUniform1i(glGetUniformLocation(backGroundShader, "texture1"), 4);
+	glUniform1f(glGetUniformLocation(backGroundShader, "transparency"), 2);
+	glm::vec3 translation3(0.0f, -0.2f, 0.0f);
+	glUniform3fv(glGetUniformLocation(backGroundShader, "transform"), 1, glm::value_ptr(translation3));
 	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_2D, mountains);
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 	gl_has_errors();
 
-	glUniform1f(glGetUniformLocation(backGroundShader, "parallaxFactor"), 0.02);
+	glUniform1f(glGetUniformLocation(backGroundShader, "parallaxFactor"), 0.023);
 	glUniform1i(glGetUniformLocation(backGroundShader, "texture1"), 5);
+	glUniform1f(glGetUniformLocation(backGroundShader, "transparency"), 1);
+	glm::vec3 translation4(0.0f, -0.12f, 0.0f);
+	glUniform3fv(glGetUniformLocation(backGroundShader, "transform"), 1, glm::value_ptr(translation4));
 	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D, trees);
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
