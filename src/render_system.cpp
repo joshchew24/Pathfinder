@@ -1,7 +1,7 @@
 // internal
 #include "render_system.hpp"
 #include <SDL.h>
-
+#include <SDL_opengl.h>
 #include "tiny_ecs_registry.hpp"
 
 void RenderSystem::drawTexturedMesh(Entity entity,
@@ -125,6 +125,61 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 	gl_has_errors();
 }
 
+void RenderSystem::drawBackground() {
+	glUseProgram(backGroundShader);
+	glUniform2f(glGetUniformLocation(backGroundShader, "camera"), camera_x, camera_y);
+
+	glBindVertexArray(backGroundVao);
+
+	glUniform1f(glGetUniformLocation(backGroundShader, "parallaxFactor"), 0.01);
+	glUniform1i(glGetUniformLocation(backGroundShader, "texture1"), 0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, far_clouds);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	gl_has_errors();
+
+	glUniform1f(glGetUniformLocation(backGroundShader, "parallaxFactor"), 0.01);
+	glUniform1i(glGetUniformLocation(backGroundShader, "texture1"), 1);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, far_mountains);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	gl_has_errors();
+
+	glUniform1f(glGetUniformLocation(backGroundShader, "parallaxFactor"), 0.001);
+	glUniform1i(glGetUniformLocation(backGroundShader, "texture1"), 2);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, sky);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	gl_has_errors();
+
+	glUniform1f(glGetUniformLocation(backGroundShader, "parallaxFactor"), 0.01);
+	glUniform1i(glGetUniformLocation(backGroundShader, "texture1"), 3);
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, near_clouds);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	gl_has_errors();
+
+	glUniform1f(glGetUniformLocation(backGroundShader, "parallaxFactor"), 0.01);
+	glUniform1i(glGetUniformLocation(backGroundShader, "texture1"), 4);
+	glActiveTexture(GL_TEXTURE4);
+	glBindTexture(GL_TEXTURE_2D, mountains);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	gl_has_errors();
+
+	glUniform1f(glGetUniformLocation(backGroundShader, "parallaxFactor"), 0.02);
+	glUniform1i(glGetUniformLocation(backGroundShader, "texture1"), 5);
+	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, trees);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	gl_has_errors();
+
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	gl_has_errors();
+
+	glUseProgram(0);
+}
+
 // draw the intermediate texture to the screen, with some distortion to simulate
 // wind
 void RenderSystem::drawToScreen()
@@ -174,6 +229,7 @@ void RenderSystem::drawToScreen()
 	glActiveTexture(GL_TEXTURE0);
 
 	glBindTexture(GL_TEXTURE_2D, off_screen_render_buffer_color);
+
 	gl_has_errors();
 	// Draw
 	glDrawElements(
@@ -207,7 +263,11 @@ void RenderSystem::draw()
 							  // sprites back to front
 	gl_has_errors();
 	mat3 projection_2D = createProjectionMatrix();
+
 	// Draw all textured meshes that have a position and size component
+	drawBackground();
+	glBindVertexArray(globalVao);
+
 	for (Entity entity : registry.renderRequests.entities)
 	{
 		if (!registry.motions.has(entity))
@@ -219,7 +279,6 @@ void RenderSystem::draw()
 
 	// Truely render to the screen
 	drawToScreen();
-
 
 	// flicker-free display with a double buffer
 	glfwSwapBuffers(window);

@@ -251,7 +251,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 	// Processing the chicken state
 	assert(registry.screenStates.components.size() <= 1);
-    ScreenState &screen = registry.screenStates.components[0];
+    //ScreenState &screen = registry.screenStates.components[0];
 
     float min_counter_ms = 3000.f;
 	for (Entity entity : registry.deathTimers.entities) {
@@ -265,13 +265,13 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		// restart the game once the death timer expired
 		if (counter.counter_ms < 0) {
 			registry.deathTimers.remove(entity);
-			screen.darken_screen_factor = 0;
+			//screen.darken_screen_factor = 0;
             restart_game();
 			return true;
 		}
 	}
 	// reduce window brightness if any of the present chickens is dying
-	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
+	//screen.darken_screen_factor = 1 - min_counter_ms / 3000;
 
 	movementSystem.handle_inputs();
 	return true;
@@ -320,7 +320,7 @@ void WorldSystem::restart_game() {
 	// Debugging for memory/component leaks
 	registry.list_all_components();
 	
-	createBackground(renderer);
+	//createBackground(renderer);
 
 	//platform
 	createLevel();
@@ -484,6 +484,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 				}
 				currentRunningTexture++;
 				renderRequest.used_texture = static_cast<TEXTURE_ASSET_ID>(currentRunningTexture);
+				renderer->camera_x += 0.1f;
 			}
 			else if (key == GLFW_KEY_RIGHT) {
 				if (currentRunningTexture == (int)TEXTURE_ASSET_ID::RUN4) {
@@ -491,6 +492,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 				}
 				currentRunningTexture++;
 				renderRequest.used_texture = static_cast<TEXTURE_ASSET_ID>(currentRunningTexture);
+				renderer->camera_x -= 0.1f;
 			}
 		}
 		else if (action == GLFW_RELEASE) {
