@@ -10,6 +10,7 @@
 #include "drawing_system.hpp"
 #include "ai_system.hpp"
 #include "config.hpp"
+//using Clock = std::chrono::high_resolution_clock;
 
 // Entry point
 int main()
