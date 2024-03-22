@@ -474,18 +474,18 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	// player movement
-	if ((key == GLFW_KEY_RIGHT || key == GLFW_KEY_LEFT) && !registry.deathTimers.has(player)) {
+	if ((key == GLFW_KEY_A || key == GLFW_KEY_D) && !registry.deathTimers.has(player)) {
 		RenderRequest& renderRequest = registry.renderRequests.get(player);
 		if (action == GLFW_PRESS || action == GLFW_REPEAT) {
 			movementSystem.press(key);
-			if (key == GLFW_KEY_LEFT) {
+			if (key == GLFW_KEY_A) {
 				if (currentRunningTexture == (int)TEXTURE_ASSET_ID::RUN4) {
 					currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER - 1;
 				}
 				currentRunningTexture++;
 				renderRequest.used_texture = static_cast<TEXTURE_ASSET_ID>(currentRunningTexture);
 			}
-			else if (key == GLFW_KEY_RIGHT) {
+			else if (key == GLFW_KEY_D) {
 				if (currentRunningTexture == (int)TEXTURE_ASSET_ID::RUN4) {
 					currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER - 1;
 				}
