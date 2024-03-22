@@ -243,7 +243,7 @@ bool rectangleCollides(const Motion& motion1, const Motion& motion2) {
 
 void PhysicsSystem::step(float elapsed_ms)
 {
-	elapsed_ms = clamp(elapsed_ms, 0.f, 8.f);
+	//elapsed_ms = clamp(elapsed_ms, 0.f, 8.f);
 	auto& motion_registry = registry.motions;
 	for (uint i = 0; i < motion_registry.size(); i++)
 	{
@@ -273,11 +273,11 @@ void PhysicsSystem::step(float elapsed_ms)
 		else if (registry.boulders.has(entity)) {
 			// this should just be set once in the boulder creation
 			motion.acceleration.y = gravity / 20;
-			motion.velocity.y = clamp(motion.velocity.y + motion.acceleration.y, -600.f, 600.f);
+			motion.velocity.y = clamp(motion.velocity.y + motion.acceleration.y, -terminal_velocity, terminal_velocity);
 		}
 		else if (!motion.notAffectedByGravity) {
 			motion.acceleration.y = gravity;
-			motion.velocity.y = clamp(motion.velocity.y + motion.acceleration.y, -600.f, 600.f);
+			motion.velocity.y = clamp(motion.velocity.y + motion.acceleration.y, -terminal_velocity, terminal_velocity);
 		}
     
 		if (registry.players.has(entity)) {
