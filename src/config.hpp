@@ -1,3 +1,5 @@
+#pragma once
+
 #include "common.hpp"
 
 class Config {
@@ -17,3 +19,5 @@ public:
 		friction = config["friction"];
 	}
 };
+
+extern Config config;

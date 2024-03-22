@@ -2,5 +2,5 @@
 	"gravity": 4,
 	"move_speed": 4,
 	"jump_height": 4,
-	"friction": 4
+	"friction": 5
 }

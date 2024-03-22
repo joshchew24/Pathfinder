@@ -2,6 +2,7 @@
 
 // internal
 #include "common.hpp"
+#include "config.hpp"
 
 // stlib
 #include <deque>
@@ -13,12 +14,18 @@ private:
 	bool left = false;
 	bool right = false;
 	int last = 0;
-	const float FRICTION = 5.f;
+	float friction;
 
 public:
 	const static int LEFT_KEY = GLFW_KEY_A;
 	const static int RIGHT_KEY = GLFW_KEY_D;
+
 	MovementSystem() {}
+
+	void init(float friction_arg = config.friction) {
+		printf("%f\n", friction_arg);
+		friction = friction_arg;
+	}
 
 	void press(int key) {
 		if (key == LEFT_KEY) {
@@ -63,7 +70,7 @@ public:
 		}
 		// if no directional keys are pressed, apply horizontal deceleration
 		Motion& motion = registry.motions.get(registry.players.entities[0]);
-		motion.acceleration.x = FRICTION * -motion.velocity.x / abs(motion.velocity.x);
+		motion.acceleration.x = friction * -motion.velocity.x / abs(motion.velocity.x);
 		last = 0;
 	}
 

@@ -10,6 +10,7 @@
 #include "drawing_system.hpp"
 #include "ai_system.hpp"
 #include "config.hpp"
+#include "movement_system.hpp"
 
 // Entry point
 int main()
@@ -19,7 +20,6 @@ int main()
 	RenderSystem renderer;
 	PhysicsSystem physics;
 	AISystem ai;
-	Config config;
 
 	// Initializing window
 	GLFWwindow* window = world.create_window();
@@ -31,9 +31,10 @@ int main()
 	}
 
 	// initialize the main systems
+	config.load();
 	renderer.init(window);
 	world.init(&renderer);
-	config.load();
+	movementSystem.init();
 
 	
 	// report fps average across this many updates
