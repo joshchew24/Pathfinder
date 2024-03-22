@@ -1,4 +1,6 @@
 {
 	"gravity": 4,
-	"movementspeed": 4
+	"move_speed": 4,
+	"jump_height": 4,
+	"friction": 4
 }
