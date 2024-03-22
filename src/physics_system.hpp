@@ -12,6 +12,7 @@ class PhysicsSystem
 private:
 	float gravity;
 	float terminal_velocity;
+	float jump_height;
 
 	void updatePaintCanGroundedState();
 	void checkWindowBoundary(Motion& motion);
@@ -21,8 +22,9 @@ public:
 
 	PhysicsSystem()	{}
 
-	void init(float gravity_arg = config.gravity, float terminal_velocity_arg = config.terminal_velocity) {
+	void init(float gravity_arg = config.gravity, float terminal_velocity_arg = config.terminal_velocity, float jump_height_arg = config.jump_height) {
 		gravity = gravity_arg;
 		terminal_velocity = terminal_velocity_arg;
+		jump_height = jump_height_arg;
 	}
 };
