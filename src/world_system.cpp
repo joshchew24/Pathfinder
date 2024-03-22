@@ -474,7 +474,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	// player movement
-	if ((key == GLFW_KEY_RIGHT || key == GLFW_KEY_LEFT) && !registry.deathTimers.has(player)) {
+	if (!registry.deathTimers.has(player) && (key == GLFW_KEY_RIGHT || key == GLFW_KEY_LEFT)) {
 		RenderRequest& renderRequest = registry.renderRequests.get(player);
 		if (action == GLFW_PRESS || action == GLFW_REPEAT) {
 			movementSystem.press(key);
@@ -500,7 +500,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	// player jump
-	if (key == GLFW_KEY_SPACE) {
+	if (!registry.deathTimers.has(player) && key == GLFW_KEY_SPACE) {
 		if (action == GLFW_PRESS) {
 			movementSystem.press(key);
 		}

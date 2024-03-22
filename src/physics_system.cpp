@@ -255,16 +255,27 @@ void PhysicsSystem::step(float elapsed_ms)
 		Entity entity = motion_registry.entities[i];
 
 		// decide y accel and vel
-		if (motion.grounded) {
+		if (motion.isJumping) {
+			if (motion.timeJumping <= 500.f) {
+				motion.grounded = false;
+				motion.velocity.y = -600.f;
+				motion.timeJumping += elapsed_ms;
+			}
+			else {
+				motion.isJumping = false;
+			}
+		}
+		else if (motion.grounded) {
+			motion.jumpsLeft = 1;
 			motion.acceleration.y = 0.f;
 			motion.velocity.y = 0.f;
 		}
 		else if (registry.boulders.has(entity)) {
 			// this should just be set once in the boulder creation
-			motion.acceleration.y = gravity/20;
+			motion.acceleration.y = gravity / 20;
 			motion.velocity.y = clamp(motion.velocity.y + motion.acceleration.y, -600.f, 600.f);
 		}
-		else if(!motion.notAffectedByGravity){
+		else if (!motion.notAffectedByGravity) {
 			motion.acceleration.y = gravity;
 			motion.velocity.y = clamp(motion.velocity.y + motion.acceleration.y, -600.f, 600.f);
 		}
@@ -325,7 +336,6 @@ void PhysicsSystem::step(float elapsed_ms)
 		}
 	}
 	player.grounded = touching_any_platform;
-
 }
 
 void PhysicsSystem::updatePaintCanGroundedState() {

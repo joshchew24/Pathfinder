@@ -95,6 +95,9 @@ struct Motion {
 	bool grounded = false;
 	bool fixed = false;
 	bool notAffectedByGravity = false;
+	bool isJumping = false;
+	float timeJumping = 0.f;
+	int jumpsLeft = 1;
 };
 
 // Stucture to store collision information
