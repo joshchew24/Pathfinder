@@ -474,7 +474,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	// player movement
-	if ((key == movementSystem.RIGHT_KEY || key == movementSystem.LEFT_KEY) && !registry.deathTimers.has(player)) {
+	if ((key == movementSystem.RIGHT_KEY || key == movementSystem.LEFT_KEY) && !registry.deathTimers.has(player) && !RenderSystem::introductionScreen) {
 		RenderRequest& renderRequest = registry.renderRequests.get(player);
 		if (action == GLFW_PRESS || action == GLFW_REPEAT) {
 			movementSystem.press(key);
@@ -502,7 +502,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	// player jump
-	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS && !RenderSystem::introductionScreen) {
 		auto& motions = registry.motions;
 		Motion& motion = motions.get(player);
 		if (motion.grounded && !registry.deathTimers.has(player)) {
@@ -513,15 +513,21 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 
 
 	// Resetting game
-	if (action == GLFW_RELEASE && key == GLFW_KEY_R) {
+	if (action == GLFW_RELEASE && key == GLFW_KEY_R && !RenderSystem::introductionScreen) {
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
 
         restart_game();
 	}
 
+	//skipping cutscene
+	if (action == GLFW_RELEASE && key == GLFW_KEY_Z) {
+		RenderSystem::introductionScreen = false;
+		restart_game();
+	}
+
 	// Loading game
-	if (action == GLFW_RELEASE && key == GLFW_KEY_L) {
+	if (action == GLFW_RELEASE && key == GLFW_KEY_L && !RenderSystem::introductionScreen) {
 		load_checkpoint();
 	}
 
@@ -560,6 +566,14 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 }
 
 void WorldSystem::on_mouse_click(int button, int action, int mod) {
+	if (RenderSystem::introductionScreen) {
+		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+			renderer->sceneIndex++;
+			if (renderer->sceneIndex == 13) {
+				renderer->introductionScreen = false;
+			}
+		}
+	}
 	static const int DRAW_BUTTON = GLFW_MOUSE_BUTTON_LEFT;
 	if (button == DRAW_BUTTON) {
 	       if (action == GLFW_PRESS) {

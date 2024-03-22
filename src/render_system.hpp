@@ -7,6 +7,24 @@
 #include "components.hpp"
 #include "tiny_ecs.hpp"
 
+// matrices
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+//fonts
+#include <ft2build.h>
+#include FT_FREETYPE_H
+#include <map>
+
+struct Character {
+	unsigned int TextureID;  // ID handle of the glyph texture
+	glm::ivec2   Size;       // Size of glyph
+	glm::ivec2   Bearing;    // Offset from baseline to left/top of glyph
+	unsigned int Advance;    // Offset to advance to next glyph
+	char character;
+};
+
 // System responsible for setting up OpenGL and for rendering all the
 // visual entities in the game
 class RenderSystem {
@@ -92,6 +110,8 @@ public:
 
 	void RenderSystem::initParallaxRendering();
 
+	void RenderSystem::initIntroduction();
+
 	void RenderSystem::drawBackground();
 
 	bool RenderSystem::loadTextures(const char* fileName, GLuint &textureId);
@@ -99,6 +119,17 @@ public:
 	float camera_x = 0.0f;
 	float camera_y = 0.0f;
 
+	bool RenderSystem::fontInit(GLFWwindow& window, const std::string& font_filename, unsigned int font_default_size);
+
+	void RenderSystem::renderText(const std::string& text, float x, float y, float scale, const glm::vec3& color, const glm::mat4& trans);
+
+	static bool introductionScreen;
+
+	void RenderSystem::renderIntroduction(int i);
+
+	void RenderSystem::renderHelper(float transX, float transY, float textX, float textY, float oliverTransparency, float oldTransparency, GLuint dialogue, const char* text, float textScale);
+
+	int sceneIndex = 0;
 private:
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(Entity entity, const mat3& projection);
@@ -125,6 +156,22 @@ private:
 	GLuint backGroundShader;
 
 	GLuint globalVao;
+
+	//font
+	std::map<char, Character> m_ftCharacters;
+	GLuint m_font_shaderProgram;
+	GLuint m_font_VAO;
+	GLuint m_font_VBO;
+	glm::mat4 trans = glm::mat4(1.0f);
+
+	//introduction
+	GLuint dialogueBoxLeft;
+	GLuint dialogueBoxRight;
+	GLuint oliverPixel;
+	GLuint oldManPixel;
+	GLuint introductionVao;
+	GLuint introductionVbo;
+	GLuint introductionShader;
 };
 
 bool loadEffectFromFile(

@@ -5,6 +5,8 @@
 #include "tiny_ecs_registry.hpp"
 #include <glm/gtc/type_ptr.hpp>
 
+bool RenderSystem::introductionScreen = true;
+
 void RenderSystem::drawTexturedMesh(Entity entity,
 									const mat3 &projection)
 {
@@ -174,7 +176,7 @@ void RenderSystem::drawBackground() {
 
 	glUniform1f(glGetUniformLocation(backGroundShader, "parallaxFactor"), 0.0017);
 	glUniform1i(glGetUniformLocation(backGroundShader, "texture1"), 4);
-	glUniform1f(glGetUniformLocation(backGroundShader, "transparency"), 2);
+	glUniform1f(glGetUniformLocation(backGroundShader, "transparency"), 1.6);
 	glm::vec3 translation3(0.0f, -0.2f, 0.0f);
 	glUniform3fv(glGetUniformLocation(backGroundShader, "transform"), 1, glm::value_ptr(translation3));
 	glActiveTexture(GL_TEXTURE4);
@@ -283,25 +285,107 @@ void RenderSystem::draw()
 	gl_has_errors();
 	mat3 projection_2D = createProjectionMatrix();
 
-	// Draw all textured meshes that have a position and size component
-	drawBackground();
-	glBindVertexArray(globalVao);
+	if (introductionScreen) {
+		int w, h;
+		glfwGetFramebufferSize(window, &w, &h);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glViewport(0, 0, w, h);
+		glDepthRange(0, 10);
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glClearDepth(1.f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		gl_has_errors();
+		glDisable(GL_DEPTH_TEST);
 
-	for (Entity entity : registry.renderRequests.entities)
-	{
-		if (!registry.motions.has(entity))
-			continue;
-		// Note, its not very efficient to access elements indirectly via the entity
-		// albeit iterating through all Sprites in sequence. A good point to optimize
-		drawTexturedMesh(entity, projection_2D);
+		renderIntroduction(sceneIndex);
+	}
+	else {
+		drawBackground();
+
+		glBindVertexArray(globalVao);
+		for (Entity entity : registry.renderRequests.entities)
+		{
+			if (!registry.motions.has(entity))
+				continue;
+			// Note, its not very efficient to access elements indirectly via the entity
+			// albeit iterating through all Sprites in sequence. A good point to optimize
+			drawTexturedMesh(entity, projection_2D);
+		}
+
+		// Truely render to the screen
+		drawToScreen();
 	}
 
-	// Truely render to the screen
-	drawToScreen();
-
-	// flicker-free display with a double buffer
-	glfwSwapBuffers(window);
 	gl_has_errors();
+}
+
+void RenderSystem::renderText(const std::string& text, float x, float y, float scale, const glm::vec3& color, const glm::mat4& trans) {
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	// activate the shaders!
+	glUseProgram(m_font_shaderProgram);
+
+	unsigned int textColor_location =
+		glGetUniformLocation(
+			m_font_shaderProgram,
+			"textColor"
+		);
+	assert(textColor_location >= 0);
+	glUniform3f(textColor_location, color.x, color.y, color.z);
+
+	auto transform_location = glGetUniformLocation(
+		m_font_shaderProgram,
+		"transform"
+	);
+	assert(transform_location > -1);
+	glUniformMatrix4fv(transform_location, 1, GL_FALSE, glm::value_ptr(trans));
+
+	glBindVertexArray(m_font_VAO);
+
+	// iterate through all characters
+	std::string::const_iterator c;
+	for (c = text.begin(); c != text.end(); c++)
+	{
+		Character ch = m_ftCharacters[*c];
+
+		float xpos = x + ch.Bearing.x * scale;
+		float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+
+		float w = ch.Size.x * scale;
+		float h = ch.Size.y * scale;
+
+		// update VBO for each character
+		float vertices[6][4] = {
+			{ xpos,     ypos + h,   0.0f, 0.0f },
+			{ xpos,     ypos,       0.0f, 1.0f },
+			{ xpos + w, ypos,       1.0f, 1.0f },
+
+			{ xpos,     ypos + h,   0.0f, 0.0f },
+			{ xpos + w, ypos,       1.0f, 1.0f },
+			{ xpos + w, ypos + h,   1.0f, 0.0f }
+		};
+
+		// render glyph texture over quad
+		glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+		// std::cout << "binding texture: " << ch.character << " = " << ch.TextureID << std::endl;
+
+		// update content of VBO memory
+		glBindBuffer(GL_ARRAY_BUFFER, m_font_VBO);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		// render quad
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		// now advance cursors for next glyph (note that advance is number of 1/64 pixels)
+		x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64)
+	}
+
+	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
 }
 
 mat3 RenderSystem::createProjectionMatrix()
@@ -319,4 +403,87 @@ mat3 RenderSystem::createProjectionMatrix()
 	float tx = -(right + left) / (right - left);
 	float ty = -(top + bottom) / (top - bottom);
 	return {{sx, 0.f, 0.f}, {0.f, sy, 0.f}, {tx, ty, 1.f}};
+}
+
+void RenderSystem::renderHelper(float transX, float transY, float textX, float textY,  float oliverTransparency, float oldTransparency, GLuint dialogue, const char* text, float textScale) {
+	glUseProgram(introductionShader);
+	glBindVertexArray(introductionVao);
+
+	glUniform1i(glGetUniformLocation(introductionShader, "texture1"), 1);
+	glm::vec3 translation1(-0.8f, 0.1f, 0.0f);
+	glUniform3fv(glGetUniformLocation(introductionShader, "transform"), 1, glm::value_ptr(translation1));
+	glm::vec3 scale1(0.8f, 1.0f, 1.0f);
+	glUniform3fv(glGetUniformLocation(introductionShader, "scale"), 1, glm::value_ptr(scale1));
+	glUniform1f(glGetUniformLocation(introductionShader, "transparency"), oliverTransparency);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, oliverPixel);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+	glUniform1i(glGetUniformLocation(introductionShader, "texture1"), 2);
+	glm::vec3 translation2(0.7f, 0.1f, 0.0f);
+	glUniform3fv(glGetUniformLocation(introductionShader, "transform"), 1, glm::value_ptr(translation2));
+	glm::vec3 scale2(1.0f, 1.2f, 1.0f);
+	glUniform3fv(glGetUniformLocation(introductionShader, "scale"), 1, glm::value_ptr(scale2));
+	glUniform1f(glGetUniformLocation(introductionShader, "transparency"), oldTransparency);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, oldManPixel);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	gl_has_errors();
+
+	glUniform1i(glGetUniformLocation(introductionShader, "texture1"), 0);
+	glm::vec3 translation0(transX, transY, 0.0f);
+	glUniform3fv(glGetUniformLocation(introductionShader, "transform"), 1, glm::value_ptr(translation0));
+	glm::vec3 scale0(1.3f, 0.7f, 1.0f);
+	glUniform3fv(glGetUniformLocation(introductionShader, "scale"), 1, glm::value_ptr(scale0));
+	glUniform1f(glGetUniformLocation(introductionShader, "transparency"), 1);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, dialogue);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+	renderText(text, textX, textY, textScale, glm::vec3(1.0f, 1.0f, 1.0f), trans);
+	renderText("Press Z to skip", textX + 75, textY - 75, 0.5, glm::vec3(0.0f, 0.0f, 0.0f), trans);
+	renderText("Left click to progress", textX + 75, textY - 50, 0.5, glm::vec3(0.0f, 0.0f, 0.0f), trans);
+}
+
+void RenderSystem::renderIntroduction(int i) {
+	if (i == 0) {
+		renderHelper(-0.23f, -0.7f, 140, 200, 1, 3, dialogueBoxLeft, "wha.. what happened?", 2);
+	}
+	else if (i == 1) {
+		renderHelper(-0.23f, -0.7f, 140, 200, 1, 3, dialogueBoxLeft, "where am I?", 2);
+	}
+	else if (i == 2) {
+		renderHelper(0.25f, -0.7f, 800, 200, 3, 1, dialogueBoxRight, "Hello, Oliver.", 2);
+	}
+	else if (i == 3) {
+		renderHelper(0.25f, -0.7f, 800, 200, 3, 1, dialogueBoxRight, "I summoned you into this world.", 1.7);
+	}
+	else if (i == 4) {
+		renderHelper(0.25f, -0.7f, 800, 200, 3, 1, dialogueBoxRight, "I want you to test a few things for me.", 1.5);
+	}
+	else if (i == 5) {
+		renderHelper(0.25f, -0.7f, 800, 200, 3, 1, dialogueBoxRight, "You will enter a magical pixel world.", 1.5);
+	}
+	else if (i == 6) {
+		renderHelper(0.25f, -0.7f, 800, 200, 3, 1, dialogueBoxRight, "All you have to do is reach the trophy at each level.", 1.11);
+	}
+	else if (i == 7) {
+		renderHelper(-0.23f, -0.7f, 140, 200, 1, 3, dialogueBoxLeft, "This is crazy!!", 2);
+	}
+	else if (i == 8) {
+		renderHelper(0.25f, -0.7f, 800, 200, 3, 1, dialogueBoxRight, "Oh, there will also be enemies.", 1.5);
+	}
+	else if (i == 9) {
+		renderHelper(-0.23f, -0.7f, 140, 200, 1, 3, dialogueBoxLeft, "WHAT", 2);
+	}
+	else if (i == 10) {
+		renderHelper(0.25f, -0.7f, 800, 200, 3, 1, dialogueBoxRight, "You will also turn into a stickman", 1.5);
+	}
+	else if (i == 11) {
+		renderHelper(0.25f, -0.7f, 800, 200, 3, 1, dialogueBoxRight, "Goodluck.", 1.7);
+	}
+	else if (i == 12) {
+		renderHelper(-0.23f, -0.7f, 140, 200, 1, 3, dialogueBoxLeft, "wait, I still have ques....", 1.5);
+	}
+
 }
