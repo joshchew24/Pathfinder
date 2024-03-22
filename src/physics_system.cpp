@@ -247,28 +247,20 @@ void PhysicsSystem::step(float elapsed_ms)
 	auto& motion_registry = registry.motions;
 	for (uint i = 0; i < motion_registry.size(); i++)
 	{
-		float step_seconds = elapsed_ms / 1000.f;
 		Motion& motion = motion_registry.components[i];
-		Entity entity = motion_registry.entities[i];
 		if (motion.fixed) {
 			continue;
 		}
+		float step_seconds = elapsed_ms / 1000.f;
+		Entity entity = motion_registry.entities[i];
 
-		//if (motion.onlyGoDown) {
-		//	motion.acceleration.x = 0;
-		//	motion.velocity.x = 0;
-		//	motion.acceleration.y = gravity;
-		//	motion.velocity.y = clamp(motion.velocity.y + motion.acceleration.y, -400.f, 400.f);
-		//	motion.position += motion.velocity * step_seconds;
-		//	motion.onlyGoDown = false;
-		//	continue;
-		//}
-		// apply gravity
+		// decide y accel and vel
 		if (motion.grounded) {
 			motion.acceleration.y = 0.f;
 			motion.velocity.y = 0.f;
 		}
 		else if (registry.boulders.has(entity)) {
+			// this should just be set once in the boulder creation
 			motion.acceleration.y = gravity/20;
 			motion.velocity.y = clamp(motion.velocity.y + motion.acceleration.y, -600.f, 600.f);
 		}
@@ -277,33 +269,9 @@ void PhysicsSystem::step(float elapsed_ms)
 			motion.velocity.y = clamp(motion.velocity.y + motion.acceleration.y, -600.f, 600.f);
 		}
     
-		// if player hits top, left, or right, change velocity so the player bounces off boundary
-		if (registry.players.has(motion_registry.entities[i])) {
-			if (motion.position.x - abs(motion.scale.x) / 2 < 0) {
-				motion.position.x += 1.f;
-				motion.velocity.x = 0.f;
-			}
-			else if (motion.position.x + abs(motion.scale.x) / 2 > window_width_px) {
-				motion.position.x -= 1.f;
-				motion.velocity.x = 0.f;
-			}
-			else if (motion.position.y - abs(motion.scale.y) / 2 < 0) {
-				motion.position.y += 1.f;
-				motion.velocity.y = 0.f;
-			}
-			
-			if (motion.velocity.x != 0.0 && motion.acceleration.x != 0.0) {
-				// this conditional ASSUMES we are decelerating due to friction, and should stop at 0
-				if (abs(motion.velocity.x) < abs(motion.acceleration.x)) {
-					motion.velocity.x = 0.0;
-				}
-				else {
-					motion.velocity.x = clamp(motion.velocity.x + motion.acceleration.x, -TERMINAL_VELOCITY, TERMINAL_VELOCITY);
-				}
-			}
-			else {
-				motion.acceleration.x = 0.0f;
-			}
+		if (registry.players.has(entity)) {
+			checkWindowBoundary(motion);
+			applyFriction(motion);
 		}
 		updatePaintCanGroundedState();
 
@@ -386,5 +354,38 @@ void PhysicsSystem::updatePaintCanGroundedState() {
 		if (!isTouchingPlatform) {
 			paintCanMotion.grounded = false;
 		}
+	}
+}
+
+// used to keep player within window boundary
+// if entity hits top, left, or right, change velocity so the entity bounces off boundary
+void PhysicsSystem::checkWindowBoundary(Motion& motion) {
+	if (motion.position.x - abs(motion.scale.x) / 2 < 0) {
+		motion.position.x += 1.f;
+		motion.velocity.x = 0.f;
+	}
+	else if (motion.position.x + abs(motion.scale.x) / 2 > window_width_px) {
+		motion.position.x -= 1.f;
+		motion.velocity.x = 0.f;
+	}
+	else if (motion.position.y - abs(motion.scale.y) / 2 < 0) {
+		motion.position.y += 1.f;
+		motion.velocity.y = 0.f;
+	}
+}
+
+void PhysicsSystem::applyFriction(Motion& motion) {
+	// apply horizontal friction to player
+	if (motion.velocity.x != 0.0 && motion.acceleration.x != 0.0) {
+		// this conditional ASSUMES we are decelerating due to friction, and should stop at 0
+		if (abs(motion.velocity.x) < abs(motion.acceleration.x)) {
+			motion.velocity.x = 0.0;
+		}
+		else {
+			motion.velocity.x = clamp(motion.velocity.x + motion.acceleration.x, -TERMINAL_VELOCITY, TERMINAL_VELOCITY);
+		}
+	}
+	else {
+		motion.acceleration.x = 0.0f;
 	}
 }

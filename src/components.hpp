@@ -94,7 +94,6 @@ struct Motion {
 	float gravityScale = 1.0f;
 	bool grounded = false;
 	bool fixed = false;
-	bool onlyGoDown = false;
 	bool notAffectedByGravity = false;
 };
 
