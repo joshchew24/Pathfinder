@@ -12,6 +12,8 @@ class MovementSystem {
 private:
 	bool left = false;
 	bool right = false;
+	bool space = false;
+	std::chrono::steady_clock::time_point space_pressed;
 	int last = 0;
 	const float FRICTION = 5.f;
 
@@ -21,14 +23,27 @@ public:
 	void press(int key) {
 		if (key == GLFW_KEY_LEFT) {
 			left = true;
+			last = key;
 		}
 		else if (key == GLFW_KEY_RIGHT) {
 			right = true;
+			last = key;
 		}
-		last = key;
+		else if (key == GLFW_KEY_SPACE) {
+			space = true;
+			space_pressed = Clock::now();
+		}
 	}
 
 	void release(int key) {
+		if (key == GLFW_KEY_SPACE) {
+			space = false;
+			auto t = Clock::now();
+			float time_held = (float)(std::chrono::duration_cast<std::chrono::microseconds>(t - space_pressed)).count() / 1000;
+			float jump_height_multiplier = clamp(time_held, 100.f, 500.f);
+			printf("jump mult: %f\n", jump_height_multiplier);
+			return;
+		}
 		if (key == GLFW_KEY_LEFT) {
 			left = false;
 			if (right) {
@@ -43,7 +58,7 @@ public:
 				return;
 			}
 		}
-		// we only reach this case if no button is pressed
+		// if no directional keys are pressed, apply horizontal deceleration
 		Entity& player = registry.players.entities[0];
 		auto& motions = registry.motions;
 		Motion& motion = motions.get(player);
@@ -77,6 +92,7 @@ public:
 	void reset() {
 		left = false;
 		right = false;
+		space = false;
 		last = 0;
 	}
 };

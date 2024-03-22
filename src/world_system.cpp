@@ -500,12 +500,18 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	// player jump
-	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
-		auto& motions = registry.motions;
-		Motion& motion = motions.get(player);
-		if (motion.grounded && !registry.deathTimers.has(player)) {
-			motion.velocity.y = -600.f;
-			motion.grounded = false;
+	if (key == GLFW_KEY_SPACE) {
+		if (action == GLFW_PRESS) {
+			movementSystem.press(key);
+			auto& motions = registry.motions;
+			Motion& motion = motions.get(player);
+			if (motion.grounded && !registry.deathTimers.has(player)) {
+				motion.velocity.y = -600.f;
+				motion.grounded = false;
+			}
+		}
+		else if (action == GLFW_RELEASE) {
+			movementSystem.release(key);
 		}
 	}
 
