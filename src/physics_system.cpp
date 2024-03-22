@@ -392,7 +392,7 @@ void PhysicsSystem::applyFriction(Motion& motion) {
 			motion.velocity.x = 0.0;
 		}
 		else {
-			motion.velocity.x = clamp(motion.velocity.x + motion.acceleration.x, -TERMINAL_VELOCITY, TERMINAL_VELOCITY);
+			motion.velocity.x = clamp(motion.velocity.x + motion.acceleration.x, -terminal_velocity, terminal_velocity);
 		}
 	}
 	else {

@@ -1,6 +1,7 @@
 {
-	"gravity": 4,
+	"gravity": 9.8,
 	"move_speed": 250,
 	"jump_height": 4,
-	"friction": 5
+	"friction": 5,
+	"terminal_velocity":  600
 }

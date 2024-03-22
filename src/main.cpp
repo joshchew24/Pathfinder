@@ -35,6 +35,7 @@ int main()
 	renderer.init(window);
 	world.init(&renderer);
 	movementSystem.init();
+	physics.init();
 
 	
 	// report fps average across this many updates
