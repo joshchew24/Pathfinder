@@ -40,8 +40,15 @@ public:
 			space = false;
 			auto t = Clock::now();
 			float time_held = (float)(std::chrono::duration_cast<std::chrono::microseconds>(t - space_pressed)).count() / 1000;
-			float jump_height_multiplier = clamp(time_held, 100.f, 500.f);
-			printf("jump mult: %f\n", jump_height_multiplier);
+			float jump_height_multiplier = clamp(time_held, 100.f, 500.f) / 500.f;
+
+			Entity player = registry.players.entities[0];
+			auto& motions = registry.motions;
+			Motion& motion = motions.get(player);
+			if (motion.grounded && !registry.deathTimers.has(player)) {
+				motion.velocity.y = -600.f * jump_height_multiplier;
+				motion.grounded = false;
+			}
 			return;
 		}
 		if (key == GLFW_KEY_LEFT) {
