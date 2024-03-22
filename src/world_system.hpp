@@ -12,12 +12,17 @@
 #include <SDL_mixer.h>
 
 #include "render_system.hpp"
+#include "level_manager.hpp"
+#include "ai_system.hpp"
 
 // Container for all our entities and game logic. Individual rendering / update is
 // deferred to the relative update() methods
 class WorldSystem
 {
 public:
+	//level index
+	int level;
+
 	WorldSystem();
 
 	// Creates a window
@@ -43,10 +48,17 @@ public:
 
 	// Should the game be over ?
 	bool is_over()const;
+
+	void initLevels();
+
+	void createLevel();
+
+	void next_level();
 private:
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
 	void on_mouse_move(vec2 pos);
+	void on_mouse_click(int button, int action, int mod);
 
 	// Save/Load helpers
 	void save_checkpoint();
@@ -54,6 +66,22 @@ private:
 
 	// restart level
 	void restart_game();
+
+	LevelManager levelManager;
+	int maxLevel = 2;
+
+	float msPerFrame = 16.67;
+
+	//AI
+	AISystem aiSystem;
+	//advanced AI
+	Entity advancedBoulder;
+	int currentNode = 0;
+	std::vector<std::pair<int, int>> bestPath;
+	float speed = 0.01f;
+	const int gridSize = 30;
+	int FrameInterval = 60;
+	int FrameCount = 0;
 
 	// OpenGL window handle
 	GLFWwindow* window;
@@ -65,6 +93,7 @@ private:
 	float next_bug_spawn;
 	Entity player;
 	Entity pencil;
+	Entity tutorial;
 
 	//To set running animation
 	int currentRunningTexture = (int) TEXTURE_ASSET_ID::OLIVER;

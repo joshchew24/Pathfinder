@@ -24,7 +24,8 @@ class RenderSystem {
 	// Associated id with .obj path
 	const std::vector < std::pair<GEOMETRY_BUFFER_ID, std::string>> mesh_paths =
 	{
-		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::CHICKEN, mesh_path("chicken.obj"))
+		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::CHICKEN, mesh_path("chicken.obj")),
+		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::PAINT, mesh_path("paint.obj"))
 		  // specify meshes of other assets here
 	};
 
@@ -33,13 +34,18 @@ class RenderSystem {
 			textures_path("earthBlock.png"),
 			textures_path("platform.png"),
 			textures_path("Free/Traps/Rock Head/Idle.png"),
+			textures_path("chaseBoulder.png"),
 			textures_path("idleFlag.png"),
+			textures_path("end.png"),
 			textures_path("idle.png"),
 			textures_path("Run1.png"),
 			textures_path("Run2.png"),
 			textures_path("Run3.png"),
 			textures_path("Run4.png"),
-			textures_path("pencil.png")
+			textures_path("pencil.png"),
+			textures_path("paintcan.png"),
+			textures_path("tutorial.png"),
+			textures_path("background0.png")
       };
 
 	std::array<GLuint, effect_count> effects;
@@ -49,7 +55,8 @@ class RenderSystem {
 		shader_path("egg"),
 		shader_path("chicken"),
 		shader_path("textured"),
-		shader_path("wind") };
+		shader_path("wind"),
+		shader_path("background")};
 
 	std::array<GLuint, geometry_count> vertex_buffers;
 	std::array<GLuint, geometry_count> index_buffers;

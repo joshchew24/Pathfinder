@@ -5,6 +5,8 @@
 #include <string>
 #include <tuple>
 #include <vector>
+#include <sstream>
+#include <deque>
 
 // glfw (OpenGL)
 #define NOMINMAX
