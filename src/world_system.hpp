@@ -109,8 +109,8 @@ private:
 	float cameraSpeed = 0.004f;
 
 	//platform disappear time
-	float level4DisapperTimer = 3500;
-	bool level4Disappered = false;
+	float level4DisappearTimer = 3500;
+	bool level4Disappeared = false;
 
 	// C++ random number generator
 	std::default_random_engine rng;

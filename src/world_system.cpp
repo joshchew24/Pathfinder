@@ -294,9 +294,9 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 	movementSystem.handle_inputs();
 
-	if (!level4Disappered && level == 3) {
-		level4DisapperTimer -= elapsed_ms_since_last_update;
-		if (level4DisapperTimer <= 0) {
+	if (!level4Disappeared && level == 3) {
+		level4DisappearTimer -= elapsed_ms_since_last_update;
+		if (level4DisappearTimer <= 0) {
 			Level& level4 = this->levelManager.levels[WorldSystem::level];
 			for (Entity entity : registry.platforms.entities) {
 				RenderRequest& r = registry.renderRequests.get(entity);
@@ -310,7 +310,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 				RenderRequest& r = registry.renderRequests.get(entity);
 				r.used_texture = TEXTURE_ASSET_ID::EMPTY;
 			}
-			level4Disappered = true;
+			level4Disappeared = true;
 		}
 	}
 
@@ -384,8 +384,8 @@ void WorldSystem::restart_game() {
 		createPaintCan(renderer, { window_width_px - 300, window_height_px / 2 }, { 25.f, 50.f });
 	}
 
-	level4DisapperTimer = 4000;
-	level4Disappered = false;
+	level4DisappearTimer = 4000;
+	level4Disappeared = false;
 }
 
 // Compute collisions between entities
