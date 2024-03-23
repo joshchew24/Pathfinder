@@ -2,8 +2,6 @@
 #define GL3W_IMPLEMENTATION
 #include <gl3w.h>
 
-// stlib
-#include <chrono>
 
 // internal
 #include "physics_system.hpp"
@@ -11,8 +9,6 @@
 #include "world_system.hpp"
 #include "drawing_system.hpp"
 #include "ai_system.hpp"
-
-using Clock = std::chrono::high_resolution_clock;
 
 // Entry point
 int main()

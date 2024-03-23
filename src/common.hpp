@@ -7,6 +7,9 @@
 #include <vector>
 #include <sstream>
 #include <deque>
+// chrono
+#include <chrono>
+using Clock = std::chrono::high_resolution_clock;
 
 // glfw (OpenGL)
 #define NOMINMAX
@@ -16,6 +19,8 @@
 // json (nlohmann)
 #include "../ext/json/single_include/nlohmann/json.hpp"
 using json = nlohmann::json;
+
+
 
 // The glm library provides vector and matrix operations as in GLSL
 #include <glm/vec2.hpp>				// vec2
