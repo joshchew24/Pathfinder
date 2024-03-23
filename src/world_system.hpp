@@ -100,8 +100,13 @@ private:
 
 	// music references
 	Mix_Music* background_music;
-	Mix_Chunk* chicken_dead_sound;
-	Mix_Chunk* chicken_eat_sound;
+	Mix_Chunk* dead_sound;
+	Mix_Chunk* checkpoint_sound;
+	Mix_Chunk* level_win_sound;
+	Mix_Chunk* ink_pickup_sound;
+
+	//camera speed
+	float cameraSpeed = 0.004f;
 
 	// C++ random number generator
 	std::default_random_engine rng;

@@ -29,10 +29,14 @@ WorldSystem::~WorldSystem() {
 	// Destroy music components
 	if (background_music != nullptr)
 		Mix_FreeMusic(background_music);
-	if (chicken_dead_sound != nullptr)
-		Mix_FreeChunk(chicken_dead_sound);
-	if (chicken_eat_sound != nullptr)
-		Mix_FreeChunk(chicken_eat_sound);
+	if (dead_sound != nullptr)
+		Mix_FreeChunk(dead_sound);
+	if (checkpoint_sound != nullptr)
+		Mix_FreeChunk(checkpoint_sound);
+	if (level_win_sound != nullptr)
+		Mix_FreeChunk(level_win_sound);
+	if (ink_pickup_sound != nullptr)
+		Mix_FreeChunk(ink_pickup_sound);
 	Mix_CloseAudio();
 
 	// Destroy all created components
@@ -107,10 +111,18 @@ GLFWwindow* WorldSystem::create_window() {
 	}
 
 	background_music = Mix_LoadMUS(audio_path("music.wav").c_str());
-	chicken_dead_sound = Mix_LoadWAV(audio_path("chicken_dead.wav").c_str());
-	chicken_eat_sound = Mix_LoadWAV(audio_path("chicken_eat.wav").c_str());
+	Mix_VolumeMusic(10);
+	dead_sound = Mix_LoadWAV(audio_path("dead.wav").c_str());
+	checkpoint_sound = Mix_LoadWAV(audio_path("checkpoint.wav").c_str());
+	level_win_sound = Mix_LoadWAV(audio_path("level_win.wav").c_str());
+	ink_pickup_sound = Mix_LoadWAV(audio_path("ink_pickup.wav").c_str());
 
-	if (background_music == nullptr || chicken_dead_sound == nullptr || chicken_eat_sound == nullptr) {
+	Mix_VolumeChunk(dead_sound, 10);
+	Mix_VolumeChunk(checkpoint_sound, 5);
+	Mix_VolumeChunk(level_win_sound, 10);
+	Mix_VolumeChunk(ink_pickup_sound, 10);
+
+	if (background_music == nullptr || dead_sound == nullptr || checkpoint_sound == nullptr || level_win_sound == nullptr || ink_pickup_sound == nullptr) {
 		fprintf(stderr, "Failed to load sounds\n %s\n %s\n %s\n make sure the data directory is present",
 			audio_path("music.wav").c_str(),
 			audio_path("chicken_dead.wav").c_str(),
@@ -173,7 +185,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	if (pmotion.position.y - abs(pmotion.scale.y) / 2 > window_height_px) {
 		if (!registry.deathTimers.has(player)) {
 			registry.deathTimers.emplace(player);
-			Mix_PlayChannel(-1, chicken_dead_sound, 0);
+			Mix_PlayChannel(-1, dead_sound, 0);
 		}
 	}
 
@@ -272,6 +284,13 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 	// reduce window brightness if any of the present chickens is dying
 	//screen.darken_screen_factor = 1 - min_counter_ms / 3000;
+	
+	//update parallax background based on player position
+	Motion& m = registry.motions.get(player);
+	float dx = m.position.x - renderer->camera_x;
+	renderer->camera_x = dx * cameraSpeed;
+	float dy = m.position.y - renderer->camera_y;
+	renderer->camera_y = dy * cameraSpeed;
 
 	movementSystem.handle_inputs();
 	return true;
@@ -362,7 +381,7 @@ void WorldSystem::handle_collisions() {
 				if (!registry.deathTimers.has(entity)) {
 					// Scream, reset timer, and make the chicken sink
 					registry.deathTimers.emplace(entity);
-					Mix_PlayChannel(-1, chicken_dead_sound, 0);
+					Mix_PlayChannel(-1, dead_sound, 0);
 
 					// !!! TODO A1: change the chicken orientation and color on death
 				}
@@ -372,9 +391,7 @@ void WorldSystem::handle_collisions() {
 				if (!registry.deathTimers.has(entity)) {
 					// chew, count points, and set the LightUp timer
 					registry.remove_all_components_of(entity_other);
-					Mix_PlayChannel(-1, chicken_eat_sound, 0);
-
-					// !!! TODO A1: create a new struct called LightUp in components.hpp and add an instance to the chicken entity by modifying the ECS registry
+					Mix_PlayChannel(-1, ink_pickup_sound, 0);
 				}
 			}
 			else if (registry.walls.has(entity_other)) {
@@ -392,10 +409,12 @@ void WorldSystem::handle_collisions() {
 
 			// Checking Player - Checkpoint collisions
 			else if (registry.checkpoints.has(entity_other)) {
+				Mix_PlayChannel(-1, checkpoint_sound, 0);
 				save_checkpoint();
 			}
 
 			else if (registry.levelEnds.has(entity_other)) {
+				Mix_PlayChannel(-1, level_win_sound, 0);
 				next_level();
 			}
 		}
@@ -484,7 +503,6 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 				}
 				currentRunningTexture++;
 				renderRequest.used_texture = static_cast<TEXTURE_ASSET_ID>(currentRunningTexture);
-				renderer->camera_x += 0.1f;
 			}
 			else if (key == GLFW_KEY_D) {
 				if (currentRunningTexture == (int)TEXTURE_ASSET_ID::RUN4) {
@@ -492,7 +510,6 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 				}
 				currentRunningTexture++;
 				renderRequest.used_texture = static_cast<TEXTURE_ASSET_ID>(currentRunningTexture);
-				renderer->camera_x -= 0.1f;
 			}
 		}
 		else if (action == GLFW_RELEASE) {
