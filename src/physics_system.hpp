@@ -11,8 +11,6 @@ class PhysicsSystem
 public:
 	void step(float elapsed_ms);
 
-	void updatePaintCanGroundedState();
-
 	PhysicsSystem()
 	{
 	}
@@ -20,4 +18,8 @@ public:
 private: 
 	float gravity = 9.8f;
 	const float TERMINAL_VELOCITY = 250.f;
+
+	void updatePaintCanGroundedState();
+	void checkWindowBoundary(Motion& motion);
+	void applyFriction(Motion& motion);
 };
