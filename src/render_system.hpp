@@ -63,7 +63,17 @@ class RenderSystem {
 			textures_path("pencil.png"),
 			textures_path("paintcan.png"),
 			textures_path("tutorial.png"),
-			textures_path("background0.png")
+			textures_path("background0.png"),
+			textures_path("Free/Traps/Spikes/idle.png"),
+			textures_path("Empty.png"),
+			textures_path("hintAnimation/hint1.png"),
+			textures_path("hintAnimation/hint2.png"),
+			textures_path("hintAnimation/hint3.png"),
+			textures_path("hintAnimation/hint4.png"),
+			textures_path("hintAnimation/hint5.png"),
+			textures_path("hintAnimation/hint6.png"),
+			textures_path("hintAnimation/hint7.png"),
+			textures_path("hintAnimation/hint8.png")
       };
 
 	std::array<GLuint, effect_count> effects;

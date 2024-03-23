@@ -68,7 +68,7 @@ private:
 	void restart_game();
 
 	LevelManager levelManager;
-	int maxLevel = 2;
+	int maxLevel = 3;
 
 	float msPerFrame = 16.67;
 
@@ -107,6 +107,10 @@ private:
 
 	//camera speed
 	float cameraSpeed = 0.004f;
+
+	//platform disappear time
+	float level4DisapperTimer = 3500;
+	bool level4Disappered = false;
 
 	// C++ random number generator
 	std::default_random_engine rng;

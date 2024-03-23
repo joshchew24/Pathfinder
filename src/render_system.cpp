@@ -4,6 +4,8 @@
 #include <SDL_opengl.h>
 #include "tiny_ecs_registry.hpp"
 #include <glm/gtc/type_ptr.hpp>
+#include <chrono>
+#include <thread>
 
 bool RenderSystem::introductionScreen = true;
 
@@ -318,6 +320,7 @@ void RenderSystem::draw()
 
 	gl_has_errors();
 }
+
 
 void RenderSystem::renderText(const std::string& text, float x, float y, float scale, const glm::vec3& color, const glm::mat4& trans) {
 

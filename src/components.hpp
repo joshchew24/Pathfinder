@@ -128,7 +128,7 @@ struct DebugComponent
 // A timer that will be associated to dying chicken
 struct DeathTimer
 {
-	float counter_ms = 1000;
+	float counter_ms = 3000;
 };
 
 // Single Vertex Buffer element for non-textured meshes (coloured.vs.glsl & chicken.vs.glsl)
@@ -194,7 +194,17 @@ enum class TEXTURE_ASSET_ID {
 	PAINTCAN = PENCIL + 1,
 	TUTORIAL = PAINTCAN + 1,
 	BACKGROUND = TUTORIAL + 1,
-	TEXTURE_COUNT = BACKGROUND + 1
+	SPIKES = BACKGROUND + 1,
+	EMPTY = SPIKES + 1,
+	HINT1 = EMPTY + 1,
+	HINT2 = HINT1 + 1,
+	HINT3 = HINT2 + 1,
+	HINT4 = HINT3 + 1,
+	HINT5 = HINT4 + 1,
+	HINT6 = HINT5 + 1,
+	HINT7 = HINT6 + 1,
+	HINT8 = HINT7 + 1,
+	TEXTURE_COUNT = HINT8 + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 

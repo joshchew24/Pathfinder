@@ -140,7 +140,7 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
 	fprintf(stderr, "Loaded music\n");
 
 	//init levels
-	WorldSystem::level = 0;
+	WorldSystem::level = 3;
 	LevelManager lm;
 	lm.initLevel();
 	lm.printLevelsInfo();
@@ -191,14 +191,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 
 	next_boulder_spawn -= elapsed_ms_since_last_update * current_speed * 2;
-	if (level >= 1 && registry.deadlys.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
+	if ((level == 1 || level == 2) && registry.deadlys.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
 		// Reset timer
 		next_boulder_spawn = (BOULDER_DELAY_MS / 2) + uniform_dist(rng) * (BOULDER_DELAY_MS / 2);
 		createBoulder(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), -100.f));
 	}
 
 
-	if(!registry.deathTimers.has(player) && level >= 2)
+	if(!registry.deathTimers.has(player) && level == 2)
 	{
 		FrameCount += elapsed_ms_since_last_update;
 		if (FrameCount / msPerFrame >= FrameInterval) {
@@ -263,7 +263,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 	// Processing the chicken state
 	assert(registry.screenStates.components.size() <= 1);
-    //ScreenState &screen = registry.screenStates.components[0];
+    ScreenState &screen = registry.screenStates.components[0];
 
     float min_counter_ms = 3000.f;
 	for (Entity entity : registry.deathTimers.entities) {
@@ -277,13 +277,13 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		// restart the game once the death timer expired
 		if (counter.counter_ms < 0) {
 			registry.deathTimers.remove(entity);
-			//screen.darken_screen_factor = 0;
+			screen.darken_screen_factor = 0;
             restart_game();
 			return true;
 		}
 	}
 	// reduce window brightness if any of the present chickens is dying
-	//screen.darken_screen_factor = 1 - min_counter_ms / 3000;
+	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
 	
 	//update parallax background based on player position
 	Motion& m = registry.motions.get(player);
@@ -293,6 +293,27 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	renderer->camera_y = dy * cameraSpeed;
 
 	movementSystem.handle_inputs();
+
+	if (!level4Disappered && level == 3) {
+		level4DisapperTimer -= elapsed_ms_since_last_update;
+		if (level4DisapperTimer <= 0) {
+			Level& level4 = this->levelManager.levels[WorldSystem::level];
+			for (Entity entity : registry.platforms.entities) {
+				RenderRequest& r = registry.renderRequests.get(entity);
+				r.used_texture = TEXTURE_ASSET_ID::EMPTY;
+			}
+			for (Entity entity : registry.walls.entities) {
+				RenderRequest& r = registry.renderRequests.get(entity);
+				r.used_texture = TEXTURE_ASSET_ID::EMPTY;
+			}
+			for (Entity entity : registry.deadlys.entities) {
+				RenderRequest& r = registry.renderRequests.get(entity);
+				r.used_texture = TEXTURE_ASSET_ID::EMPTY;
+			}
+			level4Disappered = true;
+		}
+	}
+
 	return true;
 }
 
@@ -309,10 +330,14 @@ void WorldSystem::createLevel() {
 		int platformHeight = abs(w.y - window_height_px) + w.ySize / 2 + 2;
 		createPlatform(renderer, {w.x, window_height_px - platformHeight}, {w.xSize - 10, 10.f});
 	}
+	for (int i = 0; i < currentLevel.spikes.size(); ++i) {
+		spikes s = currentLevel.spikes[i];
+		createSpikes(renderer, { s.x, s.y }, { 40, 20});
+	}
 	createCheckpoint(renderer, { currentLevel.checkpoint.first, currentLevel.checkpoint.second });
 	createEndpoint(renderer, { currentLevel.endPoint.first, currentLevel.endPoint.second });
 	player = createOliver(renderer, { currentLevel.playerPos.first, currentLevel.playerPos.second });
-	registry.colors.insert(player, { 1, 0.8f, 0.8f });	
+	registry.colors.insert(player, { 1, 1, 1 });	
 }
 
 // Reset the world state to its initial state
@@ -352,13 +377,15 @@ void WorldSystem::restart_game() {
 	// Center cursor to pencil location
 	glfwSetCursorPos(window, window_width_px / 2 - 25.f, window_height_px / 2 + 25.f);
 
-	if (level >= 2) {
+	if (level == 2) {
 		advancedBoulder = createChaseBoulder(renderer, { window_width_px / 2, 100 });
 		bestPath = {};
 		currentNode = 0;
 		createPaintCan(renderer, { window_width_px - 300, window_height_px / 2 }, { 25.f, 50.f });
 	}
 
+	level4DisapperTimer = 4000;
+	level4Disappered = false;
 }
 
 // Compute collisions between entities
@@ -382,8 +409,7 @@ void WorldSystem::handle_collisions() {
 					// Scream, reset timer, and make the chicken sink
 					registry.deathTimers.emplace(entity);
 					Mix_PlayChannel(-1, dead_sound, 0);
-
-					// !!! TODO A1: change the chicken orientation and color on death
+					pMotion.fixed = true;
 				}
 			}
 			// Checking Player - Eatable collisions
