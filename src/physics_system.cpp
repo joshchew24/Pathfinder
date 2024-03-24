@@ -243,7 +243,7 @@ bool rectangleCollides(const Motion& motion1, const Motion& motion2) {
 
 void PhysicsSystem::step(float elapsed_ms)
 {
-	elapsed_ms = clamp(elapsed_ms, 0.f, 8.f);
+	//elapsed_ms = clamp(elapsed_ms, 0.f, 8.f);
 	auto& motion_registry = registry.motions;
 	for (uint i = 0; i < motion_registry.size(); i++)
 	{
@@ -256,9 +256,11 @@ void PhysicsSystem::step(float elapsed_ms)
 
 		// decide y accel and vel
 		if (motion.isJumping) {
-			if (motion.timeJumping <= 100.f) {
+			printf("%f\n", motion.timeJumping);
+			if (motion.timeJumping <= 150.f) {
 				motion.grounded = false;
-				motion.velocity.y = -300.f;
+				motion.velocity.y = -jump_height;
+				motion.acceleration.y = 0;
 				motion.timeJumping += elapsed_ms;
 			}
 			else {
@@ -273,16 +275,19 @@ void PhysicsSystem::step(float elapsed_ms)
 		else if (registry.boulders.has(entity)) {
 			// this should just be set once in the boulder creation
 			motion.acceleration.y = gravity / 20;
-			motion.velocity.y = clamp(motion.velocity.y + motion.acceleration.y, -600.f, 600.f);
+			motion.velocity.y = clamp(motion.velocity.y + motion.acceleration.y, -terminal_velocity, terminal_velocity);
 		}
 		else if (!motion.notAffectedByGravity) {
 			motion.acceleration.y = gravity;
-			motion.velocity.y = clamp(motion.velocity.y + motion.acceleration.y, -600.f, 600.f);
+			motion.velocity.y = clamp(motion.velocity.y + motion.acceleration.y, -terminal_velocity, terminal_velocity);
 		}
     
 		if (registry.players.has(entity)) {
 			checkWindowBoundary(motion);
 			applyFriction(motion);
+			if (registry.deathTimers.has(entity)) {
+				motion.velocity.x = 0.f;
+			}
 		}
 		updatePaintCanGroundedState();
 
@@ -392,7 +397,7 @@ void PhysicsSystem::applyFriction(Motion& motion) {
 			motion.velocity.x = 0.0;
 		}
 		else {
-			motion.velocity.x = clamp(motion.velocity.x + motion.acceleration.x, -TERMINAL_VELOCITY, TERMINAL_VELOCITY);
+			motion.velocity.x = clamp(motion.velocity.x + motion.acceleration.x, -terminal_velocity, terminal_velocity);
 		}
 	}
 	else {

@@ -185,11 +185,10 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		createBoulder(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), -100.f));
 	}
 
-
 	if(!registry.deathTimers.has(player) && level >= 2)
 	{
 		FrameCount += elapsed_ms_since_last_update;
-		if (FrameCount / msPerFrame >= FrameInterval) {
+		if (FrameCount >= FrameInterval) {
 			aiSystem.updateGrid(levelManager.levels[level].walls);
 			//aiSystem.printGrid();
 			Motion& eMotion = registry.motions.get(advancedBoulder);
@@ -211,14 +210,16 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		if (bestPath.size() != 0 && currentNode < bestPath.size() - 1) {
 			float x0 = eMotion.position.x;
 			float y0 = eMotion.position.y;
-			float x1 = (bestPath[currentNode + 1].first) * gridSize;
+			float x1 = (bestPath[currentNode + 1].first + 1) * gridSize;
 			float y1 = (bestPath[currentNode + 1].second + 1) * gridSize;
 
-			//printf("x0:%f\n", x0);
-			//printf("x1:%f\n", x1);
+			if (debugging.in_debug_mode) {
+				printf("x0:%f\n", x0);
+				printf("x1:%f\n", x1);
 
-			//printf("y0:%f\n", y0);
-			//printf("y1:%f\n", y1);
+				printf("y0:%f\n", y0);
+				printf("y1:%f\n", y1);
+			}
 
 			if (x0 > x1) {
 				x1 = (bestPath[currentNode + 1].first) * gridSize;
@@ -234,7 +235,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 				currentNode++;
 			}
 			else {
-				auto interpolatedPoint = advancedAIlerp(x0, y0, x1, y1, 0.05);
+				auto interpolatedPoint = advancedAIlerp(x0, y0, x1, y1, 0.002);
 				eMotion.position.x = interpolatedPoint.first;
 				eMotion.position.y = interpolatedPoint.second;
 			}
@@ -524,11 +525,8 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	// Debugging
-	if (key == GLFW_KEY_D) {
-		if (action == GLFW_RELEASE)
-			debugging.in_debug_mode = false;
-		else
-			debugging.in_debug_mode = true;
+	if (key == GLFW_KEY_I && action == GLFW_PRESS) {
+		debugging.in_debug_mode = !debugging.in_debug_mode;
 	}
 
 	// Control the current speed with `<` `>`
