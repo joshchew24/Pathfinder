@@ -76,10 +76,6 @@ std::vector<std::pair<int, int>> AISystem::bestPath(Motion& eMotion, Motion& pMo
     const int dx[4] = { 1, 0, -1, 0 };
     const int dy[4] = { 0, 1, 0, -1 };
 
-    printf("targetX: %d ", targetX);
-    printf("targetY: %d ", targetY);
-    printf("gridHeight: %d ", gridHeight);
-
     if (grid[targetY][targetX] == 1 || targetY >= gridHeight) {
         return {};
     }

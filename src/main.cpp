@@ -9,6 +9,8 @@
 #include "world_system.hpp"
 #include "drawing_system.hpp"
 #include "ai_system.hpp"
+#include "config.hpp"
+#include "movement_system.hpp"
 
 // Entry point
 int main()
@@ -29,8 +31,11 @@ int main()
 	}
 
 	// initialize the main systems
+	config.load();
 	renderer.init(window);
 	world.init(&renderer);
+	movementSystem.init();
+	physics.init();
 
 	
 	// report fps average across this many updates
