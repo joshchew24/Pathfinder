@@ -40,6 +40,13 @@ struct DrawnLine
 	Entity drawing;
 	Entity p1; // first DrawnPoint ent
 	Entity p2; // second DrawnPoint ent
+	
+	vec2 x_bounds;
+	vec2 y_bounds;
+
+	// y = mx + b linear eqn coeffs
+	float slope;
+	float intercept;
 };
 
 // Eagles have a hard shell
