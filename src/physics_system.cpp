@@ -285,6 +285,9 @@ void PhysicsSystem::step(float elapsed_ms)
 		if (registry.players.has(entity)) {
 			checkWindowBoundary(motion);
 			applyFriction(motion);
+			if (registry.deathTimers.has(entity)) {
+				motion.velocity.x = 0.f;
+			}
 		}
 		updatePaintCanGroundedState();
 
