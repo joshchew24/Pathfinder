@@ -128,7 +128,7 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
 	fprintf(stderr, "Loaded music\n");
 
 	//init levels
-	WorldSystem::level = 0;
+	WorldSystem::level = 2;
 	LevelManager lm;
 	lm.initLevel();
 	lm.printLevelsInfo();
@@ -178,18 +178,18 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 
 
-	next_boulder_spawn -= elapsed_ms_since_last_update * current_speed * 2;
-	if (level >= 1 && registry.deadlys.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
-		// Reset timer
-		next_boulder_spawn = (BOULDER_DELAY_MS / 2) + uniform_dist(rng) * (BOULDER_DELAY_MS / 2);
-		createBoulder(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), -100.f));
-	}
+	//next_boulder_spawn -= elapsed_ms_since_last_update * current_speed * 2;
+	//if (level >= 1 && registry.deadlys.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
+	//	// Reset timer
+	//	next_boulder_spawn = (BOULDER_DELAY_MS / 2) + uniform_dist(rng) * (BOULDER_DELAY_MS / 2);
+	//	createBoulder(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), -100.f));
+	//}
 
-
+	//printf("elapsed ms: %f", elapsed_ms_since_last_update);
 	if(!registry.deathTimers.has(player) && level >= 2)
 	{
 		FrameCount += elapsed_ms_since_last_update;
-		if (FrameCount / msPerFrame >= FrameInterval) {
+		if (FrameCount >= FrameInterval) {
 			aiSystem.updateGrid(levelManager.levels[level].walls);
 			//aiSystem.printGrid();
 			Motion& eMotion = registry.motions.get(advancedBoulder);
@@ -211,14 +211,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		if (bestPath.size() != 0 && currentNode < bestPath.size() - 1) {
 			float x0 = eMotion.position.x;
 			float y0 = eMotion.position.y;
-			float x1 = (bestPath[currentNode + 1].first) * gridSize;
+			float x1 = (bestPath[currentNode + 1].first + 1) * gridSize;
 			float y1 = (bestPath[currentNode + 1].second + 1) * gridSize;
 
-			//printf("x0:%f\n", x0);
-			//printf("x1:%f\n", x1);
+			printf("x0:%f\n", x0);
+			printf("x1:%f\n", x1);
 
-			//printf("y0:%f\n", y0);
-			//printf("y1:%f\n", y1);
+			printf("y0:%f\n", y0);
+			printf("y1:%f\n", y1);
 
 			if (x0 > x1) {
 				x1 = (bestPath[currentNode + 1].first) * gridSize;
@@ -234,7 +234,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 				currentNode++;
 			}
 			else {
-				auto interpolatedPoint = advancedAIlerp(x0, y0, x1, y1, 0.05);
+				auto interpolatedPoint = advancedAIlerp(x0, y0, x1, y1, 0.002);
 				eMotion.position.x = interpolatedPoint.first;
 				eMotion.position.y = interpolatedPoint.second;
 			}

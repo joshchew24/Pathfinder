@@ -70,8 +70,6 @@ private:
 	LevelManager levelManager;
 	int maxLevel = 2;
 
-	float msPerFrame = 16.67;
-
 	//AI
 	AISystem aiSystem;
 	//advanced AI
@@ -80,7 +78,7 @@ private:
 	std::vector<std::pair<int, int>> bestPath;
 	float speed = 0.01f;
 	const int gridSize = 30;
-	int FrameInterval = 60;
+	int FrameInterval = 20;
 	int FrameCount = 0;
 
 	// OpenGL window handle
