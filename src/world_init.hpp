@@ -35,3 +35,5 @@ Entity createBackground(RenderSystem* renderer);
 Entity createPaintCan(RenderSystem* renderer, vec2 pos, vec2 size);
 
 Entity createTutorial(RenderSystem* renderer);
+
+Entity createSpikes(RenderSystem* renderer, vec2 pos, vec2 size);

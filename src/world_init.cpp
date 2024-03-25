@@ -328,3 +328,30 @@ Entity createTutorial(RenderSystem* renderer) {
 
 	return e;
 }
+
+Entity createSpikes(RenderSystem* renderer, vec2 position, vec2 size)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	// Initialize the pencil
+	auto& motion = registry.motions.emplace(entity);
+	motion.position = position;
+
+	motion.scale = size;
+	motion.fixed = true;
+
+	// Create a RenderRequest for the pencil
+	registry.deadlys.emplace(entity);
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::SPIKES,
+		  EFFECT_ASSET_ID::TEXTURED,
+		  GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+

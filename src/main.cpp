@@ -45,6 +45,11 @@ int main()
 	int total_frame_count = 0;
 	int curr_fps = 0;
 
+	std::string font_filename = "..//..//..//data//fonts//Kenney_Pixel.ttf";
+	unsigned int font_default_size = 60;
+	renderer.fontInit(*window, font_filename, font_default_size);
+	gl_has_errors();
+
 	// variable timestep loop
 	auto t = Clock::now();
 	while (!world.is_over()) {
@@ -84,6 +89,8 @@ int main()
 		}
 
 		renderer.draw();
+
+		glfwSwapBuffers(window);
 	}
 
 	return EXIT_SUCCESS;
