@@ -28,8 +28,10 @@ private:
 	vec2 drawPos{0,0};
 	Entity curr_drawing;
 	Entity prev_point;
+	Entity prev_line;
 	bool is_drawing = false;
 	bool just_finished_drawing = false;
+	bool start_connecting = false;
 };
 
 extern DrawingSystem drawings;

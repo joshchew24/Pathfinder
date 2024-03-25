@@ -49,6 +49,15 @@ struct DrawnLine
 	float intercept;
 };
 
+// Drawn Line Joints
+struct DrawnJoint
+{
+	Entity drawing;
+	Entity l1; // line 1
+	Entity l2;
+	float top_angle; // top angle of the isoceles triangle joint
+};
+
 // Eagles have a hard shell
 struct Deadly
 {
@@ -225,7 +234,8 @@ enum class GEOMETRY_BUFFER_ID {
 	EGG = SPRITE + 1,
 	DRAWN_LINE = EGG + 1,
 	DEBUG_LINE = DRAWN_LINE + 1,
-	SCREEN_TRIANGLE = DEBUG_LINE + 1,
+	JOINT_TRIANGLE = DEBUG_LINE + 1,
+	SCREEN_TRIANGLE = JOINT_TRIANGLE + 1,
 	GEOMETRY_COUNT = SCREEN_TRIANGLE + 1
 };
 const int geometry_count = (int)GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;

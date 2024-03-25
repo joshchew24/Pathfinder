@@ -34,6 +34,7 @@ void DrawingSystem::start_drawing() {
 		map_drawings_points_id[drawing] = std::vector<Entity>{point};		
 		curr_drawing = drawing;
 		prev_point = point;
+		start_connecting = false;
 	}
 
 	is_drawing = true;
@@ -49,7 +50,7 @@ void DrawingSystem::set_draw_pos(const vec2 &pos) {
 	drawPos = pos;
 }
 
-void build_line(Entity& drawing, Entity& p1, Entity& p2) {
+Entity build_line(Entity& drawing, Entity& p1, Entity& p2) {
 	static constexpr float line_width = 10.0f;
 	const vec2& pos1 = registry.drawnPoints.get(p1).position;
 	const vec2& pos2 = registry.drawnPoints.get(p2).position;
@@ -61,7 +62,7 @@ void build_line(Entity& drawing, Entity& p1, Entity& p2) {
 	Motion &m = registry.motions.emplace(line);
 	m.position = 0.5f * (pos1 + pos2); // midpoint
 	m.scale = vec2{dist, line_width};
-	m.angle = atan(dp[1] / dp[0]);
+	m.angle = atan2(dp[1], dp[0]);
 	m.fixed = true;
 	
 	DrawnLine &dline = registry.drawnLines.emplace(line);
@@ -83,6 +84,34 @@ void build_line(Entity& drawing, Entity& p1, Entity& p2) {
 				{TEXTURE_ASSET_ID::TEXTURE_COUNT,
 				EFFECT_ASSET_ID::EGG,
 				GEOMETRY_BUFFER_ID::DRAWN_LINE}); // TODO: make unique drawn line ID
+	return line;
+}
+
+void build_joint(Entity& drawing, Entity& l1, Entity& l2) {
+	static constexpr float line_width = 10.f;
+	Entity j = Entity();
+	DrawnJoint& joint = registry.drawnJoints.emplace(j);
+	Motion& l1_m = registry.motions.get(l1);
+	Motion& l2_m = registry.motions.get(l2);
+	DrawnLine& line1 = registry.drawnLines.get(l1);
+	DrawnPoint& p2 = registry.drawnPoints.get(line1.p2);
+	if (l1_m.angle == l2_m.angle)
+		return;
+	joint.drawing = drawing;
+	joint.l1 = l1;
+	joint.l2 = l2;
+	joint.top_angle = M_PI - (l2_m.angle - l1_m.angle);
+
+	Motion &m = registry.motions.emplace(j);
+	m.scale = vec2(5,5);
+	m.fixed = true;
+	m.angle = 1.5 * M_PI + l1_m.angle;
+	m.position = p2.position;
+	m.position += vec2(5*cos(m.angle), 5*sin(m.angle));	
+	registry.renderRequests.insert(j,
+				{TEXTURE_ASSET_ID::TEXTURE_COUNT,
+				EFFECT_ASSET_ID::EGG,
+				GEOMETRY_BUFFER_ID::JOINT_TRIANGLE}); 
 }
 
 void DrawingSystem::step(float elapsed_ms) {
@@ -106,10 +135,19 @@ void DrawingSystem::step(float elapsed_ms) {
 			return; // avoid duplicate points
 		Entity point = Entity();
 		registry.drawnPoints.insert(point, {curr_drawing, drawPos});
-		build_line(curr_drawing, prev_point, point);
+		Entity line = build_line(curr_drawing, prev_point, point);
 
+		if (!start_connecting) {
+			prev_line = line;
+			start_connecting = true;
+		}
+		else {
+			build_joint(curr_drawing, prev_line, line);
+			prev_line = line;
+		}
 		point_ents.push_back(point);
 		prev_point = point;
+
 	}
 }
 

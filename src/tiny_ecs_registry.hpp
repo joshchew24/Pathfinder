@@ -29,6 +29,7 @@ public:
 	ComponentContainer<Wall> walls;
 	ComponentContainer<Drawing> drawings;
 	ComponentContainer<DrawnLine> drawnLines;
+	ComponentContainer<DrawnJoint> drawnJoints;
 	ComponentContainer<DrawnPoint> drawnPoints;
 	ComponentContainer<advancedAI> advancedAIs;
 	ComponentContainer<levelEnd> levelEnds;

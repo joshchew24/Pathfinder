@@ -236,6 +236,13 @@ void RenderSystem::initializeGlGeometryBuffers()
 	// Counterclockwise as it's the default opengl front winding direction.
 	const std::vector<uint16_t> screen_indices = { 0, 1, 2 };
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::SCREEN_TRIANGLE, screen_vertices, screen_indices);
+
+	// Triangle for line joints
+	std::vector<vec3> joint_vertices(3);
+	joint_vertices[0] = { -sqrt(3), -1, 0.f };
+	joint_vertices[1] = { 0, 0, 0.f };
+	joint_vertices[2] = { -sqrt(3), 1, 0.f };
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::JOINT_TRIANGLE, joint_vertices, screen_indices);
 }
 
 RenderSystem::~RenderSystem()
