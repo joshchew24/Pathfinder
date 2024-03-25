@@ -29,10 +29,14 @@ WorldSystem::~WorldSystem() {
 	// Destroy music components
 	if (background_music != nullptr)
 		Mix_FreeMusic(background_music);
-	if (chicken_dead_sound != nullptr)
-		Mix_FreeChunk(chicken_dead_sound);
-	if (chicken_eat_sound != nullptr)
-		Mix_FreeChunk(chicken_eat_sound);
+	if (dead_sound != nullptr)
+		Mix_FreeChunk(dead_sound);
+	if (checkpoint_sound != nullptr)
+		Mix_FreeChunk(checkpoint_sound);
+	if (level_win_sound != nullptr)
+		Mix_FreeChunk(level_win_sound);
+	if (ink_pickup_sound != nullptr)
+		Mix_FreeChunk(ink_pickup_sound);
 	Mix_CloseAudio();
 
 	// Destroy all created components
@@ -107,10 +111,18 @@ GLFWwindow* WorldSystem::create_window() {
 	}
 
 	background_music = Mix_LoadMUS(audio_path("music.wav").c_str());
-	chicken_dead_sound = Mix_LoadWAV(audio_path("chicken_dead.wav").c_str());
-	chicken_eat_sound = Mix_LoadWAV(audio_path("chicken_eat.wav").c_str());
+	Mix_VolumeMusic(10);
+	dead_sound = Mix_LoadWAV(audio_path("dead.wav").c_str());
+	checkpoint_sound = Mix_LoadWAV(audio_path("checkpoint.wav").c_str());
+	level_win_sound = Mix_LoadWAV(audio_path("level_win.wav").c_str());
+	ink_pickup_sound = Mix_LoadWAV(audio_path("ink_pickup.wav").c_str());
 
-	if (background_music == nullptr || chicken_dead_sound == nullptr || chicken_eat_sound == nullptr) {
+	Mix_VolumeChunk(dead_sound, 10);
+	Mix_VolumeChunk(checkpoint_sound, 5);
+	Mix_VolumeChunk(level_win_sound, 10);
+	Mix_VolumeChunk(ink_pickup_sound, 10);
+
+	if (background_music == nullptr || dead_sound == nullptr || checkpoint_sound == nullptr || level_win_sound == nullptr || ink_pickup_sound == nullptr) {
 		fprintf(stderr, "Failed to load sounds\n %s\n %s\n %s\n make sure the data directory is present",
 			audio_path("music.wav").c_str(),
 			audio_path("chicken_dead.wav").c_str(),
@@ -173,19 +185,19 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	if (pmotion.position.y - abs(pmotion.scale.y) / 2 > window_height_px) {
 		if (!registry.deathTimers.has(player)) {
 			registry.deathTimers.emplace(player);
-			Mix_PlayChannel(-1, chicken_dead_sound, 0);
+			Mix_PlayChannel(-1, dead_sound, 0);
 		}
 	}
 
 
 	next_boulder_spawn -= elapsed_ms_since_last_update * current_speed * 2;
-	if (level >= 1 && registry.deadlys.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
+	if ((level == 1 || level == 2) && registry.deadlys.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
 		// Reset timer
 		next_boulder_spawn = (BOULDER_DELAY_MS / 2) + uniform_dist(rng) * (BOULDER_DELAY_MS / 2);
 		createBoulder(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), -100.f));
 	}
 
-	if(!registry.deathTimers.has(player) && level >= 2)
+	if(!registry.deathTimers.has(player) && level == 2)
 	{
 		FrameCount += elapsed_ms_since_last_update;
 		if (FrameCount >= FrameInterval) {
@@ -273,8 +285,36 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 	// reduce window brightness if any of the present chickens is dying
 	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
+	
+	//update parallax background based on player position
+	Motion& m = registry.motions.get(player);
+	float dx = m.position.x - renderer->camera_x;
+	renderer->camera_x = dx * cameraSpeed;
+	float dy = m.position.y - renderer->camera_y;
+	renderer->camera_y = dy * cameraSpeed;
 
 	movementSystem.handle_inputs();
+
+	if (!level4Disappeared && level == 3) {
+		level4DisappearTimer -= elapsed_ms_since_last_update;
+		if (level4DisappearTimer <= 0) {
+			Level& level4 = this->levelManager.levels[WorldSystem::level];
+			for (Entity entity : registry.platforms.entities) {
+				RenderRequest& r = registry.renderRequests.get(entity);
+				r.used_texture = TEXTURE_ASSET_ID::EMPTY;
+			}
+			for (Entity entity : registry.walls.entities) {
+				RenderRequest& r = registry.renderRequests.get(entity);
+				r.used_texture = TEXTURE_ASSET_ID::EMPTY;
+			}
+			for (Entity entity : registry.deadlys.entities) {
+				RenderRequest& r = registry.renderRequests.get(entity);
+				r.used_texture = TEXTURE_ASSET_ID::EMPTY;
+			}
+			level4Disappeared = true;
+		}
+	}
+
 	return true;
 }
 
@@ -291,10 +331,14 @@ void WorldSystem::createLevel() {
 		int platformHeight = abs(w.y - window_height_px) + w.ySize / 2 + 2;
 		createPlatform(renderer, {w.x, window_height_px - platformHeight}, {w.xSize - 10, 10.f});
 	}
+	for (int i = 0; i < currentLevel.spikes.size(); ++i) {
+		spikes s = currentLevel.spikes[i];
+		createSpikes(renderer, { s.x, s.y }, { 40, 20});
+	}
 	createCheckpoint(renderer, { currentLevel.checkpoint.first, currentLevel.checkpoint.second });
 	createEndpoint(renderer, { currentLevel.endPoint.first, currentLevel.endPoint.second });
 	player = createOliver(renderer, { currentLevel.playerPos.first, currentLevel.playerPos.second });
-	registry.colors.insert(player, { 1, 0.8f, 0.8f });	
+	registry.colors.insert(player, { 1, 1, 1 });	
 }
 
 // Reset the world state to its initial state
@@ -321,7 +365,7 @@ void WorldSystem::restart_game() {
 	// Debugging for memory/component leaks
 	registry.list_all_components();
 	
-	createBackground(renderer);
+	//createBackground(renderer);
 
 	//platform
 	createLevel();
@@ -334,13 +378,15 @@ void WorldSystem::restart_game() {
 	// Center cursor to pencil location
 	glfwSetCursorPos(window, window_width_px / 2 - 25.f, window_height_px / 2 + 25.f);
 
-	if (level >= 2) {
+	if (level == 2) {
 		advancedBoulder = createChaseBoulder(renderer, { window_width_px / 2, 100 });
 		bestPath = {};
 		currentNode = 0;
 		createPaintCan(renderer, { window_width_px - 300, window_height_px / 2 }, { 25.f, 50.f });
 	}
 
+	level4DisappearTimer = 4000;
+	level4Disappeared = false;
 }
 
 // Compute collisions between entities
@@ -363,9 +409,8 @@ void WorldSystem::handle_collisions() {
 				if (!registry.deathTimers.has(entity)) {
 					// Scream, reset timer, and make the chicken sink
 					registry.deathTimers.emplace(entity);
-					Mix_PlayChannel(-1, chicken_dead_sound, 0);
-
-					// !!! TODO A1: change the chicken orientation and color on death
+					Mix_PlayChannel(-1, dead_sound, 0);
+					pMotion.fixed = true;
 				}
 			}
 			// Checking Player - Eatable collisions
@@ -373,9 +418,7 @@ void WorldSystem::handle_collisions() {
 				if (!registry.deathTimers.has(entity)) {
 					// chew, count points, and set the LightUp timer
 					registry.remove_all_components_of(entity_other);
-					Mix_PlayChannel(-1, chicken_eat_sound, 0);
-
-					// !!! TODO A1: create a new struct called LightUp in components.hpp and add an instance to the chicken entity by modifying the ECS registry
+					Mix_PlayChannel(-1, ink_pickup_sound, 0);
 				}
 			}
 			else if (registry.walls.has(entity_other)) {
@@ -393,10 +436,12 @@ void WorldSystem::handle_collisions() {
 
 			// Checking Player - Checkpoint collisions
 			else if (registry.checkpoints.has(entity_other)) {
+				Mix_PlayChannel(-1, checkpoint_sound, 0);
 				save_checkpoint();
 			}
 
 			else if (registry.levelEnds.has(entity_other)) {
+				Mix_PlayChannel(-1, level_win_sound, 0);
 				next_level();
 			}
 		}
@@ -475,7 +520,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	// player movement
-	if (!registry.deathTimers.has(player) && (key == GLFW_KEY_A || key == GLFW_KEY_D)) {
+	if (!registry.deathTimers.has(player) && !RenderSystem::introductionScreen && (key == GLFW_KEY_A || key == GLFW_KEY_D)) {
 		RenderRequest& renderRequest = registry.renderRequests.get(player);
 		if (action == GLFW_PRESS || action == GLFW_REPEAT) {
 			movementSystem.press(key);
@@ -501,7 +546,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	// player jump
-	if (!registry.deathTimers.has(player) && key == GLFW_KEY_SPACE) {
+	if (!registry.deathTimers.has(player) && !RenderSystem::introductionScreen && key == GLFW_KEY_SPACE) {
 		if (action == GLFW_PRESS) {
 			movementSystem.press(key);
 		}
@@ -512,15 +557,21 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 
 
 	// Resetting game
-	if (action == GLFW_RELEASE && key == GLFW_KEY_R) {
+	if (action == GLFW_RELEASE && key == GLFW_KEY_R && !RenderSystem::introductionScreen) {
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
 
         restart_game();
 	}
 
+	//skipping cutscene
+	if (action == GLFW_RELEASE && key == GLFW_KEY_Z) {
+		RenderSystem::introductionScreen = false;
+		restart_game();
+	}
+
 	// Loading game
-	if (action == GLFW_RELEASE && key == GLFW_KEY_L) {
+	if (action == GLFW_RELEASE && key == GLFW_KEY_L && !RenderSystem::introductionScreen) {
 		load_checkpoint();
 	}
 
@@ -556,6 +607,14 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 }
 
 void WorldSystem::on_mouse_click(int button, int action, int mod) {
+	if (RenderSystem::introductionScreen) {
+		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+			renderer->sceneIndex++;
+			if (renderer->sceneIndex == 13) {
+				renderer->introductionScreen = false;
+			}
+		}
+	}
 	static const int DRAW_BUTTON = GLFW_MOUSE_BUTTON_LEFT;
 	if (button == DRAW_BUTTON) {
 	       if (action == GLFW_PRESS) {
