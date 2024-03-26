@@ -60,6 +60,8 @@ class RenderSystem {
 			textures_path("Run2.png"),
 			textures_path("Run3.png"),
 			textures_path("Run4.png"),
+			textures_path("Run5.png"),
+			textures_path("Run6.png"),
 			textures_path("pencil.png"),
 			textures_path("paintcan.png"),
 			textures_path("tutorial.png"),
