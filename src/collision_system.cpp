@@ -12,15 +12,15 @@ vec2 get_bounding_box(const Motion& motion)
 bool CollisionSystem::collides(const Motion& motion1, const Entity& entity1, const Motion& motion2, const Entity& entity2)
 {
 	if (registry.renderRequests.has(entity1) && registry.renderRequests.get(entity1).used_geometry != GEOMETRY_BUFFER_ID::GEOMETRY_COUNT &&
-		registry.meshPtrs.has(entity1) && registry.meshPtrs.get(entity1)->vertices.size() > 0 && SATcollision(registry.meshPtrs.get(entity1), motion1, motion2)) {
-		return true;
+		registry.meshPtrs.has(entity1) && registry.meshPtrs.get(entity1)->vertices.size() > 0) {
+		return SATcollision(registry.meshPtrs.get(entity1), motion1, motion2);
 	}
 	else if (registry.renderRequests.has(entity2) && registry.renderRequests.get(entity2).used_geometry != GEOMETRY_BUFFER_ID::GEOMETRY_COUNT &&
-	registry.meshPtrs.has(entity2) && registry.meshPtrs.get(entity2)->vertices.size() > 0 && SATcollision(registry.meshPtrs.get(entity2), motion2, motion1)) {
-		return true;
+	registry.meshPtrs.has(entity2) && registry.meshPtrs.get(entity2)->vertices.size() > 0) {
+		return SATcollision(registry.meshPtrs.get(entity2), motion2, motion1);
 	}
-	else if (rectangleCollides(motion1, motion2)) {
-		return true;
+	else {
+		return rectangleCollides(motion1, motion2);
 	}
 	return false;
 }
