@@ -9,6 +9,24 @@ vec2 translateRotateScale(vec3 position, const Motion& motion) {
 	return positions;
 }
 
+vec4 getBox(const Mesh* mesh, const Motion& motion) {
+	float max_x = FLT_MIN;
+	float max_y = FLT_MIN;
+	float min_x = FLT_MAX;
+	float min_y = FLT_MAX;
+	for (size_t i = 0; i < mesh->vertices.size(); i++) {
+		vec2 positions = translateRotateScale(mesh->vertices[i].position, motion);
+
+		max_x = max(max_x, positions[0]);
+		max_y = max(max_y, positions[1]);
+		min_x = min(min_x, positions[0]);
+		min_y = min(min_y, positions[1]);
+	}
+
+	vec4 box = { max_x, max_y, min_x, min_y };
+	return box;
+}
+
 Entity createOliver(RenderSystem* renderer, vec2 pos)
 {
 	auto entity = Entity();
