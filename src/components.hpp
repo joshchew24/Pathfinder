@@ -159,7 +159,6 @@ struct Mesh
 struct BezierProjectile {
 	vec2 targetPosition;
 	vec2 startPosition;
-	float flightDuration;
 	float elapsedTime = 0.0f;
 	vec2 controlPoint;
 };
