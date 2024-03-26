@@ -50,6 +50,7 @@ public:
 
 	bool paintCanDecisionTree(std::string choice, Entity& paintCanEntity, const vec2& playerPosition, ECSRegistry& registry);
 
+	bool archerDecisionTree(std::string choice, Entity& archerEntity, const vec2& playerPosition, ECSRegistry& registry, Motion& playerMotion);
 
 
 	template<typename T>
