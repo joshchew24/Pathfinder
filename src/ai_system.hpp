@@ -42,6 +42,10 @@ public:
 
 	bool hasLineOfSight(const vec2& start, const vec2& end);
 
+	bool line_intersects_box(float x1, float y1, float x2, float y2, float left, float bottom, float right, float top);
+
+	bool checkLineCollision(const Motion& paintCanMotion);
+
 	bool rectangleCollides(const Motion& motion1, const Motion& motion2);
 
 	void createAllDecisionTrees();
