@@ -296,7 +296,7 @@ bool AISystem::archerDecisionTree(std::string choice, Entity& archerEntity, cons
                 double archerLeftEdge = archerMotion.position.x - abs(archerMotion.scale.x / 2.0);
                 double archerRightEdge = archerMotion.position.x + abs(archerMotion.scale.x / 2.0);
 
-                if (archerLeftEdge <= platformLeftEdge || archerRightEdge >= platformRightEdge) {
+                if (archerLeftEdge <= platformLeftEdge || archerRightEdge >= platformRightEdge || checkLineCollision(archerMotion)) {
                     archerMotion.velocity.x *= -1;
                     if ((archerMotion.velocity.x < 0 && archerMotion.scale.x > 0) ||
                         (archerMotion.velocity.x > 0 && archerMotion.scale.x < 0)) {
