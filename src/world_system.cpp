@@ -247,7 +247,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 				currentNode++;
 			}
 			else {
-				auto interpolatedPoint = advancedAIlerp(x0, y0, x1, y1, 0.002);
+				auto interpolatedPoint = advancedAIlerp(x0, y0, x1, y1, elapsed_ms_since_last_update / 1000.f);
 				eMotion.position.x = interpolatedPoint.first;
 				eMotion.position.y = interpolatedPoint.second;
 			}
