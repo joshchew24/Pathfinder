@@ -114,7 +114,7 @@ void PhysicsSystem::step(float elapsed_ms)
 		std::printf("Before update - elapsed_ms: %f, Projectile Elapsed Time: %f\n", elapsed_ms, projectile.elapsedTime);
 		projectile.elapsedTime += elapsed_ms;
 		std::printf("After update - elapsed_ms: %f, Projectile Elapsed Time: %f\n", elapsed_ms, projectile.elapsedTime);
-		float t = projectile.elapsedTime / 1000;
+		float t = projectile.elapsedTime / 2000;
 		std::printf("elapsed_ms: %f, Elapsed Time: %f, t: %f\n",
 			elapsed_ms, projectile.elapsedTime, t);
 		if (t > 1.0) t = 1.0;
