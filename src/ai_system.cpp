@@ -149,10 +149,6 @@ bool AISystem::boulderDecisionTreeSwitch(std::string choice, Entity& boulderEnti
     vec2 boulderPositionBottom = boulderMotion.position + vec2(0, boulderMotion.scale.y / 2.0f);
 
     vec2 playerHeadPosition = playerPosition - vec2(0, boulderMotion.scale.y / 2.0f);
-    if (checkLineCollision(boulderMotion)) {
-        registry.remove_all_components_of(boulderEntity);
-        
-    }
     if (choice == "canSeePlayer") {
         bool lineOfSightTop = hasLineOfSight(boulderPositionTop, playerHeadPosition);
         bool lineOfSightBottom = hasLineOfSight(boulderPositionBottom, playerHeadPosition);
