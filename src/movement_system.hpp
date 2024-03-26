@@ -20,6 +20,7 @@ private:
 public:
 	const static int LEFT_KEY = GLFW_KEY_A;
 	const static int RIGHT_KEY = GLFW_KEY_D;
+	bool moving = false;
 
 	MovementSystem() {}
 
@@ -27,6 +28,9 @@ public:
 		friction = friction_arg;
 		move_speed = move_speed_arg;
 	}
+
+	// if player is moving left or right
+	bool leftOrRight() { return left || right; }
 
 	void press(int key) {
 		if (key == LEFT_KEY) {
