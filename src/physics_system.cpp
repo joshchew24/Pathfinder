@@ -110,7 +110,7 @@ void PhysicsSystem::step(float elapsed_ms)
 		Motion& projectile_motion = motion_registry.get(projectile_container.entities[i]);
 		Motion& player_motion = motion_registry.get(registry.players.entities[0]);
 		projectile.elapsedTime += elapsed_ms;
-		float t = projectile.elapsedTime / 3000;
+		float t = elapsed_ms / 1500;
 		std::printf("elapsed_ms: %f, Elapsed Time: %f, t: %f\n",
 			elapsed_ms, projectile.flightDuration, t);
 		if (t > 1.0) t = 1.0;
@@ -127,6 +127,9 @@ void PhysicsSystem::step(float elapsed_ms)
 		float radian = atan(-tangentVec.y, tangentVec.x);
 		projectile_motion.angle = radian;
 		projectile_motion.position = currentPosition;
+		if (projectile_motion.velocity.y == 0) {
+			registry.remove_all_components_of(projectileEntity);
+		}
 	}
 
 	// ComponentContainer<Platform>& platform_container = registry.platforms;
