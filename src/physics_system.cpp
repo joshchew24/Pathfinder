@@ -20,7 +20,9 @@ void PhysicsSystem::step(float elapsed_ms)
 
 		// decide y accel and vel
 		if (motion.isJumping) {
-			printf("%f\n", motion.timeJumping);
+			if (debugging.in_debug_mode) {
+				printf("%f\n", motion.timeJumping);
+			}
 			if (motion.timeJumping <= 150.f) {
 				motion.grounded = false;
 				motion.velocity.y = -jump_height;
@@ -154,12 +156,13 @@ void PhysicsSystem::applyFriction(Motion& motion, float elapsed_ms) {
 	float step_seconds = elapsed_ms / 1000.f;
 	// apply horizontal friction to player
 	if (motion.velocity.x != 0.0 && motion.acceleration.x != 0.0) {
+		float delta_vel = motion.acceleration.x * step_seconds;
 		// this conditional ASSUMES we are decelerating due to friction, and should stop at 0
-		if (abs(motion.velocity.x) < abs(motion.acceleration.x)) {
+		if (abs(motion.velocity.x) < abs(delta_vel)) {
 			motion.velocity.x = 0.0;
 		}
 		else {
-			motion.velocity.x = clamp(motion.velocity.x + motion.acceleration.x * step_seconds, -terminal_velocity, terminal_velocity);
+			motion.velocity.x = clamp(motion.velocity.x + delta_vel, -terminal_velocity, terminal_velocity);
 		}
 	}
 	else {
