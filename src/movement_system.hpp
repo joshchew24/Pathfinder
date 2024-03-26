@@ -16,6 +16,7 @@ private:
 	int last = 0;
 	float friction;
 	float move_speed;
+	float terminal_velocity;
 
 public:
 	const static int LEFT_KEY = GLFW_KEY_A;
@@ -24,9 +25,12 @@ public:
 
 	MovementSystem() {}
 
-	void init(float friction_arg = config.friction, float move_speed_arg = config.move_speed) {
+	void init(float friction_arg = config.friction, 
+		float move_speed_arg = config.move_speed,
+		float terminal_velocity_arg = config.terminal_velocity) {
 		friction = friction_arg;
 		move_speed = move_speed_arg;
+		terminal_velocity = terminal_velocity_arg;
 	}
 
 	// if player is moving left or right
@@ -82,15 +86,34 @@ public:
 	void handle_inputs() {
 		if (last == 0) return;
 		Motion& motion = registry.motions.get(registry.players.entities[0]);
-		motion.acceleration.x = 0.0;
+		float dv;
 		if (last == LEFT_KEY && left) {
-			motion.velocity.x = move_speed * -1.f;
+			if (motion.velocity.x >= 0) {
+				dv = -move_speed;
+			}
+			else if (motion.velocity.x < -move_speed) {
+				dv = 0;
+			}
+			else {
+				dv = -move_speed - motion.velocity.x;
+			}
+			motion.velocity.x += dv;
 			if (motion.scale.x > 0) {
 				motion.scale.x = -motion.scale.x;
 			}
 			return;
 		}
 		if (last == RIGHT_KEY && right) {
+			if (motion.velocity.x <= 0) {
+				dv = move_speed;
+			}
+			else if (motion.velocity.x > move_speed) {
+				dv = 0;
+			}
+			else {
+				dv = move_speed - motion.velocity.x;
+			}
+			motion.velocity.x += dv;
 			motion.velocity.x = move_speed;
 			if (motion.scale.x < 0) {
 				motion.scale.x = -motion.scale.x;
