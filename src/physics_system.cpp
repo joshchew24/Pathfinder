@@ -39,16 +39,16 @@ void PhysicsSystem::step(float elapsed_ms)
 		else if (registry.boulders.has(entity)) {
 			// this should just be set once in the boulder creation
 			motion.acceleration.y = gravity / 20;
-			motion.velocity.y = clamp(motion.velocity.y + motion.acceleration.y, -terminal_velocity, terminal_velocity);
+			motion.velocity.y = clamp(motion.velocity.y + motion.acceleration.y*step_seconds, -terminal_velocity, terminal_velocity);
 		}
 		else if (!motion.notAffectedByGravity) {
 			motion.acceleration.y = gravity;
-			motion.velocity.y = clamp(motion.velocity.y + motion.acceleration.y, -terminal_velocity, terminal_velocity);
+			motion.velocity.y = clamp(motion.velocity.y + motion.acceleration.y * step_seconds, -terminal_velocity, terminal_velocity);
 		}
     
 		if (registry.players.has(entity)) {
 			checkWindowBoundary(motion);
-			applyFriction(motion);
+			applyFriction(motion, step_seconds);
 			if (registry.deathTimers.has(entity)) {
 				motion.velocity.x = 0.f;
 			}
@@ -138,7 +138,8 @@ void PhysicsSystem::checkWindowBoundary(Motion& motion) {
 	}
 }
 
-void PhysicsSystem::applyFriction(Motion& motion) {
+void PhysicsSystem::applyFriction(Motion& motion, float elapsed_ms) {
+	float step_seconds = elapsed_ms / 1000.f;
 	// apply horizontal friction to player
 	if (motion.velocity.x != 0.0 && motion.acceleration.x != 0.0) {
 		// this conditional ASSUMES we are decelerating due to friction, and should stop at 0
@@ -146,7 +147,7 @@ void PhysicsSystem::applyFriction(Motion& motion) {
 			motion.velocity.x = 0.0;
 		}
 		else {
-			motion.velocity.x = clamp(motion.velocity.x + motion.acceleration.x, -terminal_velocity, terminal_velocity);
+			motion.velocity.x = clamp(motion.velocity.x + motion.acceleration.x * step_seconds, -terminal_velocity, terminal_velocity);
 		}
 	}
 	else {

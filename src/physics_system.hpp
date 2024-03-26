@@ -19,7 +19,7 @@ private:
 
 	void updatePaintCanGroundedState();
 	void checkWindowBoundary(Motion& motion);
-	void applyFriction(Motion& motion);
+	void applyFriction(Motion& motion, float elapsed_ms);
 public:
 	void step(float elapsed_ms);
 
