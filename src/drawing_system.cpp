@@ -100,7 +100,6 @@ void build_joint(Entity& drawing, Entity& l1, Entity& l2) {
 	joint.drawing = drawing;
 	joint.l1 = l1;
 	joint.l2 = l2;
-	joint.top_angle = M_PI - (l2_m.angle - l1_m.angle);
 
 	Motion &m = registry.motions.emplace(j);
 	m.scale = vec2(5,5);
@@ -116,11 +115,6 @@ void build_joint(Entity& drawing, Entity& l1, Entity& l2) {
 
 void DrawingSystem::step(float elapsed_ms) {
 	static float ms_since_last_update = 0;
-
-	// DEBUG: check player static bbox collision with every drawn line
-	if (debugging.in_debug_mode)
-		for (auto &line : registry.drawnLines.entities)
-			check_player_collision(line);
 
 	// Ensure we're only updating periodically according to freq constant
 	ms_since_last_update += elapsed_ms;	
@@ -153,48 +147,3 @@ void DrawingSystem::step(float elapsed_ms) {
 
 
 
-// Takes 4 bounding box inputs to check against a particular line
-bool DrawingSystem::line_collides(Entity& line,
-	       	float min_x, float min_y, float max_x, float max_y) {
-	const DrawnLine& dline = registry.drawnLines.get(line);
-
-	// Determine whether there is intersection
-	const bool y_intersects = !(dline.y_bounds[1] < min_y || dline.y_bounds[0] > max_y);
-	const bool x_intersects = !(dline.x_bounds[1] < min_x || dline.x_bounds[0] > max_x);
-
-	if (!y_intersects || !x_intersects)
-		return false;
-
-	// Check if line eqn. output is within the bounding box for overlapping x values
-	vec2 x_overlap(std::max(min_x, dline.x_bounds[0]),  std::min(max_x, dline.x_bounds[1]));
-	vec2 test_y = dline.slope * x_overlap + dline.intercept;
-	// Same for x against y values; we check both to guard against perfect vert/horizontal lines
-	vec2 y_overlap(std::max(min_y, dline.y_bounds[0]),  std::min(max_y, dline.y_bounds[1]));
-	vec2 test_x = (1 / dline.slope) * (y_overlap - dline.intercept);
-
-	const bool result = (test_y[0] >= min_y && test_y[1] <= max_y) ||
-			    (test_x[0] >= min_x && test_x[1] <= max_x);
-
-	// DEBUG code
-	if (result && debugging.in_debug_mode) { 
-		auto& r = registry.renderRequests.get(line);
-		r.used_geometry = GEOMETRY_BUFFER_ID::DEBUG_LINE; // turn the line red
-	}
-	return result;
-}
-
-// Debugging function; assumes player bounding box is static w.r.t scale
-bool DrawingSystem::check_player_collision(Entity& line) {
-	const auto &player = registry.players.entities.back();
-	const Motion &m = registry.motions.get(player);
-
-	const float width = abs(m.scale[0]);
-	const float height = abs(m.scale[1]);
-	vec4 bbox;
-	bbox[0] = m.position[0] - width/2;
-	bbox[1] = m.position[1] - height/2;
-	bbox[2] = m.position[0] + width/2;
-	bbox[3] = m.position[1] + height/2;
-
-	return line_collides(line, bbox[0], bbox[1], bbox[2], bbox[3]);
-}

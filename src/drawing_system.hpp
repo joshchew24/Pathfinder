@@ -20,8 +20,6 @@ public:
 	void reset();
 
 	bool check_player_collision(Entity& line);
-	bool line_collides(Entity& line,
-			float min_x, float min_y, float max_x, float max_y);
 
 private:
 	std::unordered_map<unsigned int, std::vector<Entity>> map_drawings_points_id;

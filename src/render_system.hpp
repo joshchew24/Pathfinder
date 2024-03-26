@@ -64,7 +64,7 @@ class RenderSystem {
 			textures_path("paintcan.png"),
 			textures_path("tutorial.png"),
 			textures_path("background0.png"),
-			textures_path("Free/Traps/Spikes/idle.png"),
+			textures_path("Free/Traps/Spikes/Idle.png"),
 			textures_path("Empty.png"),
 			textures_path("hintAnimation/hint1.png"),
 			textures_path("hintAnimation/hint2.png"),
@@ -118,26 +118,26 @@ public:
 
 	mat3 createProjectionMatrix();
 
-	void RenderSystem::initParallaxRendering();
+	void initParallaxRendering();
 
-	void RenderSystem::initIntroduction();
+	void initIntroduction();
 
-	void RenderSystem::drawBackground();
+	void drawBackground();
 
-	bool RenderSystem::loadTextures(const char* fileName, GLuint &textureId);
+	bool loadTextures(const char* fileName, GLuint &textureId);
 
 	float camera_x = 0.0f;
 	float camera_y = 0.0f;
 
-	bool RenderSystem::fontInit(GLFWwindow& window, const std::string& font_filename, unsigned int font_default_size);
+	bool fontInit(GLFWwindow& window, const std::string& font_filename, unsigned int font_default_size);
 
-	void RenderSystem::renderText(const std::string& text, float x, float y, float scale, const glm::vec3& color, const glm::mat4& trans);
+	void renderText(const std::string& text, float x, float y, float scale, const glm::vec3& color, const glm::mat4& trans);
 
 	static bool introductionScreen;
 
-	void RenderSystem::renderIntroduction(int i);
+	void renderIntroduction(int i);
 
-	void RenderSystem::renderHelper(float transX, float transY, float textX, float textY, float oliverTransparency, float oldTransparency, GLuint dialogue, const char* text, float textScale);
+	void renderHelper(float transX, float transY, float textX, float textY, float oliverTransparency, float oldTransparency, GLuint dialogue, const char* text, float textScale);
 
 	int sceneIndex = 0;
 private:

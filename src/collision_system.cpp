@@ -235,3 +235,34 @@ bool CollisionSystem::rectangleCollides(const Motion& motion1, const Motion& mot
 		(motion2.position[0] - abs(motion2.scale.x / 2.f) < (motion1.position[0] + abs(motion1.scale.x) / 2.f));
 	return y_val && x_val;
 }
+
+bool CollisionSystem::lineCollides(const Entity& line,
+	       	float min_x, float min_y,
+	        float max_x, float max_y) {
+	// Takes 4 bounding box inputs to check against a particular line
+	const DrawnLine& dline = registry.drawnLines.get(line);
+
+	// Determine whether there is intersection
+	const bool y_intersects = !(dline.y_bounds[1] < min_y || dline.y_bounds[0] > max_y);
+	const bool x_intersects = !(dline.x_bounds[1] < min_x || dline.x_bounds[0] > max_x);
+
+	if (!y_intersects || !x_intersects)
+		return false;
+
+	// Check if line eqn. output is within the bounding box for overlapping x values
+	vec2 x_overlap(std::max(min_x, dline.x_bounds[0]),  std::min(max_x, dline.x_bounds[1]));
+	vec2 test_y = dline.slope * x_overlap + dline.intercept;
+	// Same for x against y values; we check both to guard against perfect vert/horizontal lines
+	vec2 y_overlap(std::max(min_y, dline.y_bounds[0]),  std::min(max_y, dline.y_bounds[1]));
+	vec2 test_x = (1 / dline.slope) * (y_overlap - dline.intercept);
+
+	const bool result = (test_y[0] >= min_y && test_y[1] <= max_y) ||
+			    (test_x[0] >= min_x && test_x[1] <= max_x);
+
+	// DEBUG code
+	if (result && debugging.in_debug_mode) { 
+		auto& r = registry.renderRequests.get(line);
+		r.used_geometry = GEOMETRY_BUFFER_ID::DEBUG_LINE; // turn the line red
+	}
+	return result;
+}

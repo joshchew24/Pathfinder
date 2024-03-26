@@ -55,7 +55,6 @@ struct DrawnJoint
 	Entity drawing;
 	Entity l1; // line 1
 	Entity l2;
-	float top_angle; // top angle of the isoceles triangle joint
 };
 
 // Eagles have a hard shell

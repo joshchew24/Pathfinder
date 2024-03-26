@@ -68,6 +68,8 @@ private:
 	void restart_game();
 
 	void handlePlayerAnimation(int elapsed_ms_since_last_update);
+	
+	void handleLineCollision(const Entity& line);
 
 	LevelManager levelManager;
 	int maxLevel = 3;

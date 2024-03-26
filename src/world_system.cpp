@@ -357,7 +357,7 @@ void WorldSystem::createLevel() {
 		createPlatform(renderer, {w.x, window_height_px - platformHeight}, {w.xSize - 10, 10.f});
 	}
 	for (int i = 0; i < currentLevel.spikes.size(); ++i) {
-		spikes s = currentLevel.spikes[i];
+		spike s = currentLevel.spikes[i];
 		createSpikes(renderer, { s.x, s.y }, { 40, 20});
 	}
 	createCheckpoint(renderer, { currentLevel.checkpoint.first, currentLevel.checkpoint.second });
@@ -412,6 +412,24 @@ void WorldSystem::restart_game() {
 
 	level4DisappearTimer = 4000;
 	level4Disappeared = false;
+}
+
+void WorldSystem::handleLineCollision(const Entity& line) {
+	// Calculate two directions to apply force: perp. to line, and parallel to line
+	const DrawnLine& l = registry.drawnLines.get(line);
+	const Motion& lm = registry.motions.get(line);
+	float perp_slope = -1 / l.slope; // negative reciprocal gets orthogonal line
+	
+	vec2 parallel(1, l.slope);
+	parallel = normalize(parallel);
+
+	vec2 perp(1, perp_slope);
+	perp = normalize(perp);
+
+	// calculate projections onto the two lines, then add their vector sum to player position
+	
+	Motion &pm = registry.motions.get(player);
+	pm.position += perp;
 }
 
 // Compute collisions between entities
@@ -469,12 +487,17 @@ void WorldSystem::handle_collisions() {
 				Mix_PlayChannel(-1, level_win_sound, 0);
 				next_level();
 			}
+
+			else if (registry.drawnLines.has(entity_other)) {
+				handleLineCollision(entity_other);
+			}
 		}
 	}
 
 	// Remove all collisions from this simulation step
 	registry.collisions.clear();
 }
+
 
 void WorldSystem::next_level() {
 	if (level == maxLevel) {
