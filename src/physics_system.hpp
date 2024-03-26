@@ -4,22 +4,32 @@
 #include "tiny_ecs.hpp"
 #include "components.hpp"
 #include "tiny_ecs_registry.hpp"
+#include "config.hpp"
+#include <collision_system.hpp>
 
 // A simple physics system that moves rigid bodies and checks for collision
 class PhysicsSystem
 {
-public:
-	void step(float elapsed_ms);
+private:
+	float gravity;
+	float terminal_velocity;
+	float jump_height;
 
-	PhysicsSystem()
-	{
-	}
-
-private: 
-	float gravity = 9.8f;
-	const float TERMINAL_VELOCITY = 250.f;
+	CollisionSystem collisionSystem;
 
 	void updatePaintCanGroundedState();
 	void checkWindowBoundary(Motion& motion);
 	void applyFriction(Motion& motion);
+public:
+	void step(float elapsed_ms);
+
+	PhysicsSystem()	{}
+
+	void init(float gravity_arg = config.gravity, float terminal_velocity_arg = config.terminal_velocity, float jump_height_arg = config.jump_height) {
+		gravity = gravity_arg;
+		terminal_velocity = terminal_velocity_arg;
+		jump_height = jump_height_arg;
+
+		collisionSystem.init();
+	}
 };

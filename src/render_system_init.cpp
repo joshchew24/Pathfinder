@@ -13,13 +13,15 @@
 #include <iostream>
 #include <sstream>
 
+#include <SDL.h>
+
 // World initialization
 bool RenderSystem::init(GLFWwindow* window_arg)
 {
 	this->window = window_arg;
 
 	glfwMakeContextCurrent(window);
-	glfwSwapInterval(1); // vsync
+	glfwSwapInterval(0); // vsync
 
 	// Load OpenGL function pointers
 	const int is_fine = gl3w_init();
@@ -53,13 +55,17 @@ bool RenderSystem::init(GLFWwindow* window_arg)
 	GLuint vao;
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
+	globalVao = vao;
 	gl_has_errors();
 
+	initParallaxRendering();
+	initIntroduction();
+
+	glBindVertexArray(vao);
 	initScreenTexture();
     initializeGlTextures();
 	initializeGlEffects();
 	initializeGlGeometryBuffers();
-
 	return true;
 }
 
@@ -295,6 +301,213 @@ bool RenderSystem::initScreenTexture()
 	return true;
 }
 
+bool RenderSystem::loadTextures(const char *fileName, GLuint &textureId) {
+
+	ivec2 dimensions = (ivec2)(0,0);
+
+	stbi_uc* data;
+	data = stbi_load(fileName, &dimensions.x, &dimensions.y, NULL, 4);
+
+	if (data == NULL)
+	{
+		const std::string message = "Could not load the file ";
+		fprintf(stderr, "%s", message.c_str());
+		assert(false);
+	}
+	glGenTextures(1, &textureId);
+	glBindTexture(GL_TEXTURE_2D, textureId);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, dimensions.x, dimensions.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	gl_has_errors();
+	stbi_image_free(data);
+	return true;
+}
+
+void RenderSystem::initIntroduction() {
+	std::vector<float> vertices = {
+		-0.5f,  0.5f, 0.0f,  0.0f, 1.0f, 
+		 0.5f,  0.5f, 0.0f,  1.0f, 1.0f,
+		 0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 
+		-0.5f, -0.5f, 0.0f,  0.0f, 0.0f  
+	};
+
+	std::vector<unsigned int> indices = {
+		0, 1, 2,
+		0, 2, 3  
+	};
+
+	glGenVertexArrays(1, &introductionVao);
+	glBindVertexArray(introductionVao);
+
+	GLuint vbo, ebo;
+	glGenBuffers(1, &vbo);
+	glGenBuffers(1, &ebo);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+	glBindVertexArray(0);
+
+	loadTextures(textures_path("/dialogueBoxLeft.png").c_str(), dialogueBoxLeft);
+	loadTextures(textures_path("/dialogueBoxRight.png").c_str(), dialogueBoxRight);
+	loadTextures(textures_path("/oliverPixel.png").c_str(), oliverPixel);
+	loadTextures(textures_path("/oldMan.png").c_str(), oldManPixel);
+
+	loadEffectFromFile(shader_path("/introduction.vs.glsl").c_str(), shader_path("/introduction.fs.glsl").c_str(), introductionShader);
+}
+
+void RenderSystem::initParallaxRendering() {
+	GLfloat vertices[] = {
+	-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+	 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+	 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+	-1.0f, -1.0f, 0.0f, 0.0f, 0.0f
+	};
+
+	glGenVertexArrays(1, &backGroundVao);
+	glBindVertexArray(backGroundVao);
+
+	glGenBuffers(1, &backGroundVbo);
+	glBindBuffer(GL_ARRAY_BUFFER, backGroundVbo);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(1);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+	gl_has_errors();
+
+	loadTextures(textures_path("Layers/far-clouds.png").c_str(), far_clouds);
+	loadTextures(textures_path("Layers/near-clouds.png").c_str(), near_clouds);
+	loadTextures(textures_path("Layers/sky.png").c_str(), sky);
+	loadTextures(textures_path("Layers/far-mountains.png").c_str(), far_mountains);
+	loadTextures(textures_path("Layers/mountains.png").c_str(), mountains);
+	loadTextures(textures_path("Layers/trees.png").c_str(), trees);
+
+	loadEffectFromFile(shader_path("/background.vs.glsl").c_str(), shader_path("/background.fs.glsl").c_str(), backGroundShader);
+}
+
+bool RenderSystem::fontInit(GLFWwindow& window, const std::string& font_filename, unsigned int font_default_size) {
+
+	// font buffer setup
+	glGenVertexArrays(1, &m_font_VAO);
+	glGenBuffers(1, &m_font_VBO);
+
+	std::string vsPath = shader_path("font.vs.glsl");
+	std::string fsPath = shader_path("font.fs.glsl");
+	loadEffectFromFile(vsPath, fsPath, m_font_shaderProgram);
+
+	// use our new shader
+	glUseProgram(m_font_shaderProgram);
+
+	// apply projection matrix for font
+	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(window_width_px), 0.0f, static_cast<float>(window_height_px));
+	GLint project_location = glGetUniformLocation(m_font_shaderProgram, "projection");
+	assert(project_location > -1);
+	std::cout << "project_location: " << project_location << std::endl;
+	glUniformMatrix4fv(project_location, 1, GL_FALSE, glm::value_ptr(projection));
+
+	gl_has_errors();
+	// init FreeType fonts
+	FT_Library ft;
+	if (FT_Init_FreeType(&ft))
+	{
+		std::cerr << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+		return false;
+	}
+
+	FT_Face face;
+	if (FT_New_Face(ft, font_filename.c_str(), 0, &face))
+	{
+		std::cerr << "ERROR::FREETYPE: Failed to load font: " << font_filename << std::endl;
+		return false;
+	}
+
+	// extract a default size
+	FT_Set_Pixel_Sizes(face, 0, font_default_size);
+
+	// disable byte-alignment restriction in OpenGL
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	// load each of the chars - note only first 128 ASCII chars
+	for (unsigned char c = 0; c < 128; c++)
+	{
+		// load character glyph 
+		if (FT_Load_Char(face, c, FT_LOAD_RENDER))
+		{
+			std::cerr << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
+			continue;
+		}
+
+		// generate texture
+		unsigned int texture;
+		glGenTextures(1, &texture);
+		glBindTexture(GL_TEXTURE_2D, texture);
+
+		//std::cout << "texture: " << c << " = " << texture << std::endl;
+
+		glTexImage2D(
+			GL_TEXTURE_2D,
+			0,
+			GL_RED,
+			face->glyph->bitmap.width,
+			face->glyph->bitmap.rows,
+			0,
+			GL_RED,
+			GL_UNSIGNED_BYTE,
+			face->glyph->bitmap.buffer
+		);
+
+		// set texture options
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		// now store character for later use
+		Character character = {
+			texture,
+			glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+			glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+			static_cast<unsigned int>(face->glyph->advance.x),
+			c
+		};
+		m_ftCharacters.insert(std::pair<char, Character>(c, character));
+	}
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// clean up
+	FT_Done_Face(face);
+	FT_Done_FreeType(ft);
+
+	// bind buffers
+	glBindVertexArray(m_font_VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_font_VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+
+	// release buffers
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+	return true;
+}
+
 bool gl_compile_shader(GLuint shader)
 {
 	glCompileShader(shader);
@@ -385,6 +598,7 @@ bool loadEffectFromFile(
 			return false;
 		}
 	}
+
 
 	// No need to carry this around. Keeping these objects is only useful if we recycle
 	// the same shaders over and over, which we don't, so no need and this is simpler.

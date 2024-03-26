@@ -2,6 +2,7 @@
 
 // internal
 #include "common.hpp"
+#include "config.hpp"
 
 // stlib
 #include <deque>
@@ -13,12 +14,23 @@ private:
 	bool left = false;
 	bool right = false;
 	int last = 0;
-	const float FRICTION = 5.f;
+	float friction;
+	float move_speed;
 
 public:
 	const static int LEFT_KEY = GLFW_KEY_A;
 	const static int RIGHT_KEY = GLFW_KEY_D;
+	bool moving = false;
+
 	MovementSystem() {}
+
+	void init(float friction_arg = config.friction, float move_speed_arg = config.move_speed) {
+		friction = friction_arg;
+		move_speed = move_speed_arg;
+	}
+
+	// if player is moving left or right
+	bool leftOrRight() { return left || right; }
 
 	void press(int key) {
 		if (key == LEFT_KEY) {
@@ -63,7 +75,7 @@ public:
 		}
 		// if no directional keys are pressed, apply horizontal deceleration
 		Motion& motion = registry.motions.get(registry.players.entities[0]);
-		motion.acceleration.x = FRICTION * -motion.velocity.x / abs(motion.velocity.x);
+		motion.acceleration.x = friction * -motion.velocity.x / abs(motion.velocity.x);
 		last = 0;
 	}
 
@@ -71,16 +83,15 @@ public:
 		if (last == 0) return;
 		Motion& motion = registry.motions.get(registry.players.entities[0]);
 		motion.acceleration.x = 0.0;
-		float vel = 250.f;
 		if (last == LEFT_KEY && left) {
-			motion.velocity.x = vel * -1.f;
+			motion.velocity.x = move_speed * -1.f;
 			if (motion.scale.x > 0) {
 				motion.scale.x = -motion.scale.x;
 			}
 			return;
 		}
 		if (last == RIGHT_KEY && right) {
-			motion.velocity.x = vel;
+			motion.velocity.x = move_speed;
 			if (motion.scale.x < 0) {
 				motion.scale.x = -motion.scale.x;
 			}

@@ -9,6 +9,8 @@
 #include "world_system.hpp"
 #include "drawing_system.hpp"
 #include "ai_system.hpp"
+#include "config.hpp"
+#include "movement_system.hpp"
 
 // Entry point
 int main()
@@ -29,8 +31,11 @@ int main()
 	}
 
 	// initialize the main systems
+	config.load();
 	renderer.init(window);
 	world.init(&renderer);
+	movementSystem.init();
+	physics.init();
 
 	
 	// report fps average across this many updates
@@ -39,6 +44,11 @@ int main()
 	int frame_update_counter = 20;
 	int total_frame_count = 0;
 	int curr_fps = 0;
+
+	std::string font_filename = "..//..//..//data//fonts//Kenney_Pixel.ttf";
+	unsigned int font_default_size = 60;
+	renderer.fontInit(*window, font_filename, font_default_size);
+	gl_has_errors();
 
 	// variable timestep loop
 	auto t = Clock::now();
@@ -79,6 +89,8 @@ int main()
 		}
 
 		renderer.draw();
+
+		glfwSwapBuffers(window);
 	}
 
 	return EXIT_SUCCESS;

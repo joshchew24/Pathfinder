@@ -1,0 +1,7 @@
+{
+	"gravity": 1,
+	"move_speed": 250,
+	"jump_height": 400,
+	"friction": 5,
+	"terminal_velocity": 400
+}
