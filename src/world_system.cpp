@@ -426,10 +426,19 @@ void WorldSystem::handleLineCollision(const Entity& line) {
 	vec2 perp(1, perp_slope);
 	perp = normalize(perp);
 
+	if (abs(l.slope) < 0.001) { // effectively zero slope
+		parallel = {1,0};
+		perp = {0,1};
+	}
+
 	// calculate projections onto the two lines, then add their vector sum to player position
-	
 	Motion &pm = registry.motions.get(player);
-	pm.position += perp;
+	vec2 vdir = pm.velocity;
+	vec2 proj = dot(vdir, perp) * perp + dot(vdir, parallel) * parallel;
+	printf("dot product: %f\n", dot(vdir, proj));
+	printf("\n%f, %f\n", proj[0], proj[1]);
+	printf("%f, %f\n", vdir[0], vdir[1]);
+	pm.velocity -= proj;
 }
 
 // Compute collisions between entities
