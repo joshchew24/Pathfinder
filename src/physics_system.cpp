@@ -5,11 +5,11 @@
 #include <stack>
 #include <cfloat>
 
-vec2 calculateControlPoint(const glm::vec2& start, const glm::vec2& end, float height) {
-	glm::vec2 midPoint = (start + end) / 2.0f;
-	midPoint.y -= height; // Adjust the height to control the arc's steepness
-	return midPoint;
-}
+//vec2 calculateControlPoint(const glm::vec2& start, const glm::vec2& end, float height) {
+//	glm::vec2 midPoint = (start + end) / 2.0f;
+//	midPoint.y -= height; // Adjust the height to control the arc's steepness
+//	return midPoint;
+//}
 
 vec2 quadraticBezier(const glm::vec2& start, const glm::vec2& control, const glm::vec2& end, float t) {
 	float u = 1 - t;
@@ -109,27 +109,21 @@ void PhysicsSystem::step(float elapsed_ms)
 		Entity projectileEntity = projectile_container.entities[i];
 		Motion& projectile_motion = motion_registry.get(projectile_container.entities[i]);
 		Motion& player_motion = motion_registry.get(registry.players.entities[0]);
+		std::printf("Before update - elapsed_ms: %f, Projectile Elapsed Time: %f\n", elapsed_ms, projectile.elapsedTime);
 		projectile.elapsedTime += elapsed_ms;
-		float t = elapsed_ms / 1500;
+		std::printf("After update - elapsed_ms: %f, Projectile Elapsed Time: %f\n", elapsed_ms, projectile.elapsedTime);
+		float t = projectile.elapsedTime / 1000;
 		std::printf("elapsed_ms: %f, Elapsed Time: %f, t: %f\n",
-			elapsed_ms, projectile.flightDuration, t);
+			elapsed_ms, projectile.elapsedTime, t);
 		if (t > 1.0) t = 1.0;
 		if (t >= 1.0) {
 			registry.remove_all_components_of(projectileEntity);
 		}
-		vec2 startPosition = projectile_motion.position;
-		glm::vec2 endPosition = projectile.targetPosition;
-		float distance = glm::distance(startPosition, endPosition);
-		float arcHeight = distance * 0.5;
-		vec2 controlPoint = calculateControlPoint(startPosition, endPosition, arcHeight);
-		vec2 currentPosition = quadraticBezier(startPosition, controlPoint, endPosition, t);
-		vec2 tangentVec = 2.0f * (1.0f - t) * (controlPoint - startPosition) + 2.0f * t * (endPosition - controlPoint);
+		vec2 currentPosition = quadraticBezier(projectile.startPosition, projectile.controlPoint, projectile.targetPosition, t);
+		vec2 tangentVec = 2.0f * (1.0f - t) * (projectile.controlPoint - projectile.startPosition) + 2.0f * t * (projectile.targetPosition - projectile.controlPoint);
 		float radian = atan(-tangentVec.y, tangentVec.x);
 		projectile_motion.angle = radian;
 		projectile_motion.position = currentPosition;
-		if (projectile_motion.velocity.y == 0) {
-			registry.remove_all_components_of(projectileEntity);
-		}
 	}
 
 	// ComponentContainer<Platform>& platform_container = registry.platforms;

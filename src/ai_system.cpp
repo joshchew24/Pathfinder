@@ -120,6 +120,13 @@ std::vector<std::pair<int, int>> AISystem::bestPath(Motion& eMotion, Motion& pMo
     return path;
 }
 
+
+vec2 calculateControlPoint(const glm::vec2& start, const glm::vec2& end, float height) {
+    glm::vec2 midPoint = (start + end) / 2.0f;
+    midPoint.y -= height; // Adjust the height to control the arc's steepness
+    return midPoint;
+}
+
 AISystem::AISystem() {
     createAllDecisionTrees();
 }
@@ -242,15 +249,20 @@ bool AISystem::archerDecisionTree(std::string choice, Entity& archerEntity, cons
             auto entity = Entity();
             auto& motion = registry.motions.emplace(entity);
             motion.angle = 0.f;
-            motion.velocity = { 50.f, 0.f };
+            motion.velocity = { 0.f, 0.f };
             motion.position = archerMotion.position + glm::vec2(0.f, -200);
             motion.scale = { 50.f, 50.f };
-            motion.gravityScale = 8.f;
+            motion.gravityScale = 12.f;
             BezierProjectile& projectile = registry.projectiles.emplace(entity);
-            projectile.targetPosition = {playerPosition.x - playerMotion.scale.x * 2, playerPosition.y };
-            float distance = glm::distance(motion.position, projectile.targetPosition);
-            projectile.flightDuration = distance / motion.velocity.x;
+            projectile.targetPosition = {playerPosition.x - playerMotion.scale.x * 2, playerPosition.y + 100};
             projectile.elapsedTime = 0.0f;
+            vec2 startPosition = motion.position;
+            glm::vec2 endPosition = projectile.targetPosition;
+            float distance = glm::distance(startPosition, endPosition);
+            float arcHeight = distance * 0.5;
+            vec2 controlPoint = calculateControlPoint(startPosition, endPosition, arcHeight);
+            projectile.controlPoint = controlPoint;
+            projectile.startPosition = startPosition;
             registry.deadlys.emplace(entity);
             registry.renderRequests.insert(
                 entity,
