@@ -319,15 +319,15 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	return true;
 }
 
-void WorldSystem::handlePlayerAnimation(int elapsed_ms_since_last_update) {
+void WorldSystem::handlePlayerAnimation(float elapsed_ms_since_last_update) {
 	Motion& m = registry.motions.get(player);
 	elapsedMsTotal += elapsed_ms_since_last_update;
 	// if moving and grounded
 	if (movementSystem.moving && m.grounded) {
 		// if enough time has elapsed, calculate next frame that we want to change the texture
-		int minMsChange = 75;
+		float minMsChange = 75.f;
 		if (elapsedMsTotal > minMsChange) {
-			currentRunningTexture += elapsedMsTotal / minMsChange;
+			currentRunningTexture += static_cast<int>(elapsedMsTotal / minMsChange);
 			elapsedMsTotal = 0;
 			if (currentRunningTexture > (int)TEXTURE_ASSET_ID::RUN4) {
 				currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER;

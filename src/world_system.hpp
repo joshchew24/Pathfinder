@@ -67,7 +67,7 @@ private:
 	// restart level
 	void restart_game();
 
-	void handlePlayerAnimation(int elapsed_ms_since_last_update);
+	void handlePlayerAnimation(float elapsed_ms_since_last_update);
 
 	LevelManager levelManager;
 	int maxLevel = 3;
