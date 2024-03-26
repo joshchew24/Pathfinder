@@ -16,7 +16,6 @@ private:
 	int last = 0;
 	float friction;
 	float move_speed;
-	float terminal_velocity;
 
 public:
 	const static int LEFT_KEY = GLFW_KEY_A;
@@ -26,11 +25,9 @@ public:
 	MovementSystem() {}
 
 	void init(float friction_arg = config.friction, 
-		float move_speed_arg = config.move_speed,
-		float terminal_velocity_arg = config.terminal_velocity) {
+		float move_speed_arg = config.move_speed) {
 		friction = friction_arg;
 		move_speed = move_speed_arg;
-		terminal_velocity = terminal_velocity_arg;
 	}
 
 	// if player is moving left or right
@@ -81,7 +78,7 @@ public:
 		Motion& motion = registry.motions.get(registry.players.entities[0]);
 		int vel_dir = motion.velocity.x / abs(motion.velocity.x);
 		float da = friction * -vel_dir;
-		if (motion.acceleration.x * da > 0) { // clamp 'da' to friction
+		if (motion.acceleration.x * da > 0) { // only add force up to friction
 			da -= motion.acceleration.x;
 		}
 		motion.acceleration.x += da;
@@ -105,7 +102,7 @@ public:
 			}
 		}
 		float dv = move_speed * dir;
-		if (motion.velocity.x * dv > 0) {
+		if (motion.velocity.x * dv > 0) { // only add force up to move_speed
 			dv -= motion.velocity.x;
 		}
 		motion.velocity.x += dv;
