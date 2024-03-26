@@ -333,11 +333,11 @@ void WorldSystem::handlePlayerAnimation(int elapsed_ms_since_last_update) {
 	// if moving and grounded
 	if (movementSystem.moving && m.grounded) {
 		// if enough time has elapsed, calculate next frame that we want to change the texture
-		int minMsChange = 75;
+		int minMsChange = 12;
 		if (elapsedMsTotal > minMsChange) {
 			currentRunningTexture += elapsedMsTotal / minMsChange;
 			elapsedMsTotal = 0;
-			if (currentRunningTexture > (int)TEXTURE_ASSET_ID::RUN4) {
+			if (currentRunningTexture > (int)TEXTURE_ASSET_ID::RUN6) {
 				currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER;
 			}
 			registry.renderRequests.get(player).used_texture = static_cast<TEXTURE_ASSET_ID>(currentRunningTexture);
