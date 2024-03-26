@@ -79,47 +79,36 @@ public:
 		}
 		// if no directional keys are pressed, apply horizontal deceleration
 		Motion& motion = registry.motions.get(registry.players.entities[0]);
-		motion.acceleration.x = friction * -motion.velocity.x / abs(motion.velocity.x);
+		int vel_dir = motion.velocity.x / abs(motion.velocity.x);
+		float da = friction * -vel_dir;
+		if (motion.acceleration.x * da > 0) { // clamp 'da' to friction
+			da -= motion.acceleration.x;
+		}
+		motion.acceleration.x += da;
 		last = 0;
 	}
 
 	void handle_inputs() {
 		if (last == 0) return;
 		Motion& motion = registry.motions.get(registry.players.entities[0]);
-		float dv;
+		int dir;
 		if (last == LEFT_KEY && left) {
-			if (motion.velocity.x >= 0) {
-				dv = -move_speed;
-			}
-			else if (motion.velocity.x < -move_speed) {
-				dv = 0;
-			}
-			else {
-				dv = -move_speed - motion.velocity.x;
-			}
-			motion.velocity.x += dv;
+			dir = -1;
 			if (motion.scale.x > 0) {
 				motion.scale.x = -motion.scale.x;
 			}
-			return;
 		}
-		if (last == RIGHT_KEY && right) {
-			if (motion.velocity.x <= 0) {
-				dv = move_speed;
-			}
-			else if (motion.velocity.x > move_speed) {
-				dv = 0;
-			}
-			else {
-				dv = move_speed - motion.velocity.x;
-			}
-			motion.velocity.x += dv;
-			motion.velocity.x = move_speed;
+		else if (last == RIGHT_KEY && right) {
+			dir = 1;
 			if (motion.scale.x < 0) {
 				motion.scale.x = -motion.scale.x;
 			}
-			return;
 		}
+		float dv = move_speed * dir;
+		if (motion.velocity.x * dv > 0) {
+			dv -= motion.velocity.x;
+		}
+		motion.velocity.x += dv;
 	}
 	
 	void reset() {
