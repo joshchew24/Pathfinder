@@ -5,6 +5,7 @@
 #include "components.hpp"
 #include "tiny_ecs_registry.hpp"
 #include "config.hpp"
+#include <collision_system.hpp>
 
 // A simple physics system that moves rigid bodies and checks for collision
 class PhysicsSystem
@@ -13,6 +14,8 @@ private:
 	float gravity;
 	float terminal_velocity;
 	float jump_height;
+
+	CollisionSystem collisionSystem;
 
 	void updatePaintCanGroundedState();
 	void checkWindowBoundary(Motion& motion);
@@ -26,5 +29,7 @@ public:
 		gravity = gravity_arg;
 		terminal_velocity = terminal_velocity_arg;
 		jump_height = jump_height_arg;
+
+		collisionSystem.init();
 	}
 };

@@ -294,6 +294,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	renderer->camera_y = dy * cameraSpeed;
 
 	movementSystem.handle_inputs();
+	handlePlayerAnimation(elapsed_ms_since_last_update);
 
 	if (!level4Disappeared && level == 3) {
 		level4DisappearTimer -= elapsed_ms_since_last_update;
@@ -316,6 +317,30 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 
 	return true;
+}
+
+void WorldSystem::handlePlayerAnimation(int elapsed_ms_since_last_update) {
+	Motion& m = registry.motions.get(player);
+	elapsedMsTotal += elapsed_ms_since_last_update;
+	// if moving and grounded
+	if (movementSystem.moving && m.grounded) {
+		// if enough time has elapsed, calculate next frame that we want to change the texture
+		int minMsChange = 75;
+		if (elapsedMsTotal > minMsChange) {
+			currentRunningTexture += elapsedMsTotal / minMsChange;
+			elapsedMsTotal = 0;
+			if (currentRunningTexture > (int)TEXTURE_ASSET_ID::RUN4) {
+				currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER;
+			}
+			registry.renderRequests.get(player).used_texture = static_cast<TEXTURE_ASSET_ID>(currentRunningTexture);
+		}
+	}
+	else if (!m.grounded) {
+		registry.renderRequests.get(player).used_texture = TEXTURE_ASSET_ID::RUN4;
+	}
+	else if (m.grounded) {
+		registry.renderRequests.get(player).used_texture = TEXTURE_ASSET_ID::OLIVER;
+	}
 }
 
 void WorldSystem::createLevel() {
@@ -519,28 +544,17 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		glfwSetWindowShouldClose(window, 1);
 	}
 
-	// player movement
+	// player movement TODO: if not GLFW_RELEASE, set bool to on. in step, calculate based on framerate/step ms 
 	if (!registry.deathTimers.has(player) && !RenderSystem::introductionScreen && (key == GLFW_KEY_A || key == GLFW_KEY_D)) {
 		RenderRequest& renderRequest = registry.renderRequests.get(player);
-		if (action == GLFW_PRESS || action == GLFW_REPEAT) {
+		if (action != GLFW_RELEASE) {
 			movementSystem.press(key);
-			if (key == GLFW_KEY_A) {
-				if (currentRunningTexture == (int)TEXTURE_ASSET_ID::RUN4) {
-					currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER - 1;
-				}
-				currentRunningTexture++;
-				renderRequest.used_texture = static_cast<TEXTURE_ASSET_ID>(currentRunningTexture);
-			}
-			else if (key == GLFW_KEY_D) {
-				if (currentRunningTexture == (int)TEXTURE_ASSET_ID::RUN4) {
-					currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER - 1;
-				}
-				currentRunningTexture++;
-				renderRequest.used_texture = static_cast<TEXTURE_ASSET_ID>(currentRunningTexture);
-			}
 		}
 		else if (action == GLFW_RELEASE) {
 			movementSystem.release(key);
+		}
+		movementSystem.moving = movementSystem.leftOrRight();
+		if (!movementSystem.moving) {
 			renderRequest.used_texture = TEXTURE_ASSET_ID::OLIVER;
 		}
 	}
@@ -565,7 +579,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	//skipping cutscene
-	if (action == GLFW_RELEASE && key == GLFW_KEY_Z) {
+	if (action == GLFW_RELEASE && key == GLFW_KEY_Z && RenderSystem::introductionScreen == true) {
 		RenderSystem::introductionScreen = false;
 		restart_game();
 	}

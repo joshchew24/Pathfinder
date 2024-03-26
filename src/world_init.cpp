@@ -9,12 +9,30 @@ vec2 translateRotateScale(vec3 position, const Motion& motion) {
 	return positions;
 }
 
+vec4 getBox(const Mesh* mesh, const Motion& motion) {
+	float max_x = FLT_MIN;
+	float max_y = FLT_MIN;
+	float min_x = FLT_MAX;
+	float min_y = FLT_MAX;
+	for (size_t i = 0; i < mesh->vertices.size(); i++) {
+		vec2 positions = translateRotateScale(mesh->vertices[i].position, motion);
+
+		max_x = max(max_x, positions[0]);
+		max_y = max(max_y, positions[1]);
+		min_x = min(min_x, positions[0]);
+		min_y = min(min_y, positions[1]);
+	}
+
+	vec4 box = { max_x, max_y, min_x, min_y };
+	return box;
+}
+
 Entity createOliver(RenderSystem* renderer, vec2 pos)
 {
 	auto entity = Entity();
 
 	// Store a reference to the potentially re-used mesh object
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::OLIVER);
 	registry.meshPtrs.emplace(entity, &mesh);
 
 	// Setting initial motion values
@@ -30,7 +48,7 @@ Entity createOliver(RenderSystem* renderer, vec2 pos)
 	registry.players.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::OLIVER, // TEXTURE_COUNT indicates that no txture is needed
+		{ TEXTURE_ASSET_ID::OLIVER,
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE });
 
@@ -283,7 +301,7 @@ Entity createPaintCan(RenderSystem* renderer, vec2 position, vec2 size)
 	auto entity = Entity();
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::PAINT);
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
 
 	// Initialize the motion
@@ -298,9 +316,9 @@ Entity createPaintCan(RenderSystem* renderer, vec2 position, vec2 size)
 	registry.paintCans.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
-		 EFFECT_ASSET_ID::CHICKEN,
-		 GEOMETRY_BUFFER_ID::PAINT });
+		{ TEXTURE_ASSET_ID::PAINTCAN,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
 
 	return entity;
 }
