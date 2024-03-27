@@ -687,14 +687,16 @@ void WorldSystem::on_mouse_click(int button, int action, int mod) {
 			}
 		}
 	}
-	static const int DRAW_BUTTON = GLFW_MOUSE_BUTTON_LEFT;
-	if (button == DRAW_BUTTON) {
-	       if (action == GLFW_PRESS && !registry.deathTimers.has(player)) {
-		       drawings.start_drawing();
-	       }
-	       else if (action == GLFW_RELEASE) {
-		       drawings.stop_drawing();
-	       }
+	else {
+		static const int DRAW_BUTTON = GLFW_MOUSE_BUTTON_LEFT;
+		if (button == DRAW_BUTTON) {
+		       if (action == GLFW_PRESS && !registry.deathTimers.has(player)) {
+			       drawings.start_drawing();
+		       }
+		       else if (action == GLFW_RELEASE) {
+			       drawings.stop_drawing();
+		       }
+		}
 	}
 }
 
