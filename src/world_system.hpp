@@ -67,7 +67,7 @@ private:
 	// restart level
 	void restart_game();
 
-	void handlePlayerAnimation(int elapsed_ms_since_last_update);
+	void handlePlayerAnimation(float elapsed_ms_since_last_update);
 	
 	void handleLineCollision(const Entity& line, float elapsed_ms);
 
@@ -107,6 +107,7 @@ private:
 	Mix_Chunk* checkpoint_sound;
 	Mix_Chunk* level_win_sound;
 	Mix_Chunk* ink_pickup_sound;
+	bool checkPointAudioPlayer = false;
 
 	//camera speed
 	float cameraSpeed = 0.004f;

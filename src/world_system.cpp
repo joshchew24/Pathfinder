@@ -320,15 +320,15 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	return true;
 }
 
-void WorldSystem::handlePlayerAnimation(int elapsed_ms_since_last_update) {
+void WorldSystem::handlePlayerAnimation(float elapsed_ms_since_last_update) {
 	Motion& m = registry.motions.get(player);
 	elapsedMsTotal += elapsed_ms_since_last_update;
 	// if moving and grounded
 	if (movementSystem.moving && m.grounded) {
 		// if enough time has elapsed, calculate next frame that we want to change the texture
-		int minMsChange = 12;
+		float minMsChange = 12.f;
 		if (elapsedMsTotal > minMsChange) {
-			currentRunningTexture += elapsedMsTotal / minMsChange;
+			currentRunningTexture += static_cast<int>(elapsedMsTotal / minMsChange);
 			elapsedMsTotal = 0;
 			if (currentRunningTexture > (int)TEXTURE_ASSET_ID::RUN6) {
 				currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER;
@@ -415,6 +415,7 @@ void WorldSystem::restart_game() {
 
 	level4DisappearTimer = 4000;
 	level4Disappeared = false;
+
 }
 
 void WorldSystem::handleLineCollision(const Entity& line, float elapsed_ms) {
@@ -490,8 +491,11 @@ void WorldSystem::handle_collisions(float elapsed_ms) {
 
 			// Checking Player - Checkpoint collisions
 			else if (registry.checkpoints.has(entity_other)) {
-				Mix_PlayChannel(-1, checkpoint_sound, 0);
-				save_checkpoint();
+				if (checkPointAudioPlayer == false) {
+					Mix_PlayChannel(-1, checkpoint_sound, 0);
+					save_checkpoint();
+					checkPointAudioPlayer = true;
+				}
 			}
 
 			else if (registry.levelEnds.has(entity_other)) {
@@ -518,11 +522,13 @@ void WorldSystem::next_level() {
 	if (level == maxLevel) {
 		level = 0;
 		restart_game();
+		renderer->endScreen = true;
 	}
 	else {
 		level++;
 		restart_game();
 	}
+	checkPointAudioPlayer = false;
 }
 
 void WorldSystem::save_checkpoint() {
@@ -583,7 +589,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	// player movement TODO: if not GLFW_RELEASE, set bool to on. in step, calculate based on framerate/step ms 
-	if (!registry.deathTimers.has(player) && !RenderSystem::introductionScreen && (key == GLFW_KEY_A || key == GLFW_KEY_D)) {
+	if (!registry.deathTimers.has(player) && !RenderSystem::introductionScreen && !RenderSystem::endScreen && (key == GLFW_KEY_A || key == GLFW_KEY_D)) {
 		RenderRequest& renderRequest = registry.renderRequests.get(player);
 		if (action != GLFW_RELEASE) {
 			movementSystem.press(key);
@@ -598,7 +604,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	// player jump
-	if (!registry.deathTimers.has(player) && !RenderSystem::introductionScreen && key == GLFW_KEY_SPACE) {
+	if (!registry.deathTimers.has(player) && !RenderSystem::introductionScreen && !RenderSystem::endScreen && key == GLFW_KEY_SPACE) {
 		if (action == GLFW_PRESS) {
 			movementSystem.press(key);
 		}
@@ -609,7 +615,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 
 
 	// Resetting game
-	if (action == GLFW_RELEASE && key == GLFW_KEY_R && !RenderSystem::introductionScreen) {
+	if (action == GLFW_RELEASE && key == GLFW_KEY_R && !RenderSystem::introductionScreen && !RenderSystem::endScreen) {
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
 
@@ -617,13 +623,14 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	//skipping cutscene
-	if (action == GLFW_RELEASE && key == GLFW_KEY_Z && RenderSystem::introductionScreen == true) {
+	if (action == GLFW_RELEASE && key == GLFW_KEY_Z && (RenderSystem::introductionScreen == true || RenderSystem::endScreen == true)) {
 		RenderSystem::introductionScreen = false;
+		RenderSystem::endScreen = false;
 		restart_game();
 	}
 
 	// Loading game
-	if (action == GLFW_RELEASE && key == GLFW_KEY_L && !RenderSystem::introductionScreen) {
+	if (action == GLFW_RELEASE && key == GLFW_KEY_L && !RenderSystem::introductionScreen && !RenderSystem::endScreen) {
 		load_checkpoint();
 	}
 
@@ -667,6 +674,16 @@ void WorldSystem::on_mouse_click(int button, int action, int mod) {
 			renderer->sceneIndex++;
 			if (renderer->sceneIndex == 13) {
 				renderer->introductionScreen = false;
+				renderer->sceneIndex = 0;
+			}
+		}
+	}
+	else if (RenderSystem::endScreen) {
+		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+			renderer->sceneIndex++;
+			if (renderer->sceneIndex == 13) {
+				renderer->endScreen = false;
+				renderer->sceneIndex = 0;
 			}
 		}
 	}
