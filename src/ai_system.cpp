@@ -117,6 +117,12 @@ std::vector<std::pair<int, int>> AISystem::bestPath(Motion& eMotion, Motion& pMo
             }
         }
     }
+    while (!openList.empty()) {
+        Node* temp = openList.top();
+        openList.pop();
+        delete temp;
+    }
+
     return path;
 }
 
