@@ -140,7 +140,7 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
 	fprintf(stderr, "Loaded music\n");
 
 	//init levels
-	WorldSystem::level = 0;
+	WorldSystem::level = config.starting_level;
 	LevelManager lm;
 	lm.initLevel();
 	lm.printLevelsInfo();
