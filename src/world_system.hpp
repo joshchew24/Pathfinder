@@ -107,6 +107,7 @@ private:
 	Mix_Chunk* checkpoint_sound;
 	Mix_Chunk* level_win_sound;
 	Mix_Chunk* ink_pickup_sound;
+	bool checkPointAudioPlayer = false;
 
 	//camera speed
 	float cameraSpeed = 0.004f;

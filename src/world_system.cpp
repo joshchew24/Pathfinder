@@ -415,6 +415,7 @@ void WorldSystem::restart_game() {
 
 	level4DisappearTimer = 4000;
 	level4Disappeared = false;
+
 }
 
 void WorldSystem::handleLineCollision(const Entity& line, float elapsed_ms) {
@@ -490,8 +491,11 @@ void WorldSystem::handle_collisions(float elapsed_ms) {
 
 			// Checking Player - Checkpoint collisions
 			else if (registry.checkpoints.has(entity_other)) {
-				Mix_PlayChannel(-1, checkpoint_sound, 0);
-				save_checkpoint();
+				if (checkPointAudioPlayer == false) {
+					Mix_PlayChannel(-1, checkpoint_sound, 0);
+					save_checkpoint();
+					checkPointAudioPlayer = true;
+				}
 			}
 
 			else if (registry.levelEnds.has(entity_other)) {
@@ -523,6 +527,7 @@ void WorldSystem::next_level() {
 		level++;
 		restart_game();
 	}
+	checkPointAudioPlayer = false;
 }
 
 void WorldSystem::save_checkpoint() {
