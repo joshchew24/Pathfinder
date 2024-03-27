@@ -25,9 +25,10 @@ void DrawingSystem::reset() {
 
 void DrawingSystem::start_drawing() {
 	if (!is_drawing) {
-		// Create new drawing (and its first point)
+		// Create new drawing (and its first point + perpendicular "capstop")
 		Entity drawing = Entity();
 		Entity point = Entity();
+		Entity capstop = Entity();
 		registry.drawings.insert(drawing, {});
 		registry.drawnPoints.insert(point, {drawing, drawPos});
 
@@ -51,21 +52,20 @@ void DrawingSystem::set_draw_pos(const vec2 &pos) {
 }
 
 Entity build_line(Entity& drawing, Entity& p1, Entity& p2) {
-	static constexpr float line_width = 10.0f;
 	const vec2& pos1 = registry.drawnPoints.get(p1).position;
 	const vec2& pos2 = registry.drawnPoints.get(p2).position;
 	const vec2 dp = pos2 - pos1; // displacement
 	const float dist = sqrt(dot(dp, dp));
 	
 	Entity line = Entity();
+	DrawnLine &dline = registry.drawnLines.emplace(line);
 
 	Motion &m = registry.motions.emplace(line);
 	m.position = 0.5f * (pos1 + pos2); // midpoint
-	m.scale = vec2{dist, line_width};
+	m.scale = vec2{dist, dline.line_width};
 	m.angle = atan2(dp[1], dp[0]);
 	m.fixed = true;
 	
-	DrawnLine &dline = registry.drawnLines.emplace(line);
 	dline.drawing = drawing;
 	dline.p1 = p1;
 	dline.p2 = p2;
@@ -78,17 +78,14 @@ Entity build_line(Entity& drawing, Entity& p1, Entity& p2) {
 	dline.slope = rise / run;
 	dline.intercept = pos2.y - dline.slope * pos2.x;
 
-	// TODO: Currently re-using debug line render code; maybe find a way to use GL_LINE_STRIP for more continuous lines
-	//  might require considerable augmentation of render_system
 	registry.renderRequests.insert(line,
 				{TEXTURE_ASSET_ID::TEXTURE_COUNT,
 				EFFECT_ASSET_ID::EGG,
-				GEOMETRY_BUFFER_ID::DRAWN_LINE}); // TODO: make unique drawn line ID
+				GEOMETRY_BUFFER_ID::DRAWN_LINE}); 
 	return line;
 }
 
 void build_joint(Entity& drawing, Entity& l1, Entity& l2) {
-	static constexpr float line_width = 10.f;
 	Entity j = Entity();
 	DrawnJoint& joint = registry.drawnJoints.emplace(j);
 	Motion& l1_m = registry.motions.get(l1);
@@ -102,7 +99,7 @@ void build_joint(Entity& drawing, Entity& l1, Entity& l2) {
 	joint.l2 = l2;
 
 	Motion &m = registry.motions.emplace(j);
-	m.scale = vec2(5,5);
+	m.scale = vec2(line1.line_width / 2.f, line1.line_width / 2.f);
 	m.fixed = true;
 	m.angle = 1.5 * M_PI + l1_m.angle;
 	m.position = p2.position;
@@ -122,7 +119,7 @@ void DrawingSystem::step(float elapsed_ms) {
 		return; 	
 	ms_since_last_update -= pointdraw_freq_ms;
 
-	if (is_drawing) {
+	if (is_drawing) {	
 		auto& point_ents = map_drawings_points_id[curr_drawing];
 		const DrawnPoint& last_point = registry.drawnPoints.get(prev_point);
 		if (last_point.position == drawPos)

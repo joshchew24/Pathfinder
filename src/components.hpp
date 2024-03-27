@@ -43,10 +43,14 @@ struct DrawnLine
 	
 	vec2 x_bounds;
 	vec2 y_bounds;
+	vec2 collide_dir;
 
 	// y = mx + b linear eqn coeffs
 	float slope;
 	float intercept;
+	float line_width = 10.f;
+
+	bool perp_collision = false;
 };
 
 // Drawn Line Joints

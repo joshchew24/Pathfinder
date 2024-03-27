@@ -67,9 +67,9 @@ int main()
 		t = now;
 
 		world.step(elapsed_ms);
+		world.handle_collisions(elapsed_ms);
 		physics.step(elapsed_ms);
 		ai.step(elapsed_ms);
-		world.handle_collisions();
 		drawings.step(elapsed_ms);
     
 		// fps reporting

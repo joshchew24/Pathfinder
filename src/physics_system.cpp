@@ -102,7 +102,7 @@ void PhysicsSystem::step(float elapsed_ms)
 		if (collisionSystem.lineCollides(line_ent, bbox[2], bbox[3], bbox[0], bbox[1])) {
 			registry.collisions.emplace_with_duplicates(oliver, line_ent);
 			registry.collisions.emplace_with_duplicates(line_ent, oliver);
-			player.position = player.last_position;
+			//player.position = player.last_position;
 		}
 	}
 }
