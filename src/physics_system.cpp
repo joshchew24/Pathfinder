@@ -5,6 +5,23 @@
 #include <stack>
 #include <cfloat>
 
+//vec2 calculateControlPoint(const glm::vec2& start, const glm::vec2& end, float height) {
+//	glm::vec2 midPoint = (start + end) / 2.0f;
+//	midPoint.y -= height; // Adjust the height to control the arc's steepness
+//	return midPoint;
+//}
+
+vec2 quadraticBezier(const glm::vec2& start, const glm::vec2& control, const glm::vec2& end, float t) {
+	float u = 1 - t;
+	float tt = t * t;
+	float uu = u * u;
+
+	glm::vec2 point = uu * start; // First term
+	point += 2 * u * t * control; // Second term
+	point += tt * end; // Third term
+	return point;
+}
+
 void PhysicsSystem::step(float elapsed_ms)
 {
 	//elapsed_ms = clamp(elapsed_ms, 0.f, 8.f);
@@ -55,9 +72,17 @@ void PhysicsSystem::step(float elapsed_ms)
 				motion.velocity.x = 0.f;
 			}
 		}
-		updatePaintCanGroundedState();
-		motion.last_position = motion.position;
+
+		updateGroundedStateForEntities(registry, registry.paintCans, [](Motion& motion, bool isGrounded) {
+			motion.grounded = isGrounded;
+			});
+		updateGroundedStateForEntities(registry, registry.archers, [](Motion& motion, bool isGrounded) {
+			motion.grounded = isGrounded;
+			});
+      
+    motion.last_position = motion.position;
 		motion.position += motion.velocity * step_seconds;
+
 	}
 
 	// Check for collisions between all moving entities
@@ -80,7 +105,32 @@ void PhysicsSystem::step(float elapsed_ms)
 		}
 	}
 
+	ComponentContainer<BezierProjectile>& projectile_container = registry.projectiles;
 	ComponentContainer<Platform>& platform_container = registry.platforms;
+	std::vector<Entity> to_be_removed;
+	for (uint i = 0; i < projectile_container.components.size(); i++) {
+		BezierProjectile& projectile = projectile_container.components[i];
+		Entity projectileEntity = projectile_container.entities[i];
+		Motion& projectile_motion = motion_registry.get(projectile_container.entities[i]);
+		Motion& player_motion = motion_registry.get(registry.players.entities[0]);
+		projectile.elapsedTime += elapsed_ms;
+		float t = projectile.elapsedTime / 2000;
+		if (t > 1.0) t = 1.0;
+		if (t >= 1.0) {
+			to_be_removed.push_back(projectile_container.entities[i]);
+		}
+		vec2 currentPosition = quadraticBezier(projectile.startPosition, projectile.controlPoint, projectile.targetPosition, t);
+		vec2 tangentVec = 2.0f * (1.0f - t) * (projectile.controlPoint - projectile.startPosition) + 2.0f * t * (projectile.targetPosition - projectile.controlPoint);
+		float radian = atan(-tangentVec.y, tangentVec.x);
+		projectile_motion.angle = radian;
+		projectile_motion.position = currentPosition;
+	}
+
+	for (Entity e : to_be_removed) {
+		registry.remove_all_components_of(e);
+	}
+
+	// ComponentContainer<Platform>& platform_container = registry.platforms;
 	//ComponentContainer<Motion>& motion_container = registry.motions;
 	Motion& player = motion_container.get(registry.players.entities[0]);
 	bool touching_any_platform = false;
@@ -107,32 +157,30 @@ void PhysicsSystem::step(float elapsed_ms)
 	}
 }
 
-void PhysicsSystem::updatePaintCanGroundedState() {
-	auto& paintCanRegistry = registry.paintCans;
+template<typename T>
+void PhysicsSystem::updateGroundedStateForEntities(ECSRegistry& registry, const ComponentContainer<T>& entityContainer, UpdateGroundedStateFunc updateFunc) {
 	auto& platformContainer = registry.platforms;
 
-	for (auto& paintCanEntity : paintCanRegistry.entities) {
-		Motion& paintCanMotion = registry.motions.get(paintCanEntity);
+	for (auto& entity : entityContainer.entities) {
+		Motion& entityMotion = registry.motions.get(entity);
 		bool isTouchingPlatform = false;
 
 		for (auto& platformEntity : platformContainer.entities) {
 			Motion& platformMotion = registry.motions.get(platformEntity);
 
-			if (collisionSystem.rectangleCollides(paintCanMotion, platformMotion)) {
+			if (collisionSystem.rectangleCollides(entityMotion, platformMotion)) {
 				isTouchingPlatform = true;
-				paintCanMotion.grounded = true;
-				paintCanMotion.velocity.y = 0;
-
-
-				float platformTop = platformMotion.position.y + platformMotion.scale.y / 2.0f;
-				paintCanMotion.position.y = platformTop - paintCanMotion.scale.y / 2.0f;
-				break; 
+				entityMotion.grounded = true;
+				entityMotion.velocity.y = 0;
+				float platformTop = platformMotion.position.y + platformMotion.scale.y / 2;
+				entityMotion.position.y = platformTop - entityMotion.scale.y / 2;
+				break;
 			}
 		}
 
-		if (!isTouchingPlatform) {
-			paintCanMotion.grounded = false;
-		}
+
+		// Call the provided function to handle the update
+		updateFunc(entityMotion, isTouchingPlatform);
 	}
 }
 
