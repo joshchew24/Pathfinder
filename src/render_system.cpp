@@ -9,6 +9,8 @@
 
 bool RenderSystem::introductionScreen = true;
 
+bool RenderSystem::endScreen = false;
+
 void RenderSystem::drawTexturedMesh(Entity entity,
 									const mat3 &projection)
 {
@@ -301,6 +303,20 @@ void RenderSystem::draw()
 
 		renderIntroduction(sceneIndex);
 	}
+	else if (endScreen) {
+		int w, h;
+		glfwGetFramebufferSize(window, &w, &h);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glViewport(0, 0, w, h);
+		glDepthRange(0, 10);
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glClearDepth(1.f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		gl_has_errors();
+		glDisable(GL_DEPTH_TEST);
+
+		renderEnding(sceneIndex);
+	}
 	else {
 		drawBackground();
 
@@ -487,6 +503,49 @@ void RenderSystem::renderIntroduction(int i) {
 	}
 	else if (i == 12) {
 		renderHelper(-0.23f, -0.7f, 140, 200, 1, 3, dialogueBoxLeft, "wait, I still have ques....", 1.5);
+	}
+
+}
+
+void RenderSystem::renderEnding(int i) {
+	if (i == 0) {
+		renderHelper(-0.23f, -0.7f, 140, 200, 1, 3, dialogueBoxLeft, "I.. I did it??", 2);
+	}
+	else if (i == 1) {
+		renderHelper(-0.23f, -0.7f, 140, 200, 1, 3, dialogueBoxLeft, "I DID IT!!!!", 2);
+	}
+	else if (i == 2) {
+		renderHelper(0.25f, -0.7f, 800, 200, 3, 1, dialogueBoxRight, "Good job, Oliver.", 2);
+	}
+	else if (i == 3) {
+		renderHelper(0.25f, -0.7f, 800, 200, 3, 1, dialogueBoxRight, "You done a very good job.", 1.7);
+	}
+	else if (i == 4) {
+		renderHelper(0.25f, -0.7f, 800, 200, 3, 1, dialogueBoxRight, "I have learned alot from this experiment.", 1.2);
+	}
+	else if (i == 5) {
+		renderHelper(0.25f, -0.7f, 800, 200, 3, 1, dialogueBoxRight, "Now, I want you to wait until I finish the next stage", 1.1);
+	}
+	else if (i == 6) {
+		renderHelper(-0.23f, -0.7f, 140, 200, 1, 3, dialogueBoxLeft, "wait what, there is more??", 1.7);
+	}
+	else if (i == 7) {
+		renderHelper(0.25f, -0.7f, 800, 200, 3, 1, dialogueBoxRight, "Of course, we just merely got started...", 1.3);
+	}
+	else if (i == 8) {
+		renderHelper(0.25f, -0.7f, 800, 200, 3, 1, dialogueBoxRight, "There will be new enemies, new levels.", 1.5);
+	}
+	else if (i == 9) {
+		renderHelper(-0.23f, -0.7f, 140, 200, 1, 3, dialogueBoxLeft, "Do I at least become a human again?", 1.5);
+	}
+	else if (i == 10) {
+		renderHelper(0.25f, -0.7f, 800, 200, 3, 1, dialogueBoxRight, "No, You will still be a stickman", 1.5);
+	}
+	else if (i == 11) {
+		renderHelper(0.25f, -0.7f, 800, 200, 3, 1, dialogueBoxRight, "Now repeat these stages until I make new ones", 1.2);
+	}
+	else if (i == 12) {
+		renderHelper(-0.23f, -0.7f, 140, 200, 1, 3, dialogueBoxLeft, "..............", 1.5);
 	}
 
 }

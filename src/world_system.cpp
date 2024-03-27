@@ -522,6 +522,7 @@ void WorldSystem::next_level() {
 	if (level == maxLevel) {
 		level = 0;
 		restart_game();
+		renderer->endScreen = true;
 	}
 	else {
 		level++;
@@ -588,7 +589,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	// player movement TODO: if not GLFW_RELEASE, set bool to on. in step, calculate based on framerate/step ms 
-	if (!registry.deathTimers.has(player) && !RenderSystem::introductionScreen && (key == GLFW_KEY_A || key == GLFW_KEY_D)) {
+	if (!registry.deathTimers.has(player) && !RenderSystem::introductionScreen && !RenderSystem::endScreen && (key == GLFW_KEY_A || key == GLFW_KEY_D)) {
 		RenderRequest& renderRequest = registry.renderRequests.get(player);
 		if (action != GLFW_RELEASE) {
 			movementSystem.press(key);
@@ -603,7 +604,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	// player jump
-	if (!registry.deathTimers.has(player) && !RenderSystem::introductionScreen && key == GLFW_KEY_SPACE) {
+	if (!registry.deathTimers.has(player) && !RenderSystem::introductionScreen && !RenderSystem::endScreen && key == GLFW_KEY_SPACE) {
 		if (action == GLFW_PRESS) {
 			movementSystem.press(key);
 		}
@@ -614,7 +615,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 
 
 	// Resetting game
-	if (action == GLFW_RELEASE && key == GLFW_KEY_R && !RenderSystem::introductionScreen) {
+	if (action == GLFW_RELEASE && key == GLFW_KEY_R && !RenderSystem::introductionScreen && !RenderSystem::endScreen) {
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
 
@@ -622,13 +623,14 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	//skipping cutscene
-	if (action == GLFW_RELEASE && key == GLFW_KEY_Z && RenderSystem::introductionScreen == true) {
+	if (action == GLFW_RELEASE && key == GLFW_KEY_Z && (RenderSystem::introductionScreen == true || RenderSystem::endScreen == true)) {
 		RenderSystem::introductionScreen = false;
+		RenderSystem::endScreen = false;
 		restart_game();
 	}
 
 	// Loading game
-	if (action == GLFW_RELEASE && key == GLFW_KEY_L && !RenderSystem::introductionScreen) {
+	if (action == GLFW_RELEASE && key == GLFW_KEY_L && !RenderSystem::introductionScreen && !RenderSystem::endScreen) {
 		load_checkpoint();
 	}
 
@@ -672,6 +674,16 @@ void WorldSystem::on_mouse_click(int button, int action, int mod) {
 			renderer->sceneIndex++;
 			if (renderer->sceneIndex == 13) {
 				renderer->introductionScreen = false;
+				renderer->sceneIndex = 0;
+			}
+		}
+	}
+	else if (RenderSystem::endScreen) {
+		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+			renderer->sceneIndex++;
+			if (renderer->sceneIndex == 13) {
+				renderer->endScreen = false;
+				renderer->sceneIndex = 0;
 			}
 		}
 	}

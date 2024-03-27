@@ -139,11 +139,15 @@ public:
 
 	static bool introductionScreen;
 
+	static bool endScreen;
+
 	void renderIntroduction(int i);
 
 	void renderHelper(float transX, float transY, float textX, float textY, float oliverTransparency, float oldTransparency, GLuint dialogue, const char* text, float textScale);
 
 	int sceneIndex = 0;
+
+	void renderEnding(int i);
 private:
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(Entity entity, const mat3& projection);
