@@ -40,6 +40,25 @@ struct DrawnLine
 	Entity drawing;
 	Entity p1; // first DrawnPoint ent
 	Entity p2; // second DrawnPoint ent
+	
+	vec2 x_bounds;
+	vec2 y_bounds;
+	vec2 collide_dir;
+
+	// y = mx + b linear eqn coeffs
+	float slope;
+	float intercept;
+	float line_width = 10.f;
+
+	bool perp_collision = false;
+};
+
+// Drawn Line Joints
+struct DrawnJoint
+{
+	Entity drawing;
+	Entity l1; // line 1
+	Entity l2;
 };
 
 // Eagles have a hard shell
@@ -87,6 +106,7 @@ struct PaintCan
 // All data relevant to the shape and motion of entities
 struct Motion {
 	vec2 position = { 0, 0 };
+	vec2 last_position = { 0, 0};
 	float angle = 0;
 	vec2 velocity = { 0, 0 };
 	vec2 scale = { 10, 10 };
@@ -94,8 +114,10 @@ struct Motion {
 	float gravityScale = 1.0f;
 	bool grounded = false;
 	bool fixed = false;
-	bool onlyGoDown = false;
 	bool notAffectedByGravity = false;
+	bool isJumping = false;
+	float timeJumping = 0.f;
+	int jumpsLeft = 1;
 };
 
 // Stucture to store collision information
@@ -154,6 +176,22 @@ struct Mesh
 	std::vector<uint16_t> vertex_indices;
 };
 
+struct BezierProjectile {
+	vec2 targetPosition;
+	vec2 startPosition;
+	float elapsedTime = 0.0f;
+	vec2 controlPoint;
+};
+
+struct Archer {
+
+};
+
+struct ArrowCooldown {
+	float timeSinceLastShot = 0.0f;
+	float cooldown = 3000;
+};
+
 /**
  * The following enumerators represent global identifiers refering to graphic
  * assets. For example TEXTURE_ASSET_ID are the identifiers of each texture
@@ -190,11 +228,25 @@ enum class TEXTURE_ASSET_ID {
 	RUN2 = RUN1 + 1,
 	RUN3 = RUN2 + 1,
 	RUN4 = RUN3 + 1,
-	PENCIL = RUN4 + 1,
+	RUN5 = RUN4 + 1,
+	RUN6 = RUN5 + 1,
+	PENCIL = RUN6 + 1,
 	PAINTCAN = PENCIL + 1,
 	TUTORIAL = PAINTCAN + 1,
 	BACKGROUND = TUTORIAL + 1,
-	TEXTURE_COUNT = BACKGROUND + 1
+	SPIKES = BACKGROUND + 1,
+	EMPTY = SPIKES + 1,
+	HINT1 = EMPTY + 1,
+	HINT2 = HINT1 + 1,
+	HINT3 = HINT2 + 1,
+	HINT4 = HINT3 + 1,
+	HINT5 = HINT4 + 1,
+	HINT6 = HINT5 + 1,
+	HINT7 = HINT6 + 1,
+	HINT8 = HINT7 + 1,
+	GREENENEMY = HINT8 + 1,
+	BEZIERPROJECTILE = GREENENEMY + 1,
+	TEXTURE_COUNT = BEZIERPROJECTILE + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
@@ -211,12 +263,13 @@ const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 
 enum class GEOMETRY_BUFFER_ID {
 	CHICKEN = 0,
-	PAINT = CHICKEN + 1,
-	SPRITE = PAINT + 1,
+	OLIVER = CHICKEN + 1,
+	SPRITE = OLIVER + 1,
 	EGG = SPRITE + 1,
 	DRAWN_LINE = EGG + 1,
 	DEBUG_LINE = DRAWN_LINE + 1,
-	SCREEN_TRIANGLE = DEBUG_LINE + 1,
+	JOINT_TRIANGLE = DEBUG_LINE + 1,
+	SCREEN_TRIANGLE = JOINT_TRIANGLE + 1,
 	GEOMETRY_COUNT = SCREEN_TRIANGLE + 1
 };
 const int geometry_count = (int)GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;

@@ -12,12 +12,18 @@ struct initWall {
 	int ySize;
 };
 
+struct spike {
+	int x;
+	int y;
+};
+
 class Level {
 public:
 	std::vector<initWall> walls;
 	std::pair<float, float> checkpoint;
 	std::pair<float, float> endPoint;
 	std::pair<float, float> playerPos;
+	std::vector<spike> spikes;
 };
 
 class LevelManager {
@@ -91,6 +97,51 @@ public:
 		Level3.endPoint.second = w_3.y - w_3.ySize / 2 - 55;
 
 		levels.push_back(Level3);
+
+		//level 4
+		Level Level4;
+		initWall w_4 = { 0, window_height_px - 200, 600, 600 };
+
+		Level4.walls.push_back(w_4);
+
+		initWall wall4_1 = { 400, window_height_px - 400, 150, 20 };
+		initWall wall4_2 = { 700, window_height_px - 400, 150, 20 };
+		initWall wall4_3 = { 1040, window_height_px - 400, 150, 20 };
+		initWall wall4_4 = { 1300, window_height_px - 500, 150, 20 };
+		initWall wall4_5 = { 1500, window_height_px - 500, 150, 20 };
+		initWall wall4_6 = { 1840, window_height_px - 500, 200, 20 };
+
+		Level4.walls.push_back(wall4_1);
+		Level4.walls.push_back(wall4_2);
+		Level4.walls.push_back(wall4_3);
+		Level4.walls.push_back(wall4_4);
+		Level4.walls.push_back(wall4_5);
+		Level4.walls.push_back(wall4_6);
+
+		spike spike1 = { 350, window_height_px - 425 };
+		spike spike2 = { 387, window_height_px - 425 };
+		spike spike3 = { 1455, window_height_px - 523 };
+		spike spike4 = { 1495, window_height_px - 523 };
+		spike spike5 = { 1825, window_height_px - 523 };
+		spike spike6 = { 1860, window_height_px - 523 };
+
+		Level4.spikes.push_back(spike1);
+		Level4.spikes.push_back(spike2);
+		Level4.spikes.push_back(spike3);
+		Level4.spikes.push_back(spike4);
+		Level4.spikes.push_back(spike5);
+		Level4.spikes.push_back(spike6);
+
+		Level4.checkpoint.first = -10;
+		Level4.checkpoint.second = -10;
+
+		Level4.playerPos.first = 10;
+		Level4.playerPos.second = window_height_px - 800;
+
+		Level4.endPoint.first = wall4_6.x + wall4_6.xSize / 2 - 20;
+		Level4.endPoint.second = wall4_6.y - wall4_6.ySize / 2 - 55;
+
+		levels.push_back(Level4);
 	}
 
 	void printLevelsInfo() {

@@ -44,7 +44,7 @@ public:
 	}
 
 	// Check for collisions
-	void handle_collisions();
+	void handle_collisions(float elapsed_ms);
 
 	// Should the game be over ?
 	bool is_over()const;
@@ -67,10 +67,12 @@ private:
 	// restart level
 	void restart_game();
 
-	LevelManager levelManager;
-	int maxLevel = 2;
+	void handlePlayerAnimation(float elapsed_ms_since_last_update);
+	
+	void handleLineCollision(const Entity& line, float elapsed_ms);
 
-	float msPerFrame = 16.67;
+	LevelManager levelManager;
+	int maxLevel = 3;
 
 	//AI
 	AISystem aiSystem;
@@ -80,7 +82,7 @@ private:
 	std::vector<std::pair<int, int>> bestPath;
 	float speed = 0.01f;
 	const int gridSize = 30;
-	int FrameInterval = 60;
+	int FrameInterval = 20;
 	int FrameCount = 0;
 
 	// OpenGL window handle
@@ -97,11 +99,22 @@ private:
 
 	//To set running animation
 	int currentRunningTexture = (int) TEXTURE_ASSET_ID::OLIVER;
+	int elapsedMsTotal = 0;
 
 	// music references
 	Mix_Music* background_music;
-	Mix_Chunk* chicken_dead_sound;
-	Mix_Chunk* chicken_eat_sound;
+	Mix_Chunk* dead_sound;
+	Mix_Chunk* checkpoint_sound;
+	Mix_Chunk* level_win_sound;
+	Mix_Chunk* ink_pickup_sound;
+	bool checkPointAudioPlayer = false;
+
+	//camera speed
+	float cameraSpeed = 0.004f;
+
+	//platform disappear time
+	float level4DisappearTimer = 3500;
+	bool level4Disappeared = false;
 
 	// C++ random number generator
 	std::default_random_engine rng;

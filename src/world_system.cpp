@@ -29,10 +29,14 @@ WorldSystem::~WorldSystem() {
 	// Destroy music components
 	if (background_music != nullptr)
 		Mix_FreeMusic(background_music);
-	if (chicken_dead_sound != nullptr)
-		Mix_FreeChunk(chicken_dead_sound);
-	if (chicken_eat_sound != nullptr)
-		Mix_FreeChunk(chicken_eat_sound);
+	if (dead_sound != nullptr)
+		Mix_FreeChunk(dead_sound);
+	if (checkpoint_sound != nullptr)
+		Mix_FreeChunk(checkpoint_sound);
+	if (level_win_sound != nullptr)
+		Mix_FreeChunk(level_win_sound);
+	if (ink_pickup_sound != nullptr)
+		Mix_FreeChunk(ink_pickup_sound);
 	Mix_CloseAudio();
 
 	// Destroy all created components
@@ -86,7 +90,7 @@ GLFWwindow* WorldSystem::create_window() {
 	// http://www.glfw.org/docs/latest/input_guide.html
 	glfwSetWindowUserPointer(window, this);
 	auto key_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2, int _3) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_key(_0, _1, _2, _3); };
-	auto cursor_pos_redirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_move({ _0, _1 }); };
+	auto cursor_pos_redirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_move({ _0, _1}); };
 	auto mouse_button_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_click(_0, _1, _2);};
 	glfwSetKeyCallback(window, key_redirect);
 	glfwSetCursorPosCallback(window, cursor_pos_redirect);
@@ -107,10 +111,18 @@ GLFWwindow* WorldSystem::create_window() {
 	}
 
 	background_music = Mix_LoadMUS(audio_path("music.wav").c_str());
-	chicken_dead_sound = Mix_LoadWAV(audio_path("chicken_dead.wav").c_str());
-	chicken_eat_sound = Mix_LoadWAV(audio_path("chicken_eat.wav").c_str());
+	Mix_VolumeMusic(10);
+	dead_sound = Mix_LoadWAV(audio_path("dead.wav").c_str());
+	checkpoint_sound = Mix_LoadWAV(audio_path("checkpoint.wav").c_str());
+	level_win_sound = Mix_LoadWAV(audio_path("level_win.wav").c_str());
+	ink_pickup_sound = Mix_LoadWAV(audio_path("ink_pickup.wav").c_str());
 
-	if (background_music == nullptr || chicken_dead_sound == nullptr || chicken_eat_sound == nullptr) {
+	Mix_VolumeChunk(dead_sound, 10);
+	Mix_VolumeChunk(checkpoint_sound, 5);
+	Mix_VolumeChunk(level_win_sound, 10);
+	Mix_VolumeChunk(ink_pickup_sound, 10);
+
+	if (background_music == nullptr || dead_sound == nullptr || checkpoint_sound == nullptr || level_win_sound == nullptr || ink_pickup_sound == nullptr) {
 		fprintf(stderr, "Failed to load sounds\n %s\n %s\n %s\n make sure the data directory is present",
 			audio_path("music.wav").c_str(),
 			audio_path("chicken_dead.wav").c_str(),
@@ -128,7 +140,7 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
 	fprintf(stderr, "Loaded music\n");
 
 	//init levels
-	WorldSystem::level = 0;
+	WorldSystem::level = config.starting_level;
 	LevelManager lm;
 	lm.initLevel();
 	lm.printLevelsInfo();
@@ -173,23 +185,24 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	if (pmotion.position.y - abs(pmotion.scale.y) / 2 > window_height_px) {
 		if (!registry.deathTimers.has(player)) {
 			registry.deathTimers.emplace(player);
-			Mix_PlayChannel(-1, chicken_dead_sound, 0);
+			Mix_PlayChannel(-1, dead_sound, 0);
+			if (drawings.currently_drawing())
+				drawings.stop_drawing();
 		}
 	}
 
 
 	next_boulder_spawn -= elapsed_ms_since_last_update * current_speed * 2;
-	if (level >= 1 && registry.deadlys.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
+	if ((level == 1 || level == 2) && registry.deadlys.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
 		// Reset timer
 		next_boulder_spawn = (BOULDER_DELAY_MS / 2) + uniform_dist(rng) * (BOULDER_DELAY_MS / 2);
 		createBoulder(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), -100.f));
 	}
 
-
-	if(!registry.deathTimers.has(player) && level >= 2)
+	if(!registry.deathTimers.has(player) && level == 2)
 	{
 		FrameCount += elapsed_ms_since_last_update;
-		if (FrameCount / msPerFrame >= FrameInterval) {
+		if (FrameCount >= FrameInterval) {
 			aiSystem.updateGrid(levelManager.levels[level].walls);
 			//aiSystem.printGrid();
 			Motion& eMotion = registry.motions.get(advancedBoulder);
@@ -211,14 +224,16 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		if (bestPath.size() != 0 && currentNode < bestPath.size() - 1) {
 			float x0 = eMotion.position.x;
 			float y0 = eMotion.position.y;
-			float x1 = (bestPath[currentNode + 1].first) * gridSize;
+			float x1 = (bestPath[currentNode + 1].first + 1) * gridSize;
 			float y1 = (bestPath[currentNode + 1].second + 1) * gridSize;
 
-			//printf("x0:%f\n", x0);
-			//printf("x1:%f\n", x1);
+			if (debugging.in_debug_mode) {
+				printf("x0:%f\n", x0);
+				printf("x1:%f\n", x1);
 
-			//printf("y0:%f\n", y0);
-			//printf("y1:%f\n", y1);
+				printf("y0:%f\n", y0);
+				printf("y1:%f\n", y1);
+			}
 
 			if (x0 > x1) {
 				x1 = (bestPath[currentNode + 1].first) * gridSize;
@@ -234,22 +249,13 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 				currentNode++;
 			}
 			else {
-				auto interpolatedPoint = advancedAIlerp(x0, y0, x1, y1, 0.05);
+				auto interpolatedPoint = advancedAIlerp(x0, y0, x1, y1, elapsed_ms_since_last_update / 1000.f);
 				eMotion.position.x = interpolatedPoint.first;
 				eMotion.position.y = interpolatedPoint.second;
 			}
 		}
 	}
 
-	//advanced AI
-	//for (int x = 0; x <= window_width_px; x += gridSize) {
-	//	createLine({ x, window_height_px / 2 }, { 3, window_height_px });
-	//}
-	//for (int y = 0; y <= window_height_px; y += gridSize) {
-	//	createLine({ window_width_px / 2, y }, { window_width_px, 3 });
-	//}
-
-	// Processing the chicken state
 	assert(registry.screenStates.components.size() <= 1);
     ScreenState &screen = registry.screenStates.components[0];
 
@@ -270,11 +276,72 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			return true;
 		}
 	}
+
+	for (Entity entity : registry.archers.entities) {
+		if (registry.arrowCooldowns.has(entity)) {
+			auto& arrowCooldowns = registry.arrowCooldowns.get(entity);
+			arrowCooldowns.timeSinceLastShot += elapsed_ms_since_last_update;
+		}
+	}
+
 	// reduce window brightness if any of the present chickens is dying
 	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
+	
+	//update parallax background based on player position
+	Motion& m = registry.motions.get(player);
+	float dx = m.position.x - renderer->camera_x;
+	renderer->camera_x = dx * cameraSpeed;
+	float dy = m.position.y - renderer->camera_y;
+	renderer->camera_y = dy * cameraSpeed;
 
 	movementSystem.handle_inputs();
+	handlePlayerAnimation(elapsed_ms_since_last_update);
+
+	if (!level4Disappeared && level == 3) {
+		level4DisappearTimer -= elapsed_ms_since_last_update;
+		if (level4DisappearTimer <= 0) {
+			Level& level4 = this->levelManager.levels[WorldSystem::level];
+			for (Entity entity : registry.platforms.entities) {
+				RenderRequest& r = registry.renderRequests.get(entity);
+				r.used_texture = TEXTURE_ASSET_ID::EMPTY;
+			}
+			for (Entity entity : registry.walls.entities) {
+				RenderRequest& r = registry.renderRequests.get(entity);
+				r.used_texture = TEXTURE_ASSET_ID::EMPTY;
+			}
+			for (Entity entity : registry.deadlys.entities) {
+				RenderRequest& r = registry.renderRequests.get(entity);
+				r.used_texture = TEXTURE_ASSET_ID::EMPTY;
+			}
+			level4Disappeared = true;
+		}
+	}
+
 	return true;
+}
+
+void WorldSystem::handlePlayerAnimation(float elapsed_ms_since_last_update) {
+	Motion& m = registry.motions.get(player);
+	elapsedMsTotal += elapsed_ms_since_last_update;
+	// if moving and grounded
+	if (movementSystem.moving && m.grounded) {
+		// if enough time has elapsed, calculate next frame that we want to change the texture
+		float minMsChange = 12.f;
+		if (elapsedMsTotal > minMsChange) {
+			currentRunningTexture += static_cast<int>(elapsedMsTotal / minMsChange);
+			elapsedMsTotal = 0;
+			if (currentRunningTexture > (int)TEXTURE_ASSET_ID::RUN6) {
+				currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER;
+			}
+			registry.renderRequests.get(player).used_texture = static_cast<TEXTURE_ASSET_ID>(currentRunningTexture);
+		}
+	}
+	else if (!m.grounded) {
+		registry.renderRequests.get(player).used_texture = TEXTURE_ASSET_ID::RUN4;
+	}
+	else if (m.grounded) {
+		registry.renderRequests.get(player).used_texture = TEXTURE_ASSET_ID::OLIVER;
+	}
 }
 
 void WorldSystem::createLevel() {
@@ -290,10 +357,14 @@ void WorldSystem::createLevel() {
 		int platformHeight = abs(w.y - window_height_px) + w.ySize / 2 + 2;
 		createPlatform(renderer, {w.x, window_height_px - platformHeight}, {w.xSize - 10, 10.f});
 	}
+	for (int i = 0; i < currentLevel.spikes.size(); ++i) {
+		spike s = currentLevel.spikes[i];
+		createSpikes(renderer, { s.x, s.y }, { 40, 20});
+	}
 	createCheckpoint(renderer, { currentLevel.checkpoint.first, currentLevel.checkpoint.second });
 	createEndpoint(renderer, { currentLevel.endPoint.first, currentLevel.endPoint.second });
 	player = createOliver(renderer, { currentLevel.playerPos.first, currentLevel.playerPos.second });
-	registry.colors.insert(player, { 1, 0.8f, 0.8f });	
+	registry.colors.insert(player, { 1, 1, 1 });	
 }
 
 // Reset the world state to its initial state
@@ -306,6 +377,7 @@ void WorldSystem::restart_game() {
 	current_speed = 1.f;
 
 	movementSystem.reset();
+	drawings.stop_drawing();
 	drawings.reset();
 
 	// Remove all entities that we created
@@ -320,7 +392,7 @@ void WorldSystem::restart_game() {
 	// Debugging for memory/component leaks
 	registry.list_all_components();
 	
-	createBackground(renderer);
+	//createBackground(renderer);
 
 	//platform
 	createLevel();
@@ -333,17 +405,45 @@ void WorldSystem::restart_game() {
 	// Center cursor to pencil location
 	glfwSetCursorPos(window, window_width_px / 2 - 25.f, window_height_px / 2 + 25.f);
 
-	if (level >= 2) {
+	if (level == 2) {
 		advancedBoulder = createChaseBoulder(renderer, { window_width_px / 2, 100 });
 		bestPath = {};
 		currentNode = 0;
 		createPaintCan(renderer, { window_width_px - 300, window_height_px / 2 }, { 25.f, 50.f });
+		createArcher(renderer, { window_width_px - 600, window_height_px / 2 - 25}, { 70.f, 70.f });
 	}
+
+	level4DisappearTimer = 4000;
+	level4Disappeared = false;
 
 }
 
+void WorldSystem::handleLineCollision(const Entity& line, float elapsed_ms) {
+	// Calculate two directions to apply force: perp. to line, and parallel to line
+	//const DrawnLine& l = registry.drawnLines.get(line);
+	//const Motion& lm = registry.motions.get(line);
+	//float perp_slope = -1 / l.slope; // negative reciprocal gets orthogonal line
+	//float step_seconds = elapsed_ms / 1000.f;
+	//
+	//vec2 parallel(1, l.slope);
+	//parallel = normalize(parallel);
+
+	//vec2 perp(1, perp_slope);
+	//perp = normalize(perp);
+
+	//if (abs(l.slope) < 0.001) { // effectively zero slope
+	//	parallel = {1,0};
+	//	perp = {0,1};
+	//}
+
+	//Motion &pm = registry.motions.get(player);
+	//vec2 proj = dot(pm.velocity, perp) * perp;
+	//pm.velocity -= proj;
+	//pm.position = pm.last_position + pm.velocity  * step_seconds;
+}
+
 // Compute collisions between entities
-void WorldSystem::handle_collisions() {
+void WorldSystem::handle_collisions(float elapsed_ms) {
 	// Loop over all collisions detected by the physics system
 	auto& collisionsRegistry = registry.collisions;
 	Motion& pMotion = registry.motions.get(player);
@@ -362,9 +462,10 @@ void WorldSystem::handle_collisions() {
 				if (!registry.deathTimers.has(entity)) {
 					// Scream, reset timer, and make the chicken sink
 					registry.deathTimers.emplace(entity);
-					Mix_PlayChannel(-1, chicken_dead_sound, 0);
-
-					// !!! TODO A1: change the chicken orientation and color on death
+					Mix_PlayChannel(-1, dead_sound, 0);
+					pMotion.fixed = true;
+					if (drawings.currently_drawing())
+						drawings.stop_drawing();
 				}
 			}
 			// Checking Player - Eatable collisions
@@ -372,9 +473,7 @@ void WorldSystem::handle_collisions() {
 				if (!registry.deathTimers.has(entity)) {
 					// chew, count points, and set the LightUp timer
 					registry.remove_all_components_of(entity_other);
-					Mix_PlayChannel(-1, chicken_eat_sound, 0);
-
-					// !!! TODO A1: create a new struct called LightUp in components.hpp and add an instance to the chicken entity by modifying the ECS registry
+					Mix_PlayChannel(-1, ink_pickup_sound, 0);
 				}
 			}
 			else if (registry.walls.has(entity_other)) {
@@ -392,12 +491,25 @@ void WorldSystem::handle_collisions() {
 
 			// Checking Player - Checkpoint collisions
 			else if (registry.checkpoints.has(entity_other)) {
-				save_checkpoint();
+				if (checkPointAudioPlayer == false) {
+					Mix_PlayChannel(-1, checkpoint_sound, 0);
+					save_checkpoint();
+					checkPointAudioPlayer = true;
+				}
 			}
 
 			else if (registry.levelEnds.has(entity_other)) {
+				Mix_PlayChannel(-1, level_win_sound, 0);
 				next_level();
 			}
+
+			else if (registry.drawnLines.has(entity_other)) {
+				handleLineCollision(entity_other, elapsed_ms);
+			}
+		}
+
+		if (registry.projectiles.has(entity)) {
+			registry.remove_all_components_of(entity);
 		}
 	}
 
@@ -405,15 +517,18 @@ void WorldSystem::handle_collisions() {
 	registry.collisions.clear();
 }
 
+
 void WorldSystem::next_level() {
 	if (level == maxLevel) {
 		level = 0;
 		restart_game();
+		renderer->endScreen = true;
 	}
 	else {
 		level++;
 		restart_game();
 	}
+	checkPointAudioPlayer = false;
 }
 
 void WorldSystem::save_checkpoint() {
@@ -473,62 +588,55 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		glfwSetWindowShouldClose(window, 1);
 	}
 
-	// player movement
-	if ((key == GLFW_KEY_RIGHT || key == GLFW_KEY_LEFT) && !registry.deathTimers.has(player)) {
+	// player movement TODO: if not GLFW_RELEASE, set bool to on. in step, calculate based on framerate/step ms 
+	if (!registry.deathTimers.has(player) && !RenderSystem::introductionScreen && !RenderSystem::endScreen && (key == GLFW_KEY_A || key == GLFW_KEY_D)) {
 		RenderRequest& renderRequest = registry.renderRequests.get(player);
-		if (action == GLFW_PRESS || action == GLFW_REPEAT) {
+		if (action != GLFW_RELEASE) {
 			movementSystem.press(key);
-			if (key == GLFW_KEY_LEFT) {
-				if (currentRunningTexture == (int)TEXTURE_ASSET_ID::RUN4) {
-					currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER - 1;
-				}
-				currentRunningTexture++;
-				renderRequest.used_texture = static_cast<TEXTURE_ASSET_ID>(currentRunningTexture);
-			}
-			else if (key == GLFW_KEY_RIGHT) {
-				if (currentRunningTexture == (int)TEXTURE_ASSET_ID::RUN4) {
-					currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER - 1;
-				}
-				currentRunningTexture++;
-				renderRequest.used_texture = static_cast<TEXTURE_ASSET_ID>(currentRunningTexture);
-			}
 		}
 		else if (action == GLFW_RELEASE) {
 			movementSystem.release(key);
+		}
+		movementSystem.moving = movementSystem.leftOrRight();
+		if (!movementSystem.moving) {
 			renderRequest.used_texture = TEXTURE_ASSET_ID::OLIVER;
 		}
 	}
 
 	// player jump
-	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
-		auto& motions = registry.motions;
-		Motion& motion = motions.get(player);
-		if (motion.grounded && !registry.deathTimers.has(player)) {
-			motion.velocity.y = -600.f;
-			motion.grounded = false;
+	if (!registry.deathTimers.has(player) && !RenderSystem::introductionScreen && !RenderSystem::endScreen && key == GLFW_KEY_SPACE) {
+		if (action == GLFW_PRESS) {
+			movementSystem.press(key);
+		}
+		else if (action == GLFW_RELEASE) {
+			movementSystem.release(key);
 		}
 	}
 
 
 	// Resetting game
-	if (action == GLFW_RELEASE && key == GLFW_KEY_R) {
+	if (action == GLFW_RELEASE && key == GLFW_KEY_R && !RenderSystem::introductionScreen && !RenderSystem::endScreen) {
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
 
         restart_game();
 	}
 
+	//skipping cutscene
+	if (action == GLFW_RELEASE && key == GLFW_KEY_Z && (RenderSystem::introductionScreen == true || RenderSystem::endScreen == true)) {
+		RenderSystem::introductionScreen = false;
+		RenderSystem::endScreen = false;
+		restart_game();
+	}
+
 	// Loading game
-	if (action == GLFW_RELEASE && key == GLFW_KEY_L) {
+	if (action == GLFW_RELEASE && key == GLFW_KEY_L && !RenderSystem::introductionScreen && !RenderSystem::endScreen) {
 		load_checkpoint();
 	}
 
 	// Debugging
-	if (key == GLFW_KEY_D) {
-		if (action == GLFW_RELEASE)
-			debugging.in_debug_mode = false;
-		else
-			debugging.in_debug_mode = true;
+	if (key == GLFW_KEY_I && action == GLFW_PRESS) {
+		debugging.in_debug_mode = !debugging.in_debug_mode;
 	}
 
 	// Control the current speed with `<` `>`
@@ -550,17 +658,38 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 	// default facing direction is (1, 0)
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-	Motion& motion = registry.motions.get(pencil);
-	motion.position.x = mouse_position.x + 25.f;
-	motion.position.y = mouse_position.y - 25.f;
+	if (mouse_position.x < 0 || mouse_position.x > window_width_px
+	 || mouse_position.y < 0 || mouse_position.y > window_height_px)
+		return;
+	Motion& m = registry.motions.get(pencil);
+	m.position.x = mouse_position.x + 25.f;
+	m.position.y = mouse_position.y - 25.f;
 
 	drawings.set_draw_pos(mouse_position);
 }
 
 void WorldSystem::on_mouse_click(int button, int action, int mod) {
+	if (RenderSystem::introductionScreen) {
+		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+			renderer->sceneIndex++;
+			if (renderer->sceneIndex == 13) {
+				renderer->introductionScreen = false;
+				renderer->sceneIndex = 0;
+			}
+		}
+	}
+	else if (RenderSystem::endScreen) {
+		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+			renderer->sceneIndex++;
+			if (renderer->sceneIndex == 13) {
+				renderer->endScreen = false;
+				renderer->sceneIndex = 0;
+			}
+		}
+	}
 	static const int DRAW_BUTTON = GLFW_MOUSE_BUTTON_LEFT;
 	if (button == DRAW_BUTTON) {
-	       if (action == GLFW_PRESS) {
+	       if (action == GLFW_PRESS && !registry.deathTimers.has(player)) {
 		       drawings.start_drawing();
 	       }
 	       else if (action == GLFW_RELEASE) {
