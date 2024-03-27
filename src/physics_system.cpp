@@ -79,7 +79,8 @@ void PhysicsSystem::step(float elapsed_ms)
 		updateGroundedStateForEntities(registry, registry.archers, [](Motion& motion, bool isGrounded) {
 			motion.grounded = isGrounded;
 			});
-
+      
+    motion.last_position = motion.position;
 		motion.position += motion.velocity * step_seconds;
 
 	}
@@ -141,6 +142,19 @@ void PhysicsSystem::step(float elapsed_ms)
 		}
 	}
 	player.grounded = touching_any_platform;
+
+	// Check collisions with drawn lines
+	Entity& oliver = registry.players.entities[0];
+	Mesh *meshptr = registry.meshPtrs.get(oliver);
+	vec4 bbox = getBox(meshptr, player);
+	for (auto &line_ent : registry.drawnLines.entities) {
+		const DrawnLine& line = registry.drawnLines.get(line_ent);
+		if (collisionSystem.lineCollides(line_ent, bbox[2], bbox[3], bbox[0], bbox[1])) {
+			registry.collisions.emplace_with_duplicates(oliver, line_ent);
+			registry.collisions.emplace_with_duplicates(line_ent, oliver);
+			//player.position = player.last_position;
+		}
+	}
 }
 
 template<typename T>

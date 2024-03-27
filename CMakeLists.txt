@@ -89,6 +89,8 @@ if (IS_OS_LINUX OR IS_OS_MAC)
 
     pkg_search_module(SDL2 REQUIRED sdl)
     pkg_search_module(SDL2MIXER REQUIRED SDL_mixer)
+    
+    pkg_search_module(FREETYPE REQUIRED freetype2)
 
     # Link Frameworks on OSX
     if (IS_OS_MAC)
@@ -125,6 +127,12 @@ elseif (IS_OS_WINDOWS)
 	set(SDLMIXER_DLL "${CMAKE_CURRENT_SOURCE_DIR}/ext/sdl/lib/SDL2_mixer-x86.dll")
     endif()
 
+    # Add FreeType - Windows-specific; not tested on Linux or macOS
+    set (FREETYPE_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/ext/freetype/include")
+    set (FREETYPE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/ext/freetype/release static/vs2015-2022/win64/freetype.lib")
+    # set (SDL2_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/ext/sdl/lib/SDL2-x86.lib")
+    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/ext/freetype/include")
+
     # Copy and rename dlls
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -158,11 +166,6 @@ elseif (IS_OS_WINDOWS)
 endif()
 
 
-# Add FreeType - Windows-specific; not tested on Linux or macOS
-set (FREETYPE_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/ext/freetype/include")
-set (FREETYPE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/ext/freetype/release static/vs2015-2022/win64/freetype.lib")
-# set (SDL2_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/ext/sdl/lib/SDL2-x86.lib")
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/ext/freetype/include")
 
 find_package(Freetype REQUIRED)
 
@@ -192,6 +195,7 @@ endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${GLFW_INCLUDE_DIRS})
 target_include_directories(${PROJECT_NAME} PUBLIC ${SDL2_INCLUDE_DIRS})
+target_include_directories(${PROJECT_NAME} PUBLIC ${FREETYPE_INCLUDE_DIRS})
 
 target_link_libraries(${PROJECT_NAME} PUBLIC ${GLFW_LIBRARIES} ${SDL2_LIBRARIES} ${SDL2MIXER_LIBRARIES} glm::glm ${FREETYPE_LIBRARY})
 

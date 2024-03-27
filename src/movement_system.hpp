@@ -24,7 +24,8 @@ public:
 
 	MovementSystem() {}
 
-	void init(float friction_arg = config.friction, float move_speed_arg = config.move_speed) {
+	void init(float friction_arg = config.friction, 
+		float move_speed_arg = config.move_speed) {
 		friction = friction_arg;
 		move_speed = move_speed_arg;
 	}
@@ -75,28 +76,36 @@ public:
 		}
 		// if no directional keys are pressed, apply horizontal deceleration
 		Motion& motion = registry.motions.get(registry.players.entities[0]);
-		motion.acceleration.x = friction * -motion.velocity.x / abs(motion.velocity.x);
+		int vel_dir = motion.velocity.x / abs(motion.velocity.x);
+		float da = friction * -vel_dir;
+		if (motion.acceleration.x * da > 0) { // only add force up to friction
+			da -= motion.acceleration.x;
+		}
+		motion.acceleration.x += da;
 		last = 0;
 	}
 
 	void handle_inputs() {
 		if (last == 0) return;
 		Motion& motion = registry.motions.get(registry.players.entities[0]);
-		motion.acceleration.x = 0.0;
+		int dir;
 		if (last == LEFT_KEY && left) {
-			motion.velocity.x = move_speed * -1.f;
+			dir = -1;
 			if (motion.scale.x > 0) {
 				motion.scale.x = -motion.scale.x;
 			}
-			return;
 		}
-		if (last == RIGHT_KEY && right) {
-			motion.velocity.x = move_speed;
+		else if (last == RIGHT_KEY && right) {
+			dir = 1;
 			if (motion.scale.x < 0) {
 				motion.scale.x = -motion.scale.x;
 			}
-			return;
 		}
+		float dv = move_speed * dir;
+		if (motion.velocity.x * dv > 0) { // only add force up to move_speed
+			dv -= motion.velocity.x;
+		}
+		motion.velocity.x += dv;
 	}
 	
 	void reset() {

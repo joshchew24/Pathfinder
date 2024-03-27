@@ -228,10 +228,69 @@ bool CollisionSystem::SATcollision(const Mesh* mesh, const Motion& motion1, cons
 	return true;
 }
 
+bool boxCollision(vec4 box1, vec4 box2) {
+	// order of elements is: {min_x, min_y, max_x, max_y}	
+	bool y_val = (box1[1] < box2[3]) && (box2[1] < box1[3]);
+	bool x_val = (box1[0] < box2[2]) && (box2[0] < box1[2]);
+	return y_val && x_val;
+}
+
+
 bool CollisionSystem::rectangleCollides(const Motion& motion1, const Motion& motion2) {
 	bool y_val = (motion1.position[1] - abs(motion1.scale.y) / 2.f) < (motion2.position[1] + abs(motion2.scale.y) / 2.f) &&
 		(motion2.position[1] - abs(motion2.scale.y) / 2.f) < (motion1.position[1] + abs(motion1.scale.y) / 2.f);
 	bool x_val = (motion1.position[0] - abs(motion1.scale.x / 2.f)) < (motion2.position[0] + abs(motion2.scale.x) / 2.f) &&
 		(motion2.position[0] - abs(motion2.scale.x / 2.f) < (motion1.position[0] + abs(motion1.scale.x) / 2.f));
 	return y_val && x_val;
+}
+
+bool CollisionSystem::lineCollides(const Entity& line,
+	       	float min_x, float min_y,
+	        float max_x, float max_y) {
+	// Takes 4 bounding box inputs to check against a particular line
+	DrawnLine& dline = registry.drawnLines.get(line);
+	const Motion& line_m = registry.motions.get(line);
+
+	// Determine whether there is intersection
+	// const bool y_intersects = !(dline.y_bounds[1] < min_y || dline.y_bounds[0] > max_y);
+	// const bool x_intersects = !(dline.x_bounds[1] < min_x || dline.x_bounds[0] > max_x);
+
+	// if (!y_intersects || !x_intersects)
+	// 	return false;
+
+	// // Check if line eqn. output is within the bounding box for overlapping x values
+	// vec2 x_overlap(std::max(min_x, dline.x_bounds[0]),  std::min(max_x, dline.x_bounds[1]));
+	// vec2 test_y = dline.slope * x_overlap + dline.intercept;
+	// // Same for x against y values; we check both to guard against perfect vert/horizontal lines
+	// vec2 y_overlap(std::max(min_y, dline.y_bounds[0]),  std::min(max_y, dline.y_bounds[1]));
+	// vec2 test_x = (1 / dline.slope) * (y_overlap - dline.intercept);
+
+	// const bool result = (test_y[0] >= min_y && test_y[1] <= max_y) ||
+	// 		    (test_x[0] >= min_x && test_x[1] <= max_x);
+
+	// apply "undo" rotation to both line and bbox to test collision like a normal upright rect
+	Transform transform;
+	transform.rotate(-line_m.angle);
+	vec2 upper_left(min_x, min_y);
+	vec2 lower_right(max_x, max_y);
+	upper_left = vec2(transform.mat * vec3(upper_left, 1.f));
+	lower_right = vec2(transform.mat * vec3(lower_right, 1.f));
+	// need to re-sort because rotation may have changed relative bounds
+	vec2 x_bounds  = (upper_left.x < lower_right.x) ? vec2(upper_left.x, lower_right.x) : vec2(lower_right.x, upper_left.x);
+	vec2 y_bounds  = (upper_left.y < lower_right.y) ? vec2(upper_left.y, lower_right.y) : vec2(lower_right.y, upper_left.y);
+	vec4 test_box(x_bounds[0], y_bounds[0], x_bounds[1], y_bounds[1]);
+		
+	vec2 test_line = vec2(transform.mat * vec3(line_m.position, 1.f));
+	const float half_w = abs(line_m.scale.x) / 2.f;
+	const float half_h = abs(line_m.scale.y) / 2.f;
+	vec4 line_box(test_line.x - half_w, test_line.y - half_h,
+		      test_line.x + half_w, test_line.y + half_h);
+	bool result = boxCollision(test_box, line_box);
+
+	// DEBUG code
+	if (result && debugging.in_debug_mode) { 
+		auto& r = registry.renderRequests.get(line);
+		r.used_geometry = GEOMETRY_BUFFER_ID::DEBUG_LINE; // turn the line red
+	}
+	return result;
 }
