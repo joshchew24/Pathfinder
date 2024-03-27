@@ -106,26 +106,27 @@ void PhysicsSystem::step(float elapsed_ms)
 
 	ComponentContainer<BezierProjectile>& projectile_container = registry.projectiles;
 	ComponentContainer<Platform>& platform_container = registry.platforms;
+	std::vector<Entity> to_be_removed;
 	for (uint i = 0; i < projectile_container.components.size(); i++) {
 		BezierProjectile& projectile = projectile_container.components[i];
 		Entity projectileEntity = projectile_container.entities[i];
 		Motion& projectile_motion = motion_registry.get(projectile_container.entities[i]);
 		Motion& player_motion = motion_registry.get(registry.players.entities[0]);
-		std::printf("Before update - elapsed_ms: %f, Projectile Elapsed Time: %f\n", elapsed_ms, projectile.elapsedTime);
 		projectile.elapsedTime += elapsed_ms;
-		std::printf("After update - elapsed_ms: %f, Projectile Elapsed Time: %f\n", elapsed_ms, projectile.elapsedTime);
 		float t = projectile.elapsedTime / 2000;
-		std::printf("elapsed_ms: %f, Elapsed Time: %f, t: %f\n",
-			elapsed_ms, projectile.elapsedTime, t);
 		if (t > 1.0) t = 1.0;
 		if (t >= 1.0) {
-			registry.remove_all_components_of(projectileEntity);
+			to_be_removed.push_back(projectile_container.entities[i]);
 		}
 		vec2 currentPosition = quadraticBezier(projectile.startPosition, projectile.controlPoint, projectile.targetPosition, t);
 		vec2 tangentVec = 2.0f * (1.0f - t) * (projectile.controlPoint - projectile.startPosition) + 2.0f * t * (projectile.targetPosition - projectile.controlPoint);
 		float radian = atan(-tangentVec.y, tangentVec.x);
 		projectile_motion.angle = radian;
 		projectile_motion.position = currentPosition;
+	}
+
+	for (Entity e : to_be_removed) {
+		registry.remove_all_components_of(e);
 	}
 
 	// ComponentContainer<Platform>& platform_container = registry.platforms;
