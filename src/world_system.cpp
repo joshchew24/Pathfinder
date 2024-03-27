@@ -283,6 +283,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			return true;
 		}
 	}
+
+	for (Entity entity : registry.archers.entities) {
+		if (registry.arrowCooldowns.has(entity)) {
+			auto& arrowCooldowns = registry.arrowCooldowns.get(entity);
+			arrowCooldowns.timeSinceLastShot += elapsed_ms_since_last_update;
+		}
+	}
+
 	// reduce window brightness if any of the present chickens is dying
 	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
 	
@@ -408,6 +416,7 @@ void WorldSystem::restart_game() {
 		bestPath = {};
 		currentNode = 0;
 		createPaintCan(renderer, { window_width_px - 300, window_height_px / 2 }, { 25.f, 50.f });
+		createArcher(renderer, { window_width_px - 600, window_height_px / 2 - 25}, { 70.f, 70.f });
 	}
 
 	level4DisappearTimer = 4000;
@@ -469,6 +478,10 @@ void WorldSystem::handle_collisions() {
 				Mix_PlayChannel(-1, level_win_sound, 0);
 				next_level();
 			}
+		}
+
+		if (registry.projectiles.has(entity)) {
+			registry.remove_all_components_of(entity);
 		}
 	}
 

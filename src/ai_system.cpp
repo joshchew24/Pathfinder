@@ -120,6 +120,13 @@ std::vector<std::pair<int, int>> AISystem::bestPath(Motion& eMotion, Motion& pMo
     return path;
 }
 
+
+vec2 calculateControlPoint(const glm::vec2& start, const glm::vec2& end, float height) {
+    glm::vec2 midPoint = (start + end) / 2.0f;
+    midPoint.y -= height; // Adjust the height to control the arc's steepness
+    return midPoint;
+}
+
 AISystem::AISystem() {
     createAllDecisionTrees();
 }
@@ -137,6 +144,11 @@ void AISystem::createAllDecisionTrees() {
     DecisionNode* playerTooClose = new DecisionNode{ "playerTooClose", {}, runFromPlayer, moveOnPlatform };
     decisionTreeMap["paintCan"] = playerTooClose;
     
+    // Archer AI
+    DecisionNode* shootProjectile = new DecisionNode{ "shootProjectile", {}, nullptr, nullptr };
+    DecisionNode* playerInSight = new DecisionNode{ "playerInSight", {}, shootProjectile, nullptr };
+    DecisionNode* patrolPlatform = new DecisionNode{ "patrolPlatform", {}, playerInSight, nullptr };
+    decisionTreeMap["archer"] = patrolPlatform;
 
 }
 
@@ -221,6 +233,83 @@ bool AISystem::paintCanDecisionTree(std::string choice, Entity& paintCanEntity, 
     return true;
 }
 
+bool AISystem::archerDecisionTree(std::string choice, Entity& archerEntity, const vec2& playerPosition, ECSRegistry& registry, Motion& playerMotion) {
+	auto& archerRegistry = registry.archers;
+	auto& platformContainer = registry.platforms;
+	auto& motionRegistry = registry.motions;
+	float safeDistance = 4000.f;
+	bool playerIsClose;
+	Motion& archerMotion = motionRegistry.get(archerEntity);
+    if (archerMotion.grounded) {
+        if (archerMotion.velocity.x == 0) {
+			archerMotion.velocity.x = (rand() % 2) == 0 ? -200.f : 200.f;
+		}
+        if (archerMotion.velocity.x > 0) {
+            archerMotion.scale.x = abs(archerMotion.scale.x);
+        }
+        else {
+            archerMotion.scale.x = -abs(archerMotion.scale.x);
+        }
+	}
+    if (choice == "playerInSight") {
+		playerIsClose = glm::distance(archerMotion.position, playerPosition) < safeDistance;
+		return playerIsClose;
+	}
+    else if (choice == "shootProjectile") {
+        auto& cooldownTimer = registry.arrowCooldowns.get(archerEntity);
+        if (cooldownTimer.timeSinceLastShot >= cooldownTimer.cooldown) {
+            auto entity = Entity();
+            auto& motion = registry.motions.emplace(entity);
+            motion.angle = 0.f;
+            motion.velocity = { 0.f, 0.f };
+            motion.position = archerMotion.position + glm::vec2(0.f, -200);
+            motion.scale = { 50.f, 50.f };
+            motion.gravityScale = 12.f;
+            BezierProjectile& projectile = registry.projectiles.emplace(entity);
+            projectile.targetPosition = {playerPosition.x - playerMotion.scale.x * 2, playerPosition.y + 100};
+            projectile.elapsedTime = 0.0f;
+            vec2 startPosition = motion.position;
+            glm::vec2 endPosition = projectile.targetPosition;
+            float distance = glm::distance(startPosition, endPosition);
+            float arcHeight = distance * 0.5;
+            vec2 controlPoint = calculateControlPoint(startPosition, endPosition, arcHeight);
+            projectile.controlPoint = controlPoint;
+            projectile.startPosition = startPosition;
+            registry.deadlys.emplace(entity);
+            registry.renderRequests.insert(
+                entity,
+                { TEXTURE_ASSET_ID::BEZIERPROJECTILE,
+                         EFFECT_ASSET_ID::TEXTURED,
+                         GEOMETRY_BUFFER_ID::SPRITE });
+            cooldownTimer.timeSinceLastShot = 0.f;
+        }
+	}
+
+    else if (choice == "patrolPlatform") {
+        for (auto& platformEntity : platformContainer.entities) {
+			Motion& platformMotion = motionRegistry.get(platformEntity);
+            if (rectangleCollides(archerMotion, platformMotion)) {
+				double platformLeftEdge = platformMotion.position.x - (platformMotion.scale.x / 2.0);
+				double platformRightEdge = platformMotion.position.x + (platformMotion.scale.x / 2.0);
+
+
+                double archerLeftEdge = archerMotion.position.x - abs(archerMotion.scale.x / 2.0);
+                double archerRightEdge = archerMotion.position.x + abs(archerMotion.scale.x / 2.0);
+
+                if (archerLeftEdge <= platformLeftEdge || archerRightEdge >= platformRightEdge || checkLineCollision(archerMotion)) {
+                    archerMotion.velocity.x *= -1;
+                    if ((archerMotion.velocity.x < 0 && archerMotion.scale.x > 0) ||
+                        (archerMotion.velocity.x > 0 && archerMotion.scale.x < 0)) {
+                        archerMotion.scale.x *= -1; // This should correctly flip the sprite
+                    }
+                }
+
+				break;
+			}
+		}
+	}
+	return true;
+}
 
 
 void AISystem::step(float elapsed_ms) {
@@ -280,6 +369,20 @@ void AISystem::step(float elapsed_ms) {
                 }
             }
         }
+
+        auto& archerRegistry = registry.archers;
+        auto& playerMotion = motions_registry.get(player);
+        for (auto& archerEntity : archerRegistry.entities) {
+			DecisionNode* start = decisionTreeMap["archer"];
+            while (start != nullptr) {
+                if (archerDecisionTree(start->condition, archerEntity, player_position, registry, playerMotion)) {
+					start = start->trueCase;
+				}
+                else {
+					start = start->falseCase;
+				}
+			}
+		}
     }
 }
 

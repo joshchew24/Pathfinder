@@ -307,7 +307,7 @@ Entity createPaintCan(RenderSystem* renderer, vec2 position, vec2 size)
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
-	motion.velocity = { 0.f, 100.f };
+	motion.velocity = { 200.f, 100.f };
 	motion.position = position;
 	motion.gravityScale = 12.f;
 	motion.scale = size;
@@ -373,3 +373,24 @@ Entity createSpikes(RenderSystem* renderer, vec2 position, vec2 size)
 	return entity;
 }
 
+Entity createArcher(RenderSystem * renderer, vec2 position, vec2 size)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+	auto & motion = registry.motions.emplace(entity);
+	auto& coolDownTimer = registry.arrowCooldowns.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.position = position;
+	motion.scale = size;
+	registry.archers.emplace(entity);
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::GREENENEMY,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
