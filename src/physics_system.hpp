@@ -14,12 +14,13 @@ private:
 	float gravity;
 	float terminal_velocity;
 	float jump_height;
-
 	CollisionSystem collisionSystem;
-
-	void updatePaintCanGroundedState();
 	void checkWindowBoundary(Motion& motion);
-	void applyFriction(Motion& motion);
+	void updateArrowPosition(Motion& arrowMotion, Motion& playerMotion, float deltaTime, float flightDuration, BezierProjectile& projectile, Entity projectileEntity);
+	using UpdateGroundedStateFunc = std::function<void(Motion& motion, bool isGrounded)>;
+	template<typename T>
+	void updateGroundedStateForEntities(ECSRegistry& registry, const ComponentContainer<T>& entityContainer, UpdateGroundedStateFunc updateFunc);
+	void applyFriction(Motion& motion, float elapsed_ms);
 public:
 	void step(float elapsed_ms);
 

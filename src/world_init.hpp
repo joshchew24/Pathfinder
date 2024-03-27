@@ -39,3 +39,5 @@ Entity createTutorial(RenderSystem* renderer);
 vec4 getBox(const Mesh* mesh, const Motion& motion);
 
 Entity createSpikes(RenderSystem* renderer, vec2 pos, vec2 size);
+
+Entity createArcher(RenderSystem* renderer, vec2 pos, vec2 size);

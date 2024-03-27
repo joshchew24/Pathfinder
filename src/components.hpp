@@ -156,6 +156,22 @@ struct Mesh
 	std::vector<uint16_t> vertex_indices;
 };
 
+struct BezierProjectile {
+	vec2 targetPosition;
+	vec2 startPosition;
+	float elapsedTime = 0.0f;
+	vec2 controlPoint;
+};
+
+struct Archer {
+
+};
+
+struct ArrowCooldown {
+	float timeSinceLastShot = 0.0f;
+	float cooldown = 3000;
+};
+
 /**
  * The following enumerators represent global identifiers refering to graphic
  * assets. For example TEXTURE_ASSET_ID are the identifiers of each texture
@@ -192,7 +208,9 @@ enum class TEXTURE_ASSET_ID {
 	RUN2 = RUN1 + 1,
 	RUN3 = RUN2 + 1,
 	RUN4 = RUN3 + 1,
-	PENCIL = RUN4 + 1,
+	RUN5 = RUN4 + 1,
+	RUN6 = RUN5 + 1,
+	PENCIL = RUN6 + 1,
 	PAINTCAN = PENCIL + 1,
 	TUTORIAL = PAINTCAN + 1,
 	BACKGROUND = TUTORIAL + 1,
@@ -206,7 +224,9 @@ enum class TEXTURE_ASSET_ID {
 	HINT6 = HINT5 + 1,
 	HINT7 = HINT6 + 1,
 	HINT8 = HINT7 + 1,
-	TEXTURE_COUNT = HINT8 + 1
+	GREENENEMY = HINT8 + 1,
+	BEZIERPROJECTILE = GREENENEMY + 1,
+	TEXTURE_COUNT = BEZIERPROJECTILE + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 

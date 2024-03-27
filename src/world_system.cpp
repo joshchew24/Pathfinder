@@ -140,7 +140,7 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
 	fprintf(stderr, "Loaded music\n");
 
 	//init levels
-	WorldSystem::level = 0;
+	WorldSystem::level = config.starting_level;
 	LevelManager lm;
 	lm.initLevel();
 	lm.printLevelsInfo();
@@ -247,7 +247,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 				currentNode++;
 			}
 			else {
-				auto interpolatedPoint = advancedAIlerp(x0, y0, x1, y1, 0.002);
+				auto interpolatedPoint = advancedAIlerp(x0, y0, x1, y1, elapsed_ms_since_last_update / 1000.f);
 				eMotion.position.x = interpolatedPoint.first;
 				eMotion.position.y = interpolatedPoint.second;
 			}
@@ -283,6 +283,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			return true;
 		}
 	}
+
+	for (Entity entity : registry.archers.entities) {
+		if (registry.arrowCooldowns.has(entity)) {
+			auto& arrowCooldowns = registry.arrowCooldowns.get(entity);
+			arrowCooldowns.timeSinceLastShot += elapsed_ms_since_last_update;
+		}
+	}
+
 	// reduce window brightness if any of the present chickens is dying
 	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
 	
@@ -325,11 +333,11 @@ void WorldSystem::handlePlayerAnimation(float elapsed_ms_since_last_update) {
 	// if moving and grounded
 	if (movementSystem.moving && m.grounded) {
 		// if enough time has elapsed, calculate next frame that we want to change the texture
-		float minMsChange = 75.f;
+		float minMsChange = 12.f;
 		if (elapsedMsTotal > minMsChange) {
 			currentRunningTexture += static_cast<int>(elapsedMsTotal / minMsChange);
 			elapsedMsTotal = 0;
-			if (currentRunningTexture > (int)TEXTURE_ASSET_ID::RUN4) {
+			if (currentRunningTexture > (int)TEXTURE_ASSET_ID::RUN6) {
 				currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER;
 			}
 			registry.renderRequests.get(player).used_texture = static_cast<TEXTURE_ASSET_ID>(currentRunningTexture);
@@ -408,6 +416,7 @@ void WorldSystem::restart_game() {
 		bestPath = {};
 		currentNode = 0;
 		createPaintCan(renderer, { window_width_px - 300, window_height_px / 2 }, { 25.f, 50.f });
+		createArcher(renderer, { window_width_px - 600, window_height_px / 2 - 25}, { 70.f, 70.f });
 	}
 
 	level4DisappearTimer = 4000;
@@ -469,6 +478,10 @@ void WorldSystem::handle_collisions() {
 				Mix_PlayChannel(-1, level_win_sound, 0);
 				next_level();
 			}
+		}
+
+		if (registry.projectiles.has(entity)) {
+			registry.remove_all_components_of(entity);
 		}
 	}
 

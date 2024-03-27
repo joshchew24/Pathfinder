@@ -60,6 +60,8 @@ class RenderSystem {
 			textures_path("Run2.png"),
 			textures_path("Run3.png"),
 			textures_path("Run4.png"),
+			textures_path("Run5.png"),
+			textures_path("Run6.png"),
 			textures_path("pencil.png"),
 			textures_path("paintcan.png"),
 			textures_path("tutorial.png"),
@@ -73,7 +75,9 @@ class RenderSystem {
 			textures_path("hintAnimation/hint5.png"),
 			textures_path("hintAnimation/hint6.png"),
 			textures_path("hintAnimation/hint7.png"),
-			textures_path("hintAnimation/hint8.png")
+			textures_path("hintAnimation/hint8.png"),
+			textures_path("character_roundGreen.png"),
+			textures_path("tile_0008.png")
       };
 
 	std::array<GLuint, effect_count> effects;
