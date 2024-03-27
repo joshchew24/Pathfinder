@@ -12,7 +12,7 @@ struct initWall {
 	int ySize;
 };
 
-struct spikes {
+struct spike {
 	int x;
 	int y;
 };
@@ -23,7 +23,7 @@ public:
 	std::pair<float, float> checkpoint;
 	std::pair<float, float> endPoint;
 	std::pair<float, float> playerPos;
-	std::vector<spikes> spikes;
+	std::vector<spike> spikes;
 };
 
 class LevelManager {
@@ -118,12 +118,12 @@ public:
 		Level4.walls.push_back(wall4_5);
 		Level4.walls.push_back(wall4_6);
 
-		spikes spike1 = { 350, window_height_px - 425 };
-		spikes spike2 = { 387, window_height_px - 425 };
-		spikes spike3 = { 1455, window_height_px - 523 };
-		spikes spike4 = { 1495, window_height_px - 523 };
-		spikes spike5 = { 1825, window_height_px - 523 };
-		spikes spike6 = { 1860, window_height_px - 523 };
+		spike spike1 = { 350, window_height_px - 425 };
+		spike spike2 = { 387, window_height_px - 425 };
+		spike spike3 = { 1455, window_height_px - 523 };
+		spike spike4 = { 1495, window_height_px - 523 };
+		spike spike5 = { 1825, window_height_px - 523 };
+		spike spike6 = { 1860, window_height_px - 523 };
 
 		Level4.spikes.push_back(spike1);
 		Level4.spikes.push_back(spike2);

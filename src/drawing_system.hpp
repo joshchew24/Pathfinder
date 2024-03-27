@@ -20,16 +20,18 @@ public:
 	void reset();
 
 	bool check_player_collision(Entity& line);
-	bool line_collides(Entity& line,
-			float min_x, float min_y, float max_x, float max_y);
+
+	bool currently_drawing() { return is_drawing; }
 
 private:
 	std::unordered_map<unsigned int, std::vector<Entity>> map_drawings_points_id;
 	vec2 drawPos{0,0};
 	Entity curr_drawing;
 	Entity prev_point;
+	Entity prev_line;
 	bool is_drawing = false;
 	bool just_finished_drawing = false;
+	bool start_connecting = false;
 };
 
 extern DrawingSystem drawings;

@@ -40,6 +40,25 @@ struct DrawnLine
 	Entity drawing;
 	Entity p1; // first DrawnPoint ent
 	Entity p2; // second DrawnPoint ent
+	
+	vec2 x_bounds;
+	vec2 y_bounds;
+	vec2 collide_dir;
+
+	// y = mx + b linear eqn coeffs
+	float slope;
+	float intercept;
+	float line_width = 10.f;
+
+	bool perp_collision = false;
+};
+
+// Drawn Line Joints
+struct DrawnJoint
+{
+	Entity drawing;
+	Entity l1; // line 1
+	Entity l2;
 };
 
 // Eagles have a hard shell
@@ -87,6 +106,7 @@ struct PaintCan
 // All data relevant to the shape and motion of entities
 struct Motion {
 	vec2 position = { 0, 0 };
+	vec2 last_position = { 0, 0};
 	float angle = 0;
 	vec2 velocity = { 0, 0 };
 	vec2 scale = { 10, 10 };
@@ -248,7 +268,8 @@ enum class GEOMETRY_BUFFER_ID {
 	EGG = SPRITE + 1,
 	DRAWN_LINE = EGG + 1,
 	DEBUG_LINE = DRAWN_LINE + 1,
-	SCREEN_TRIANGLE = DEBUG_LINE + 1,
+	JOINT_TRIANGLE = DEBUG_LINE + 1,
+	SCREEN_TRIANGLE = JOINT_TRIANGLE + 1,
 	GEOMETRY_COUNT = SCREEN_TRIANGLE + 1
 };
 const int geometry_count = (int)GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;

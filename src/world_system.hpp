@@ -44,7 +44,7 @@ public:
 	}
 
 	// Check for collisions
-	void handle_collisions();
+	void handle_collisions(float elapsed_ms);
 
 	// Should the game be over ?
 	bool is_over()const;
@@ -68,6 +68,8 @@ private:
 	void restart_game();
 
 	void handlePlayerAnimation(float elapsed_ms_since_last_update);
+	
+	void handleLineCollision(const Entity& line, float elapsed_ms);
 
 	LevelManager levelManager;
 	int maxLevel = 3;

@@ -90,7 +90,7 @@ GLFWwindow* WorldSystem::create_window() {
 	// http://www.glfw.org/docs/latest/input_guide.html
 	glfwSetWindowUserPointer(window, this);
 	auto key_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2, int _3) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_key(_0, _1, _2, _3); };
-	auto cursor_pos_redirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_move({ _0, _1 }); };
+	auto cursor_pos_redirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_move({ _0, _1}); };
 	auto mouse_button_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_click(_0, _1, _2);};
 	glfwSetKeyCallback(window, key_redirect);
 	glfwSetCursorPosCallback(window, cursor_pos_redirect);
@@ -186,6 +186,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		if (!registry.deathTimers.has(player)) {
 			registry.deathTimers.emplace(player);
 			Mix_PlayChannel(-1, dead_sound, 0);
+			if (drawings.currently_drawing())
+				drawings.stop_drawing();
 		}
 	}
 
@@ -254,15 +256,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
-	//advanced AI
-	//for (int x = 0; x <= window_width_px; x += gridSize) {
-	//	createLine({ x, window_height_px / 2 }, { 3, window_height_px });
-	//}
-	//for (int y = 0; y <= window_height_px; y += gridSize) {
-	//	createLine({ window_width_px / 2, y }, { window_width_px, 3 });
-	//}
-
-	// Processing the chicken state
 	assert(registry.screenStates.components.size() <= 1);
     ScreenState &screen = registry.screenStates.components[0];
 
@@ -365,7 +358,7 @@ void WorldSystem::createLevel() {
 		createPlatform(renderer, {w.x, window_height_px - platformHeight}, {w.xSize - 10, 10.f});
 	}
 	for (int i = 0; i < currentLevel.spikes.size(); ++i) {
-		spikes s = currentLevel.spikes[i];
+		spike s = currentLevel.spikes[i];
 		createSpikes(renderer, { s.x, s.y }, { 40, 20});
 	}
 	createCheckpoint(renderer, { currentLevel.checkpoint.first, currentLevel.checkpoint.second });
@@ -384,6 +377,7 @@ void WorldSystem::restart_game() {
 	current_speed = 1.f;
 
 	movementSystem.reset();
+	drawings.stop_drawing();
 	drawings.reset();
 
 	// Remove all entities that we created
@@ -423,8 +417,32 @@ void WorldSystem::restart_game() {
 	level4Disappeared = false;
 }
 
+void WorldSystem::handleLineCollision(const Entity& line, float elapsed_ms) {
+	// Calculate two directions to apply force: perp. to line, and parallel to line
+	//const DrawnLine& l = registry.drawnLines.get(line);
+	//const Motion& lm = registry.motions.get(line);
+	//float perp_slope = -1 / l.slope; // negative reciprocal gets orthogonal line
+	//float step_seconds = elapsed_ms / 1000.f;
+	//
+	//vec2 parallel(1, l.slope);
+	//parallel = normalize(parallel);
+
+	//vec2 perp(1, perp_slope);
+	//perp = normalize(perp);
+
+	//if (abs(l.slope) < 0.001) { // effectively zero slope
+	//	parallel = {1,0};
+	//	perp = {0,1};
+	//}
+
+	//Motion &pm = registry.motions.get(player);
+	//vec2 proj = dot(pm.velocity, perp) * perp;
+	//pm.velocity -= proj;
+	//pm.position = pm.last_position + pm.velocity  * step_seconds;
+}
+
 // Compute collisions between entities
-void WorldSystem::handle_collisions() {
+void WorldSystem::handle_collisions(float elapsed_ms) {
 	// Loop over all collisions detected by the physics system
 	auto& collisionsRegistry = registry.collisions;
 	Motion& pMotion = registry.motions.get(player);
@@ -445,6 +463,8 @@ void WorldSystem::handle_collisions() {
 					registry.deathTimers.emplace(entity);
 					Mix_PlayChannel(-1, dead_sound, 0);
 					pMotion.fixed = true;
+					if (drawings.currently_drawing())
+						drawings.stop_drawing();
 				}
 			}
 			// Checking Player - Eatable collisions
@@ -478,6 +498,10 @@ void WorldSystem::handle_collisions() {
 				Mix_PlayChannel(-1, level_win_sound, 0);
 				next_level();
 			}
+
+			else if (registry.drawnLines.has(entity_other)) {
+				handleLineCollision(entity_other, elapsed_ms);
+			}
 		}
 
 		if (registry.projectiles.has(entity)) {
@@ -488,6 +512,7 @@ void WorldSystem::handle_collisions() {
 	// Remove all collisions from this simulation step
 	registry.collisions.clear();
 }
+
 
 void WorldSystem::next_level() {
 	if (level == maxLevel) {
@@ -626,9 +651,12 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 	// default facing direction is (1, 0)
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-	Motion& motion = registry.motions.get(pencil);
-	motion.position.x = mouse_position.x + 25.f;
-	motion.position.y = mouse_position.y - 25.f;
+	if (mouse_position.x < 0 || mouse_position.x > window_width_px
+	 || mouse_position.y < 0 || mouse_position.y > window_height_px)
+		return;
+	Motion& m = registry.motions.get(pencil);
+	m.position.x = mouse_position.x + 25.f;
+	m.position.y = mouse_position.y - 25.f;
 
 	drawings.set_draw_pos(mouse_position);
 }
@@ -644,7 +672,7 @@ void WorldSystem::on_mouse_click(int button, int action, int mod) {
 	}
 	static const int DRAW_BUTTON = GLFW_MOUSE_BUTTON_LEFT;
 	if (button == DRAW_BUTTON) {
-	       if (action == GLFW_PRESS) {
+	       if (action == GLFW_PRESS && !registry.deathTimers.has(player)) {
 		       drawings.start_drawing();
 	       }
 	       else if (action == GLFW_RELEASE) {

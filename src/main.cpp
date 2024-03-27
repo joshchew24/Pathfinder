@@ -45,7 +45,11 @@ int main()
 	int total_frame_count = 0;
 	int curr_fps = 0;
 
+#ifdef __unix__ // linux
+	std::string font_filename = "..//data//fonts//Kenney_Pixel.ttf";
+#else // windows
 	std::string font_filename = "..//..//..//data//fonts//Kenney_Pixel.ttf";
+#endif
 	unsigned int font_default_size = 60;
 	renderer.fontInit(*window, font_filename, font_default_size);
 	gl_has_errors();
@@ -63,9 +67,9 @@ int main()
 		t = now;
 
 		world.step(elapsed_ms);
+		world.handle_collisions(elapsed_ms);
 		physics.step(elapsed_ms);
 		ai.step(elapsed_ms);
-		world.handle_collisions();
 		drawings.step(elapsed_ms);
     
 		// fps reporting

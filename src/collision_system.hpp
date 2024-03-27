@@ -21,4 +21,8 @@ public:
 	bool SATcollision(const Mesh* mesh, const Motion& motion1, const Motion& motion2);
 
 	bool rectangleCollides(const Motion& motion1, const Motion& motion2);
+
+	bool lineCollides(const Entity& line,
+			 float min_x, float min_y,
+			 float max_x, float max_y);
 };
