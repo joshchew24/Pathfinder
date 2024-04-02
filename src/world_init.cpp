@@ -109,7 +109,7 @@ Entity createWall(RenderSystem* renderer, vec2 position, vec2 size)
 	return entity;
 }
 
-Entity createLine(vec2 position, vec2 scale)
+Entity createLine(vec2 position, vec2 scale, float angle)
 {
 	Entity entity = Entity();
 
@@ -122,12 +122,15 @@ Entity createLine(vec2 position, vec2 scale)
 
 	// Create motion
 	Motion& motion = registry.motions.emplace(entity);
-	motion.angle = 0.f;
+	motion.angle = angle;
 	motion.velocity = { 0, 0 };
 	motion.position = position;
 	motion.scale = scale;
+	motion.fixed = true;
 
-	registry.debugComponents.emplace(entity);
+	registry.toDrawOns.emplace(entity);
+
+	//registry.debugComponents.emplace(entity);
 	return entity;
 }
 
@@ -391,6 +394,32 @@ Entity createArcher(RenderSystem * renderer, vec2 position, vec2 size)
 		{ TEXTURE_ASSET_ID::GREENENEMY,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity createHint(RenderSystem* renderer, vec2 position, std::string text)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = position;
+	motion.scale = { 47.f, 60.f };
+	motion.fixed = true;
+
+	hint& h = registry.hints.emplace(entity);
+	h.text = text;
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::HINT1,
+		  EFFECT_ASSET_ID::TEXTURED,
+		  GEOMETRY_BUFFER_ID::SPRITE });
 
 	return entity;
 }

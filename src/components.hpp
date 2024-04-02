@@ -103,6 +103,15 @@ struct PaintCan
 
 };
 
+struct toDrawOn
+{
+
+};
+
+struct hint {
+	std::string text;
+};
+
 // All data relevant to the shape and motion of entities
 struct Motion {
 	vec2 position = { 0, 0 };

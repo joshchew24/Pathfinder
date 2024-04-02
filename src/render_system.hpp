@@ -148,6 +148,9 @@ public:
 	int sceneIndex = 0;
 
 	void renderEnding(int i);
+
+	std::string hint;
+	vec2 hintPos;
 private:
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(Entity entity, const mat3& projection);

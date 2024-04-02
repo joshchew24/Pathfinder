@@ -7,7 +7,7 @@
 #include <chrono>
 #include <thread>
 
-bool RenderSystem::introductionScreen = true;
+bool RenderSystem::introductionScreen = false;
 
 bool RenderSystem::endScreen = false;
 
@@ -332,6 +332,9 @@ void RenderSystem::draw()
 
 		// Truely render to the screen
 		drawToScreen();
+
+		// renderHint
+		renderText(hint, hintPos.x - 100, hintPos.y - 70, 0.6, glm::vec3(1.0f, 1.0f, 1.0f), trans);
 	}
 
 	gl_has_errors();

@@ -159,6 +159,93 @@ std::pair<float, float> advancedAIlerp(float x0, float y0, float x1, float y1, f
 	return { x, y };
 }
 
+void WorldSystem::switchHintAnimation(Entity e, float elapsedTime) {
+	hintElapsedMsTotal += elapsedTime;
+	float minMsChange = 20.f;
+	if (elapsedMsTotal > minMsChange) {
+		currentHintTexture += static_cast<int>(elapsedMsTotal / minMsChange);
+		elapsedMsTotal = 0;
+		if (currentHintTexture > (int)TEXTURE_ASSET_ID::HINT8) {
+			currentHintTexture = (int)TEXTURE_ASSET_ID::HINT1;
+		}
+		registry.renderRequests.get(e).used_texture = static_cast<TEXTURE_ASSET_ID>(currentHintTexture);
+	}
+}
+
+void drawLinesLoop(int startX, int gapX, int startY, int gapY, int n, float rotation, float gapR) {
+	for (int i = 0; i < n; i++) {
+		createLine({ startX, startY }, { 10, 20 }, rotation);
+		startX += gapX;
+		startY += gapY;
+		rotation += gapR;
+	}
+}
+
+void WorldSystem::createIndividualPlatforms(vec2 position, vec2 size) {
+	createWall(renderer, position, size);
+	int platformHeight = abs(position.y - window_height_px) + size.y / 2 + 2;
+	createPlatform(renderer, {position.x, window_height_px - platformHeight }, {size.x - 10, 10.f });
+}
+
+void WorldSystem::drawLinesLevel4(int currDrawing) {
+	drawings.stop_drawing();
+	for (Entity e : registry.motions.entities) {
+		if (!registry.platforms.has(e) && !registry.players.has(e) && !registry.walls.has(e) && !registry.levelEnds.has(e) &&
+			!registry.checkpoints.has(e) && !registry.pencil.has(e) &&!registry.hints.has(e)) {
+			registry.remove_all_components_of(e);
+		}
+	}
+	if (currDrawing == 0) {
+		drawLinesLoop(600, 0, 200, 25, 10, 0, 0);
+		drawLinesLoop(620, 25, 195, 0, 10, M_PI / 2, 0);
+		drawLinesLoop(865, 0, 200, 25, 10, 0, 0);
+		drawLinesLoop(620, 25, 430, 0, 10, M_PI / 2,0 );
+	}
+	else if (currDrawing == 1) {
+		createIndividualPlatforms({ 600, window_height_px - 300 }, { 200, 100 });
+		drawLinesLoop(700, 25, 400, -25, 10, 0.698132, 0);
+		drawLinesLoop(950, 25, 175, 25, 10, 2.44346, 0);
+		drawLinesLoop(724, 47, 410, 0, 10, M_PI / 2, 0);
+	}
+	else if (currDrawing == 2) {
+		createIndividualPlatforms({ 850, window_height_px - 300 }, { 200, 100 });
+		drawLinesLoop(950, 25, 100, 0, 7, 1.5708, 0);
+		drawLinesLoop(950, 25, 250, 0, 7, 1.5708, 0);
+		//drawLinesLoop(950, 25, 550, 0, 7, 1.5708, 0);
+
+		//drawLinesLoop(940, 0, 260, 45, 7, 0, 0);
+		//drawLinesLoop(1115, 0, 260, 45, 7, 0, 0);
+
+		drawLinesLoop(875, 25, 160, -25, 3, 0.698132, 0);
+		drawLinesLoop(875, 25, 180, 25, 3, 2.44346, 0);
+
+		drawLinesLoop(1125, 25, 240, -25, 3, 0.698132, 0);
+		drawLinesLoop(1125, 25, 110, 25, 3, 2.44346, 0);
+
+		//drawLinesLoop(1125, 25, 540, -25, 3, 0.698132, 0);
+		//drawLinesLoop(875, 25, 490, 25, 3, 2.44346, 0);
+
+		//drawLinesLoop(870, 0, 200, 45, 7, 0, 0);
+		//drawLinesLoop(1185, 0, 200, 45, 7, 0, 0);
+	}
+	else if (currDrawing == 3) {
+		createIndividualPlatforms({ 1100, window_height_px - 300 }, { 200, 100 });
+
+		drawLinesLoop(750, 25, 420, -40, 10, 0.698132, 0);
+		drawLinesLoop(980, 25, 55, 40, 10, 2.44346, 0);
+		drawLinesLoop(770, 70, 425, 0, 7, M_PI / 2, 0);
+
+		drawLinesLoop(740, 0, 400, -30, 5, 0, 0);
+		drawLinesLoop(1210, 0, 400, -30, 5, 0, 0);
+
+		drawLinesLoop(740, 35, 250, -30, 7, 0.698132, 0);
+		drawLinesLoop(1000, 35, 75, 30, 7, 2.44346, 0);
+	}
+	else if (currDrawing == 4) {
+		createIndividualPlatforms({ 1350, window_height_px - 300 }, { 200, 100 });
+	}
+}
+
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	// Remove debug info from the last step
@@ -193,7 +280,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 
 	next_boulder_spawn -= elapsed_ms_since_last_update * current_speed * 2;
-	if ((level == 1 || level == 2) && registry.deadlys.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
+	if ((level == 1 || level == 2 || level == 4) && registry.deadlys.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
 		// Reset timer
 		next_boulder_spawn = (BOULDER_DELAY_MS / 2) + uniform_dist(rng) * (BOULDER_DELAY_MS / 2);
 		createBoulder(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), -100.f));
@@ -317,6 +404,74 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
+	if (level == 4 ) {
+
+		if (!currDrawn) {
+			drawLinesLevel4(currDrawing);
+			currDrawn = true;
+		}
+		//printf("size: %d\n", registry.toDrawOns.size());
+		bool allTouched = true;
+		int tolerance = 70;
+		if (registry.toDrawOns.size() == 0) {
+			allTouched = false;
+		}
+		else {
+			for (Entity e : registry.toDrawOns.entities) {
+				Motion m = registry.motions.get(e);
+				float x = m.position.x;
+				float y = m.position.y;
+
+				bool currTouched = false;
+				for (Entity e : registry.drawnLines.entities) {
+					DrawnLine d = registry.drawnLines.get(e);
+					DrawnPoint p1 = registry.drawnPoints.get(d.p1);
+					DrawnPoint p2 = registry.drawnPoints.get(d.p2);
+					float x1 = p1.position.x;
+					float y1 = p1.position.y;
+					float x2 = p2.position.x;
+					float y2 = p2.position.y;
+					//printf("x: %f, y: %f\n", x, y);
+					//printf("x1: %f, y1: %f\n", x1, y1);
+					//printf("x2: %f, y2: %f\n", x2, y2);
+					if (std::abs((y - y1) * (x2 - x1) - (y2 - y1) * (x - x1)) <= tolerance) {
+						float left = x - m.scale.x;
+						float right = x + m.scale.x;
+						float top = y - m.scale.y;
+						float bottom = y + m.scale.y;
+						//printf("left: %f, right: %f, top: %f, bottom: %f\n", left, right, top, bottom);
+						if (aiSystem.line_intersects_box(x1,y1,x2,y2,left,top,right,bottom)) {
+							//printf("ever true?");
+							currTouched = true;
+							break;
+						}
+					}
+				}
+				if (!currTouched) {
+					allTouched = false;
+					break;
+				}
+			}
+		}
+
+		if (allTouched) {
+			printf("all touched\n");
+			currDrawing++;
+			currDrawn = false;
+		}
+		else {
+			//printf("not all touched\n");
+		}
+
+		//printf("level: %d\n", currDrawing);
+	}
+
+	renderer->hint = "";
+
+	for (Entity e : registry.hints.entities) {
+		switchHintAnimation(e, elapsed_ms_since_last_update);
+	}
+
 	return true;
 }
 
@@ -361,10 +516,16 @@ void WorldSystem::createLevel() {
 		spike s = currentLevel.spikes[i];
 		createSpikes(renderer, { s.x, s.y }, { 40, 20});
 	}
-	createCheckpoint(renderer, { currentLevel.checkpoint.first, currentLevel.checkpoint.second });
+	if (currentLevel.checkpoint.first != NULL) {
+		createCheckpoint(renderer, { currentLevel.checkpoint.first, currentLevel.checkpoint.second });
+	}
 	createEndpoint(renderer, { currentLevel.endPoint.first, currentLevel.endPoint.second });
 	player = createOliver(renderer, { currentLevel.playerPos.first, currentLevel.playerPos.second });
 	registry.colors.insert(player, { 1, 1, 1 });	
+	if (currentLevel.hintPos.first != NULL) {
+		createHint(renderer, { currentLevel.hintPos.first, currentLevel.hintPos.second }, currentLevel.hint);
+		renderer->hintPos = { currentLevel.hintPos.first, currentLevel.hintPos.second };
+	}
 }
 
 // Reset the world state to its initial state
@@ -416,6 +577,8 @@ void WorldSystem::restart_game() {
 	level4DisappearTimer = 4000;
 	level4Disappeared = false;
 
+	currDrawing = 0;
+	currDrawn = false;
 }
 
 void WorldSystem::handleLineCollision(const Entity& line, float elapsed_ms) {
@@ -505,6 +668,11 @@ void WorldSystem::handle_collisions(float elapsed_ms) {
 
 			else if (registry.drawnLines.has(entity_other)) {
 				handleLineCollision(entity_other, elapsed_ms);
+			}
+
+			else if (registry.hints.has(entity_other)) {
+				Motion m = registry.motions.get(entity_other);
+				renderer->hint = registry.hints.get(entity_other).text;
 			}
 		}
 

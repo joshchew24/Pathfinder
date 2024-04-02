@@ -24,6 +24,8 @@ public:
 	std::pair<float, float> endPoint;
 	std::pair<float, float> playerPos;
 	std::vector<spike> spikes;
+	std::pair<float, float> hintPos;
+	std::string hint;
 };
 
 class LevelManager {
@@ -77,7 +79,7 @@ public:
 		Level3.walls.push_back(w_3);
 		Level3.walls.push_back(w1);
 
-		stairWidth = 150; 
+		stairWidth = 150;
 		stairHeight = 20;
 		numStairs = 3;
 		stairGap = 80;
@@ -142,6 +144,31 @@ public:
 		Level4.endPoint.second = wall4_6.y - wall4_6.ySize / 2 - 55;
 
 		levels.push_back(Level4);
+
+		//level 5
+		Level level5;
+		initWall w_5 = { 200, window_height_px- 100, 400, 600};
+
+		level5.walls.push_back(w_5);
+
+		initWall w_5_1 = { window_width_px - 200, window_height_px - 100, 400, 600 };
+
+		level5.walls.push_back(w_5_1);
+	
+		level5.playerPos.first = 200;
+		level5.playerPos.second = window_height_px - 445;
+
+		level5.endPoint.first = w_5_1.x + w_5_1.xSize / 2 - 200;
+		level5.endPoint.second = w_5_1.y - w_5_1.ySize / 2 - 55;
+
+		Level4.checkpoint.first = NULL;
+		Level4.checkpoint.second = NULL;
+
+		level5.hintPos.first = 150;
+		level5.hintPos.second = window_height_px - 435;
+		level5.hint = "Fill the red outline to unlock next platform";
+
+		levels.push_back(level5);
 	}
 
 	void printLevelsInfo() {
