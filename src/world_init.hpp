@@ -16,7 +16,7 @@ Entity createOliver(RenderSystem* renderer, vec2 pos);
 
 Entity createPlatform(RenderSystem* renderer, vec2 pos, vec2 size);
 // a red line for debugging purposes
-Entity createLine(vec2 position, vec2 size);
+Entity createLine(vec2 position, vec2 size, float angle);
 
 Entity createBoulder(RenderSystem* renderer, vec2 position);
 
@@ -41,3 +41,7 @@ vec4 getBox(const Mesh* mesh, const Motion& motion);
 Entity createSpikes(RenderSystem* renderer, vec2 pos, vec2 size);
 
 Entity createArcher(RenderSystem* renderer, vec2 pos, vec2 size);
+
+Entity createArcher(RenderSystem* renderer, vec2 pos, vec2 size);
+
+Entity createHint(RenderSystem* renderer, vec2 pos, std::string text);
