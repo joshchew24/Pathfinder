@@ -41,7 +41,7 @@ Entity createOliver(RenderSystem* renderer, vec2 pos)
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = {40.f, 80.f};
-	motion.gravityScale = 8.f;
+	motion.gravityScale = 1.f;
 	motion.grounded = false;
 
 	// Create and (empty) Chicken component to be able to refer to all eagles
@@ -144,7 +144,7 @@ Entity createBoulder(RenderSystem* renderer, vec2 position)
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 100.f };
 	motion.position = position;
-	motion.gravityScale = 12.f;
+	motion.gravityScale = 0.05f;
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -BOULDER_BB_WIDTH, BOULDER_BB_HEIGHT });
@@ -174,7 +174,6 @@ Entity createChaseBoulder(RenderSystem* renderer, vec2 position)
 	motion.velocity = { 0.f, 0.f };
 	motion.position = position;
 	motion.gravityScale = 0.f;
-	motion.notAffectedByGravity = true;
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -BOULDER_BB_WIDTH / 1.3, BOULDER_BB_HEIGHT / 1.3 });
