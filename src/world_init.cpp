@@ -419,3 +419,26 @@ Entity createHint(RenderSystem* renderer, vec2 position, std::string text)
 
 	return entity;
 }
+
+Entity createMainMenu(RenderSystem* renderer, vec2 position, vec2 size)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = position;
+	motion.scale = size;
+	motion.fixed = true;
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::MAINMENU,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}

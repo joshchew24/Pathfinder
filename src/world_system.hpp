@@ -29,7 +29,7 @@ public:
 	GLFWwindow* create_window();
 
 	// starts the game
-	void init(RenderSystem* renderer);
+	void init(RenderSystem* renderer, bool* mainMenu);
 
 	// Releases all associated resources
 	~WorldSystem();
@@ -131,4 +131,11 @@ private:
 	//hint animation index
 	int currentHintTexture = (int)TEXTURE_ASSET_ID::HINT1;
 	int hintElapsedMsTotal = 0;
+
+	bool* mainMenu;
+	bool restart = false;
+	bool resume = false;
+	bool exit = false;
+
+	Entity mainMenuEntity;
 };

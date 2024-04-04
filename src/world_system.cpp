@@ -132,7 +132,8 @@ GLFWwindow* WorldSystem::create_window() {
 	return window;
 }
 
-void WorldSystem::init(RenderSystem* renderer_arg) {
+void WorldSystem::init(RenderSystem* renderer_arg, bool* mainMenu) {
+	WorldSystem::mainMenu = mainMenu;
 	this->renderer = renderer_arg;
 	// Playing background music indefinitely
 	Mix_PlayMusic(background_music, -1);
@@ -161,9 +162,9 @@ std::pair<float, float> advancedAIlerp(float x0, float y0, float x1, float y1, f
 void WorldSystem::switchHintAnimation(Entity e, float elapsedTime) {
 	hintElapsedMsTotal += elapsedTime;
 	float minMsChange = 20.f;
-	if (elapsedMsTotal > minMsChange) {
-		currentHintTexture += static_cast<int>(elapsedMsTotal / minMsChange);
-		elapsedMsTotal = 0;
+	if (hintElapsedMsTotal > minMsChange) {
+		currentHintTexture += static_cast<int>(hintElapsedMsTotal / minMsChange);
+		hintElapsedMsTotal = 0;
 		if (currentHintTexture > (int)TEXTURE_ASSET_ID::HINT8) {
 			currentHintTexture = (int)TEXTURE_ASSET_ID::HINT1;
 		}
@@ -517,9 +518,9 @@ void WorldSystem::createLevel() {
 	Level currentLevel = this->levelManager.levels[WorldSystem::level];
 	for (int i = 0; i < currentLevel.walls.size(); ++i) {
 		initWall w = currentLevel.walls[i];
-		createWall(renderer, {w.x, w.y}, {w.xSize, w.ySize});
 		int platformHeight = abs(w.y - window_height_px) + w.ySize / 2 + 2;
 		createPlatform(renderer, {w.x, window_height_px - platformHeight}, {w.xSize - 10, 10.f});
+		createWall(renderer, { w.x, w.y }, { w.xSize, w.ySize });
 	}
 	for (int i = 0; i < currentLevel.spikes.size(); ++i) {
 		spike s = currentLevel.spikes[i];
@@ -533,7 +534,12 @@ void WorldSystem::createLevel() {
 	registry.colors.insert(player, { 1, 1, 1 });	
 	if (currentLevel.hintPos.first != NULL) {
 		createHint(renderer, { currentLevel.hintPos.first, currentLevel.hintPos.second }, currentLevel.hint);
-		renderer->hintPos = { currentLevel.hintPos.first, currentLevel.hintPos.second };
+		if (level == 4) {
+			renderer->hintPos = { currentLevel.hintPos.first, currentLevel.hintPos.second };
+		}
+		else if (level == 3) {
+			renderer->hintPos = { currentLevel.hintPos.first, window_height_px - 350};
+		}
 	}
 }
 
@@ -587,6 +593,9 @@ void WorldSystem::restart_game() {
 
 	currDrawing = 0;
 	currDrawn = false;
+
+	*mainMenu = false;
+	renderer->renderMainMenuText = false;
 }
 
 void WorldSystem::handleLineCollision(const Entity& line, float elapsed_ms) {
@@ -761,7 +770,21 @@ bool WorldSystem::is_over() const {
 void WorldSystem::on_key(int key, int, int action, int mod) {
 	//close on escape
 	if (action == GLFW_RELEASE && key == GLFW_KEY_ESCAPE) {
-		glfwSetWindowShouldClose(window, 1);
+		*mainMenu = true;
+		mainMenuEntity = createMainMenu(renderer, { window_width_px / 2, window_height_px / 2}, {800,800});
+		renderer->renderMainMenuText = true;
+		/*createLine({window_width_px / 2 - 120, window_height_px / 2 + 20}, {5, 20}, 0);
+		createLine({ window_width_px / 2 + 130, window_height_px / 2 + 20 }, { 5, 20 }, 0);
+
+		createLine({ window_width_px / 2, window_height_px / 2 - 145 }, { 5, 20 }, M_PI / 2);
+		createLine({ window_width_px / 2, window_height_px / 2 - 80 }, { 5, 20 }, M_PI / 2);
+
+		createLine({ window_width_px / 2, window_height_px / 2 }, { 5, 20 }, M_PI / 2);
+		createLine({ window_width_px / 2, window_height_px / 2 + 63 }, { 5, 20 }, M_PI / 2);
+
+		createLine({ window_width_px / 2, window_height_px / 2 + 145 }, { 5, 20 }, M_PI / 2);
+		createLine({ window_width_px / 2, window_height_px / 2 + 207 }, { 5, 20 }, M_PI / 2);*/
+		//glfwSetWindowShouldClose(window, 1);
 	}
 
 	// player movement
@@ -824,18 +847,52 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
-	if (mouse_position.x < 0 || mouse_position.x > window_width_px
-	 || mouse_position.y < 0 || mouse_position.y > window_height_px)
-		return;
-	Motion& m = registry.motions.get(pencil);
-	m.position.x = mouse_position.x + 25.f;
-	m.position.y = mouse_position.y - 25.f;
+	if (*mainMenu) {
+		restart = false;
+		resume = false;
+		exit = false;
+		if (mouse_position.x > window_width_px / 2 - 120 && mouse_position.x < window_width_px / 2 + 130) {
+			if (mouse_position.y > window_height_px / 2 - 145 && mouse_position.y < window_height_px / 2 - 80) {
+				//printf("resume\n");
+				resume = true;
+			}
+			else if (mouse_position.y > window_height_px / 2 && mouse_position.y < window_height_px / 2 + 63) {
+				//printf("restart\n");
+				restart = true;
+			}
+			else if (mouse_position.y > window_height_px / 2 + 145 && mouse_position.y < window_height_px / 2 + 207) {
+				//printf("exit\n");
+				exit = true;
+			}
+		}
+	}
+	else {
+		if (mouse_position.x < 0 || mouse_position.x > window_width_px
+			|| mouse_position.y < 0 || mouse_position.y > window_height_px)
+			return;
+		Motion& m = registry.motions.get(pencil);
+		m.position.x = mouse_position.x + 25.f;
+		m.position.y = mouse_position.y - 25.f;
 
-	drawings.set_draw_pos(mouse_position);
+		drawings.set_draw_pos(mouse_position);
+	}
 }
 
 void WorldSystem::on_mouse_click(int button, int action, int mod) {
-	if (RenderSystem::introductionScreen) {
+	if (*mainMenu) {
+		if (resume) {
+			*mainMenu = false;
+			renderer->renderMainMenuText = false;
+			registry.remove_all_components_of(mainMenuEntity);
+		}
+		else if (restart) {
+			restart_game();
+		}
+		else if (exit) {
+			glfwSetWindowShouldClose(window, 1);
+		}
+	}
+	else if (RenderSystem::introductionScreen) {
 		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
 			renderer->sceneIndex++;
 			if (renderer->sceneIndex == 13) {

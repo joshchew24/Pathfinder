@@ -45,3 +45,5 @@ Entity createArcher(RenderSystem* renderer, vec2 pos, vec2 size);
 Entity createArcher(RenderSystem* renderer, vec2 pos, vec2 size);
 
 Entity createHint(RenderSystem* renderer, vec2 pos, std::string text);
+
+Entity createMainMenu(RenderSystem* renderer, vec2 pos, vec2 size);

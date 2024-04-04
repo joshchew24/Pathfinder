@@ -77,7 +77,8 @@ class RenderSystem {
 			textures_path("hintAnimation/hint7.png"),
 			textures_path("hintAnimation/hint8.png"),
 			textures_path("character_roundGreen.png"),
-			textures_path("tile_0008.png")
+			textures_path("tile_0008.png"),
+			textures_path("mainMenu.png")
       };
 
 	std::array<GLuint, effect_count> effects;
@@ -150,7 +151,10 @@ public:
 	void renderEnding(int i);
 
 	std::string hint;
+
 	vec2 hintPos;
+
+	bool renderMainMenuText = false;
 private:
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(Entity entity, const mat3& projection);
