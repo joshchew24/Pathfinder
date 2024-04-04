@@ -762,9 +762,16 @@ bool WorldSystem::is_over() const {
 void WorldSystem::on_key(int key, int, int action, int mod) {
 	//close on escape
 	if (action == GLFW_RELEASE && key == GLFW_KEY_ESCAPE) {
-		*mainMenu = true;
-		mainMenuEntity = createMainMenu(renderer, { window_width_px / 2, window_height_px / 2}, {800,800});
-		renderer->renderMainMenuText = true;
+		if (!*mainMenu) {
+			*mainMenu = true;
+			mainMenuEntity = createMainMenu(renderer, { window_width_px / 2, window_height_px / 2 }, { 800,800 });
+			renderer->renderMainMenuText = true;
+		}
+		else {
+			*mainMenu = false;
+			renderer->renderMainMenuText = false;
+			registry.remove_all_components_of(mainMenuEntity);
+		}
 		/*createLine({window_width_px / 2 - 120, window_height_px / 2 + 20}, {5, 20}, 0);
 		createLine({ window_width_px / 2 + 130, window_height_px / 2 + 20 }, { 5, 20 }, 0);
 
