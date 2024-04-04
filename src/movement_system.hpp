@@ -53,8 +53,8 @@ public:
 	}
 
 	void release(int key) {
+		Motion& motion = registry.motions.get(registry.players.entities[0]);
 		if (key == GLFW_KEY_SPACE) {
-			Motion& motion = registry.motions.get(registry.players.entities[0]);
 			motion.isJumping = false;
 			motion.timeJumping = 0.f;
 			return;
@@ -74,11 +74,13 @@ public:
 			}
 		}
 		// if no directional keys are pressed, apply horizontal deceleration
-		Motion& motion = registry.motions.get(registry.players.entities[0]);
 		int vel_dir = motion.velocity.x / abs(motion.velocity.x);
 		float da = friction * -vel_dir;
 		if (motion.acceleration.x * da > 0) { // only add force up to friction
 			da -= motion.acceleration.x;
+		}
+		if (vel_dir * motion.acceleration.x > 0) {
+			da *= 2;
 		}
 		motion.acceleration.x += da;
 		last = 0;
