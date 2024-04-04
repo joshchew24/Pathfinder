@@ -143,6 +143,10 @@ public:
 		Level4.endPoint.first = wall4_6.x + wall4_6.xSize / 2 - 20;
 		Level4.endPoint.second = wall4_6.y - wall4_6.ySize / 2 - 55;
 
+		Level4.hintPos.first = 150;
+		Level4.hintPos.second = window_height_px - 535;
+		Level4.hint = "Beware: the levels will disappear.. There must be some way to help you memorize them";
+
 		levels.push_back(Level4);
 
 		//level 5
