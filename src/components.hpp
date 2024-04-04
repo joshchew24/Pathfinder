@@ -114,7 +114,6 @@ struct Motion {
 	float gravityScale = 1.0f;
 	bool grounded = false;
 	bool fixed = false;
-	bool notAffectedByGravity = false;
 	bool isJumping = false;
 	float timeJumping = 0.f;
 	int jumpsLeft = 1;
