@@ -41,10 +41,9 @@ Entity createOliver(RenderSystem* renderer, vec2 pos)
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = {40.f, 80.f};
-	motion.gravityScale = 8.f;
+	motion.gravityScale = 1.f;
 	motion.grounded = false;
 
-	// Create and (empty) Chicken component to be able to refer to all eagles
 	registry.players.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
@@ -71,7 +70,6 @@ Entity createPlatform(RenderSystem* renderer, vec2 position, vec2 size)
 	motion.scale = size;
 	motion.fixed = true;
 
-	// Create and (empty) Eagle component to be able to refer to all eagles
 	registry.platforms.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
@@ -98,7 +96,6 @@ Entity createWall(RenderSystem* renderer, vec2 position, vec2 size)
 	motion.scale = size;
 	motion.fixed = true;
 
-	// Create and (empty) Eagle component to be able to refer to all eagles
 	registry.walls.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
@@ -144,7 +141,7 @@ Entity createBoulder(RenderSystem* renderer, vec2 position)
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 100.f };
 	motion.position = position;
-	motion.gravityScale = 12.f;
+	motion.gravityScale = 0.05f;
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -BOULDER_BB_WIDTH, BOULDER_BB_HEIGHT });
@@ -174,7 +171,6 @@ Entity createChaseBoulder(RenderSystem* renderer, vec2 position)
 	motion.velocity = { 0.f, 0.f };
 	motion.position = position;
 	motion.gravityScale = 0.f;
-	motion.notAffectedByGravity = true;
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -BOULDER_BB_WIDTH / 1.3, BOULDER_BB_HEIGHT / 1.3 });
@@ -286,7 +282,7 @@ Entity createBackground(RenderSystem* renderer)
 	motion.scale = { window_width_px - 10, window_height_px - 10 };
 	motion.fixed = true;
 
-	// Create a RenderRequest for the checkpoint flag
+	// Create a RenderRequest for the background
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::BACKGROUND,
@@ -338,7 +334,7 @@ Entity createTutorial(RenderSystem* renderer) {
 	motion.scale = { window_width_px * 0.7, window_height_px * 0.3 };
 	motion.fixed = true;
 
-	// Create a RenderRequest for the checkpoint flag
+	// Create a RenderRequest for the tutorial
 	registry.renderRequests.insert(
 		e, { TEXTURE_ASSET_ID::TUTORIAL,
 		  EFFECT_ASSET_ID::TEXTURED,
@@ -355,14 +351,14 @@ Entity createSpikes(RenderSystem* renderer, vec2 position, vec2 size)
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
 
-	// Initialize the pencil
+	// Initialize the motion component
 	auto& motion = registry.motions.emplace(entity);
 	motion.position = position;
 
 	motion.scale = size;
 	motion.fixed = true;
 
-	// Create a RenderRequest for the pencil
+	// Create a RenderRequest for the spikes
 	registry.deadlys.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
