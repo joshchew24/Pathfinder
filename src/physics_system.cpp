@@ -97,6 +97,7 @@ void PhysicsSystem::step(float elapsed_ms)
 		}
 	}
 
+	// bezier movement
 	ComponentContainer<BezierProjectile>& projectile_container = registry.projectiles;
 	ComponentContainer<Platform>& platform_container = registry.platforms;
 	std::vector<Entity> to_be_removed;

@@ -264,23 +264,23 @@ bool AISystem::archerDecisionTree(std::string choice, Entity& archerEntity, cons
     else if (choice == "shootProjectile") {
         auto& cooldownTimer = registry.arrowCooldowns.get(archerEntity);
         if (cooldownTimer.timeSinceLastShot >= cooldownTimer.cooldown) {
+            vec2 startPosition = archerMotion.position + glm::vec2(0.f, -200);
             auto entity = Entity();
             auto& motion = registry.motions.emplace(entity);
-            motion.angle = 0.f;
-            motion.velocity = { 0.f, 0.f };
-            motion.position = archerMotion.position + glm::vec2(0.f, -200);
+            motion.position = startPosition;
             motion.scale = { 50.f, 50.f };
-            motion.gravityScale = 12.f;
+            // the projectile follows a bezier curve, so ignore gravity
+            motion.gravityScale = 0.f;
+
             BezierProjectile& projectile = registry.projectiles.emplace(entity);
             projectile.targetPosition = {playerPosition.x - playerMotion.scale.x * 2, playerPosition.y + 100};
             projectile.elapsedTime = 0.0f;
-            vec2 startPosition = motion.position;
             glm::vec2 endPosition = projectile.targetPosition;
             float distance = glm::distance(startPosition, endPosition);
             float arcHeight = distance * 0.5;
-            vec2 controlPoint = calculateControlPoint(startPosition, endPosition, arcHeight);
-            projectile.controlPoint = controlPoint;
+            projectile.controlPoint = calculateControlPoint(startPosition, endPosition, arcHeight);
             projectile.startPosition = startPosition;
+
             registry.deadlys.emplace(entity);
             registry.renderRequests.insert(
                 entity,

@@ -450,7 +450,7 @@ void WorldSystem::handle_collisions(float elapsed_ms) {
 		Entity entity = collisionsRegistry.entities[i];
 		Entity entity_other = collisionsRegistry.components[i].other;
 
-		// For now, we are only interested in collisions that involve the chicken
+		// player collisions
 		if (registry.players.has(entity)) {
 			//Player& player = registry.players.get(entity);
 
