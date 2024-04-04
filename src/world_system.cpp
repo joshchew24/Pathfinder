@@ -324,7 +324,7 @@ void WorldSystem::handlePlayerAnimation(float elapsed_ms_since_last_update) {
 	Motion& m = registry.motions.get(player);
 	elapsedMsTotal += elapsed_ms_since_last_update;
 	// if moving and grounded
-	if (movementSystem.moving && m.grounded) {
+	if (movementSystem.leftOrRight() && m.grounded) {
 		// if enough time has elapsed, calculate next frame that we want to change the texture
 		float minMsChange = 12.f;
 		if (elapsedMsTotal > minMsChange) {
@@ -596,10 +596,6 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		}
 		else if (action == GLFW_RELEASE) {
 			movementSystem.release(key);
-		}
-		movementSystem.moving = movementSystem.leftOrRight();
-		if (!movementSystem.moving) {
-			renderRequest.used_texture = TEXTURE_ASSET_ID::OLIVER;
 		}
 	}
 

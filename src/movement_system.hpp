@@ -20,7 +20,6 @@ private:
 public:
 	const static int LEFT_KEY = GLFW_KEY_A;
 	const static int RIGHT_KEY = GLFW_KEY_D;
-	bool moving = false;
 
 	MovementSystem() {}
 
