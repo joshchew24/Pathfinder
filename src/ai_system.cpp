@@ -158,7 +158,7 @@ void AISystem::createAllDecisionTrees() {
 
 }
 
-bool AISystem::boulderDecisionTreeSwitch(std::string choice, Entity& boulderEntity, const vec2& playerPosition, ECSRegistry& registry) {
+bool AISystem::boulderDecisionTreeSwitch(std::string choice, Entity& boulderEntity, const vec2& playerPosition) {
     auto& motions_registry = registry.motions;
     Motion& boulderMotion = motions_registry.get(boulderEntity);
 
@@ -189,7 +189,7 @@ bool AISystem::boulderDecisionTreeSwitch(std::string choice, Entity& boulderEnti
     return true;
 }
 
-bool AISystem::paintCanDecisionTree(std::string choice, Entity& paintCanEntity, const vec2& playerPosition, ECSRegistry& registry) {
+bool AISystem::paintCanDecisionTree(std::string choice, Entity& paintCanEntity, const vec2& playerPosition) {
     auto& paintCanRegistry = registry.paintCans;
     auto& platformContainer = registry.platforms;
     auto& motionRegistry = registry.motions;
@@ -239,7 +239,7 @@ bool AISystem::paintCanDecisionTree(std::string choice, Entity& paintCanEntity, 
     return true;
 }
 
-bool AISystem::archerDecisionTree(std::string choice, Entity& archerEntity, const vec2& playerPosition, ECSRegistry& registry, Motion& playerMotion) {
+bool AISystem::archerDecisionTree(std::string choice, Entity& archerEntity, const vec2& playerPosition, Motion& playerMotion) {
 	auto& archerRegistry = registry.archers;
 	auto& platformContainer = registry.platforms;
 	auto& motionRegistry = registry.motions;
@@ -351,7 +351,7 @@ void AISystem::step(float elapsed_ms) {
         for (auto& boulderEntity : boulderRegistry.entities) {
             DecisionNode* start = decisionTreeMap["boulder"];
             while (start != nullptr) {
-                if (boulderDecisionTreeSwitch(start->condition, boulderEntity, player_position, registry)) {
+                if (boulderDecisionTreeSwitch(start->condition, boulderEntity, player_position)) {
                     start = start->trueCase;
                 }
                 else {
@@ -367,7 +367,7 @@ void AISystem::step(float elapsed_ms) {
             Motion& paintCanMotion = motionRegistry.get(paintCanEntity);
             DecisionNode* start = decisionTreeMap["paintCan"];
             while (start != nullptr) {
-                if (paintCanDecisionTree(start->condition, paintCanEntity, player_position, registry)) {
+                if (paintCanDecisionTree(start->condition, paintCanEntity, player_position)) {
                     start = start->trueCase;
                 }
                 else {
@@ -381,7 +381,7 @@ void AISystem::step(float elapsed_ms) {
         for (auto& archerEntity : archerRegistry.entities) {
 			DecisionNode* start = decisionTreeMap["archer"];
             while (start != nullptr) {
-                if (archerDecisionTree(start->condition, archerEntity, player_position, registry, playerMotion)) {
+                if (archerDecisionTree(start->condition, archerEntity, player_position, playerMotion)) {
 					start = start->trueCase;
 				}
                 else {
