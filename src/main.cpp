@@ -36,7 +36,6 @@ int main()
 	world.init(&renderer);
 	movementSystem.init();
 	physics.init();
-
 	
 	// report fps average across this many updates
 	const size_t NUM_UPDATES_AVERAGE = 25;
@@ -55,22 +54,35 @@ int main()
 	gl_has_errors();
 
 	// variable timestep loop
-	auto t = Clock::now();
+	auto prevTime = Clock::now();
+	auto currentTime = Clock::now();
+	float accumulator = 0.f;
+	float elapsed_ms = 0.f;
+	float ms_per_tick = 1000.f / config.tick_rate;
+
 	while (!world.is_over()) {
 		// Processes system messages, if this wasn't present the window would become unresponsive
 		glfwPollEvents();
 
 		// Calculating elapsed times in milliseconds from the previous iteration
-		auto now = Clock::now();
-		float elapsed_ms =
-			(float)(std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count() / 1000;
-		t = now;
+		currentTime = Clock::now();
+		elapsed_ms =
+			(float)(std::chrono::duration_cast<std::chrono::microseconds>(currentTime - prevTime)).count() / 1000;
+		prevTime = currentTime;
 
-		world.step(elapsed_ms);
-		world.handle_collisions(elapsed_ms);
-		physics.step(elapsed_ms);
-		ai.step(elapsed_ms);
-		drawings.step(elapsed_ms);
+		accumulator += elapsed_ms;
+
+		while (accumulator >= ms_per_tick) {
+			// step the game systems
+			world.step(ms_per_tick);
+			world.handle_collisions(ms_per_tick);
+			physics.step(ms_per_tick);
+			ai.step(ms_per_tick);
+			drawings.step(ms_per_tick);
+
+			accumulator -= ms_per_tick;
+		}
+
     
 		// fps reporting
 		if (frame_update_counter++ == 20) {
