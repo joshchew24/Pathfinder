@@ -37,9 +37,6 @@ void PhysicsSystem::step(float elapsed_ms)
 
 		// decide y accel and vel
 		if (motion.isJumping) {
-			if (debugging.in_debug_mode) {
-				printf("%f\n", motion.timeJumping);
-			}
 			if (motion.timeJumping <= 150.f) {
 				motion.grounded = false;
 				motion.velocity.y = -jump_height;

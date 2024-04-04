@@ -17,10 +17,9 @@ const size_t BOULDER_DELAY_MS = 2000 * 3;
 const size_t BUG_DELAY_MS = 5000 * 3;
 const float FRICTION = 5.f;
 
-// Create the bug world
+// Create the world
 WorldSystem::WorldSystem()
-	: next_boulder_spawn(0.f)
-	, next_bug_spawn(0.f) {
+	: next_boulder_spawn(0.f) {
 	// Seeding rng with random device
 	rng = std::default_random_engine(std::random_device()());
 }
@@ -284,7 +283,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
-	// reduce window brightness if any of the present chickens is dying
+	// reduce window brightness if player dying
 	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
 	
 	//update parallax background based on player position
@@ -381,7 +380,6 @@ void WorldSystem::restart_game() {
 	drawings.reset();
 
 	// Remove all entities that we created
-	// All that have a motion, we could also iterate over all bug, eagles, ... but that would be more cumbersome
 	while (registry.motions.entities.size() > 0)
 	    registry.remove_all_components_of(registry.motions.entities.back());
 
@@ -442,7 +440,7 @@ void WorldSystem::handleLineCollision(const Entity& line, float elapsed_ms) {
 	//pm.position = pm.last_position + pm.velocity  * step_seconds;
 }
 
-// Compute collisions between entities
+// handle all registered collisions
 void WorldSystem::handle_collisions(float elapsed_ms) {
 	// Loop over all collisions detected by the physics system
 	auto& collisionsRegistry = registry.collisions;
@@ -588,7 +586,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		glfwSetWindowShouldClose(window, 1);
 	}
 
-	// player movement TODO: if not GLFW_RELEASE, set bool to on. in step, calculate based on framerate/step ms 
+	// player movement
 	if (!registry.deathTimers.has(player) && !RenderSystem::introductionScreen && !RenderSystem::endScreen && (key == GLFW_KEY_A || key == GLFW_KEY_D)) {
 		RenderRequest& renderRequest = registry.renderRequests.get(player);
 		if (action != GLFW_RELEASE) {
@@ -648,12 +646,6 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A1: HANDLE CHICKEN ROTATION HERE
-	// xpos and ypos are relative to the top-left of the window, the chicken's
-	// default facing direction is (1, 0)
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 	if (mouse_position.x < 0 || mouse_position.x > window_width_px
 	 || mouse_position.y < 0 || mouse_position.y > window_height_px)
 		return;
