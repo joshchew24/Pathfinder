@@ -331,7 +331,7 @@ void WorldSystem::handlePlayerAnimation(float elapsed_ms_since_last_update) {
 	// Perform animation updates based on the target frame time
 	while (accumulatedTime >= targetFrameTime) {
 		// if moving and grounded
-		if (movementSystem.moving && m.grounded) {
+		if (movementSystem.leftOrRight() && m.grounded) {
 			// Calculate next frame for texture change
 			currentRunningTexture++;
 			if (currentRunningTexture > (int)TEXTURE_ASSET_ID::RUN6) {
