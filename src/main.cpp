@@ -36,13 +36,6 @@ int main()
 	world.init(&renderer);
 	movementSystem.init();
 	physics.init();
-	
-	// report fps average across this many updates
-	const size_t NUM_UPDATES_AVERAGE = 25;
-	std::deque<int> frame_counts;
-	int frame_update_counter = 20;
-	int total_frame_count = 0;
-	int curr_fps = 0;
 
 #ifdef __unix__ // linux
 	std::string font_filename = "..//data//fonts//Kenney_Pixel.ttf";
@@ -58,9 +51,12 @@ int main()
 	auto currentTime = Clock::now();
 	float game_logic_accumulator = 0.f;
 	float render_accumulator = 0.f;
+	float fps_reporting_accumulator = 0.f;
 	float elapsed_ms = 0.f;
 	float ms_per_tick = 1000.f / config.tick_rate;
 	float ms_per_frame = 1000.f / config.target_fps;
+
+	int num_frames = 0;
 
 	while (!world.is_over()) {
 		// Processes system messages, if this wasn't present the window would become unresponsive
@@ -74,41 +70,30 @@ int main()
 
 		game_logic_accumulator += elapsed_ms;
 		while (game_logic_accumulator >= ms_per_tick) {
-			// step the game systems
+			game_logic_accumulator -= ms_per_tick;
+
 			world.step(ms_per_tick);
 			world.handle_collisions(ms_per_tick);
 			physics.step(ms_per_tick);
 			ai.step(ms_per_tick);
 			drawings.step(ms_per_tick);
-
-			game_logic_accumulator -= ms_per_tick;
 		}
 
 		render_accumulator += elapsed_ms;
 		if (render_accumulator >= ms_per_frame) {
-			//printf("acc: %f, elapsed: %f, target: %f\n", render_accumulator, elapsed_ms, ms_per_frame);
 			renderer.draw();
 			glfwSwapBuffers(window);
-			// fps reporting
-			if (frame_update_counter++ == 20) {
-				frame_update_counter = 0;
-				curr_fps = 1000 / render_accumulator;
-				if (debugging.in_debug_mode) printf("actual FPS: %i\n", curr_fps);
-				frame_counts.push_back(curr_fps);
-				total_frame_count += curr_fps;
-
-				if (frame_counts.size() > NUM_UPDATES_AVERAGE) {
-					total_frame_count -= frame_counts.front();
-					frame_counts.pop_front();
-				}
-
-				curr_fps = total_frame_count / frame_counts.size();
-
-				std::stringstream title_ss;
-				title_ss << "Pathfinder - Level: " << world.level + 1 << ", FPS: " << curr_fps;
-				glfwSetWindowTitle(window, title_ss.str().c_str());
-			}
+			num_frames += 1;
 			render_accumulator = 0.f;
+		}
+
+		fps_reporting_accumulator += elapsed_ms;
+		if (fps_reporting_accumulator >= 1000.f) {
+			std::stringstream title_ss;
+			title_ss << "Pathfinder - Level: " << world.level + 1 << ", FPS: " << num_frames;
+			glfwSetWindowTitle(window, title_ss.str().c_str());
+			fps_reporting_accumulator = 0.f;
+			num_frames = 0;
 		}
 
 	}
