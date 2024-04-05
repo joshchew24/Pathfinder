@@ -37,9 +37,6 @@ void PhysicsSystem::step(float elapsed_ms)
 
 		// decide y accel and vel
 		if (motion.isJumping) {
-			if (debugging.in_debug_mode) {
-				printf("%f\n", motion.timeJumping);
-			}
 			if (motion.timeJumping <= 150.f) {
 				motion.grounded = false;
 				motion.velocity.y = -jump_height;
@@ -55,13 +52,8 @@ void PhysicsSystem::step(float elapsed_ms)
 			motion.acceleration.y = 0.f;
 			motion.velocity.y = 0.f;
 		}
-		else if (registry.boulders.has(entity)) {
-			// this should just be set once in the boulder creation
-			motion.acceleration.y = gravity / 20;
-			motion.velocity.y = clamp(motion.velocity.y + motion.acceleration.y*step_seconds, -terminal_velocity, terminal_velocity);
-		}
-		else if (!motion.notAffectedByGravity) {
-			motion.acceleration.y = gravity;
+		else {
+			motion.acceleration.y = gravity * motion.gravityScale;
 			motion.velocity.y = clamp(motion.velocity.y + motion.acceleration.y * step_seconds, -terminal_velocity, terminal_velocity);
 		}
     
@@ -80,7 +72,7 @@ void PhysicsSystem::step(float elapsed_ms)
 			motion.grounded = isGrounded;
 			});
       
-    motion.last_position = motion.position;
+		motion.last_position = motion.position;
 		motion.position += motion.velocity * step_seconds;
 
 	}
@@ -105,6 +97,7 @@ void PhysicsSystem::step(float elapsed_ms)
 		}
 	}
 
+	// bezier movement
 	ComponentContainer<BezierProjectile>& projectile_container = registry.projectiles;
 	ComponentContainer<Platform>& platform_container = registry.platforms;
 	std::vector<Entity> to_be_removed;

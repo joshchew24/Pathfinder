@@ -92,7 +92,6 @@ private:
 	RenderSystem* renderer;
 	float current_speed;
 	float next_boulder_spawn;
-	float next_bug_spawn;
 	Entity player;
 	Entity pencil;
 	Entity tutorial;
