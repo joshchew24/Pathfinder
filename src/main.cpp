@@ -36,6 +36,7 @@ int main()
 	world.init(&renderer);
 	movementSystem.init();
 	physics.init();
+	glfwSetWindowTitle(window, "Pathfinder");
 
 #ifdef __unix__ // linux
 	std::string font_filename = "..//data//fonts//Kenney_Pixel.ttf";
@@ -46,23 +47,27 @@ int main()
 	renderer.fontInit(*window, font_filename, font_default_size);
 	gl_has_errors();
 
-	// variable timestep loop
+	// game loop initialization
 	auto prevTime = Clock::now();
 	auto currentTime = Clock::now();
+
 	float game_logic_accumulator = 0.f;
 	float render_accumulator = 0.f;
 	float fps_reporting_accumulator = 0.f;
+
 	float elapsed_ms = 0.f;
 	float ms_per_tick = 1000.f / config.tick_rate;
 	float ms_per_frame = 1000.f / config.target_fps;
 
+	int last_fps_report = 0;
 	int num_frames = 0;
 
+	// game loop
 	while (!world.is_over()) {
 		// Processes system messages, if this wasn't present the window would become unresponsive
 		glfwPollEvents();
 
-		// Calculating elapsed times in milliseconds from the previous iteration
+		// Calculating elapsed time in milliseconds from the previous iteration
 		currentTime = Clock::now();
 		elapsed_ms =
 			(float)(std::chrono::duration_cast<std::chrono::microseconds>(currentTime - prevTime)).count() / 1000;
@@ -81,18 +86,23 @@ int main()
 
 		render_accumulator += elapsed_ms;
 		if (render_accumulator >= ms_per_frame) {
-			renderer.draw();
-			glfwSwapBuffers(window);
 			num_frames += 1;
 			render_accumulator = 0.f;
+
+			renderer.draw();
+
+			// render the fps counter
+			std::stringstream fps_display;
+			fps_display << "FPS: " << last_fps_report;
+			renderer.renderText(fps_display.str().c_str(), 10.f, window_height_px - 20.f, 0.5f, glm::vec3(1.f), glm::mat4(1.f));
+			
+			glfwSwapBuffers(window);
 		}
 
 		fps_reporting_accumulator += elapsed_ms;
 		if (fps_reporting_accumulator >= 1000.f) {
-			std::stringstream title_ss;
-			title_ss << "Pathfinder - Level: " << world.level + 1 << ", FPS: " << num_frames;
-			glfwSetWindowTitle(window, title_ss.str().c_str());
 			fps_reporting_accumulator = 0.f;
+			last_fps_report = num_frames;
 			num_frames = 0;
 		}
 
