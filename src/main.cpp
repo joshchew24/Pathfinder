@@ -56,9 +56,11 @@ int main()
 	// variable timestep loop
 	auto prevTime = Clock::now();
 	auto currentTime = Clock::now();
-	float accumulator = 0.f;
+	float game_logic_accumulator = 0.f;
+	float render_accumulator = 0.f;
 	float elapsed_ms = 0.f;
 	float ms_per_tick = 1000.f / config.tick_rate;
+	float ms_per_frame = 1000.f / config.target_fps;
 
 	while (!world.is_over()) {
 		// Processes system messages, if this wasn't present the window would become unresponsive
@@ -70,9 +72,8 @@ int main()
 			(float)(std::chrono::duration_cast<std::chrono::microseconds>(currentTime - prevTime)).count() / 1000;
 		prevTime = currentTime;
 
-		accumulator += elapsed_ms;
-
-		while (accumulator >= ms_per_tick) {
+		game_logic_accumulator += elapsed_ms;
+		while (game_logic_accumulator >= ms_per_tick) {
 			// step the game systems
 			world.step(ms_per_tick);
 			world.handle_collisions(ms_per_tick);
@@ -80,33 +81,36 @@ int main()
 			ai.step(ms_per_tick);
 			drawings.step(ms_per_tick);
 
-			accumulator -= ms_per_tick;
+			game_logic_accumulator -= ms_per_tick;
 		}
 
-    
-		// fps reporting
-		if (frame_update_counter++ == 20) {
-			frame_update_counter = 0;
-			curr_fps = 1000 / elapsed_ms;
-			if (debugging.in_debug_mode) printf("actual FPS: %i\n", curr_fps);
-			frame_counts.push_back(curr_fps);
-			total_frame_count += curr_fps;
+		render_accumulator += elapsed_ms;
+		if (render_accumulator >= ms_per_frame) {
+			//printf("acc: %f, elapsed: %f, target: %f\n", render_accumulator, elapsed_ms, ms_per_frame);
+			renderer.draw();
+			glfwSwapBuffers(window);
+			// fps reporting
+			if (frame_update_counter++ == 20) {
+				frame_update_counter = 0;
+				curr_fps = 1000 / render_accumulator;
+				if (debugging.in_debug_mode) printf("actual FPS: %i\n", curr_fps);
+				frame_counts.push_back(curr_fps);
+				total_frame_count += curr_fps;
 
-			if (frame_counts.size() > NUM_UPDATES_AVERAGE) {
-				total_frame_count -= frame_counts.front();
-				frame_counts.pop_front();
+				if (frame_counts.size() > NUM_UPDATES_AVERAGE) {
+					total_frame_count -= frame_counts.front();
+					frame_counts.pop_front();
+				}
+
+				curr_fps = total_frame_count / frame_counts.size();
+
+				std::stringstream title_ss;
+				title_ss << "Pathfinder - Level: " << world.level + 1 << ", FPS: " << curr_fps;
+				glfwSetWindowTitle(window, title_ss.str().c_str());
 			}
-
-			curr_fps = total_frame_count / frame_counts.size();
-
-			std::stringstream title_ss;
-			title_ss << "Pathfinder - Level: " << world.level + 1 << ", FPS: " << curr_fps;
-			glfwSetWindowTitle(window, title_ss.str().c_str());
+			render_accumulator = 0.f;
 		}
 
-		renderer.draw();
-
-		glfwSwapBuffers(window);
 	}
 
 	return EXIT_SUCCESS;
