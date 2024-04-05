@@ -40,7 +40,7 @@ Entity createOliver(RenderSystem* renderer, vec2 pos)
 	motion.position = pos;
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
-	motion.scale = {40.f, 80.f};
+	motion.scale = {60.f, 80.f};
 	motion.gravityScale = 1.f;
 	motion.grounded = false;
 
