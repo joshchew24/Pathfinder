@@ -114,16 +114,15 @@ struct hint {
 
 // All data relevant to the shape and motion of entities
 struct Motion {
-	vec2 position = { 0, 0 };
-	vec2 last_position = { 0, 0};
-	float angle = 0;
-	vec2 velocity = { 0, 0 };
-	vec2 scale = { 10, 10 };
-	vec2 acceleration = { 0, 0 };
+	vec2 position = { 0.f, 0.f };
+	vec2 last_position = { 0.f, 0.f};
+	float angle = 0.f;
+	vec2 velocity = { 0.f, 0.f };
+	vec2 scale = { 10.f, 10.f };
+	vec2 acceleration = { 0.f, 0.f };
 	float gravityScale = 1.0f;
 	bool grounded = false;
 	bool fixed = false;
-	bool notAffectedByGravity = false;
 	bool isJumping = false;
 	float timeJumping = 0.f;
 	int jumpsLeft = 1;
