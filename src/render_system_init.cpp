@@ -510,7 +510,6 @@ bool RenderSystem::fontInit(GLFWwindow& window, const std::string& font_filename
 
 void RenderSystem::initializeParticleRendering() {
 	float particle_quad[] = {
-		// x, y, u, v
 		-0.5f, -0.5f, 0.0f, 0.0f,
 		 0.5f, -0.5f, 1.0f, 0.0f,
 		 0.5f,  0.5f, 1.0f, 1.0f,
@@ -540,7 +539,6 @@ void RenderSystem::initializeParticleRendering() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-	// Load shaders
 	bool success = loadEffectFromFile(shader_path("particle.vs.glsl"), shader_path("particle.fs.glsl"), particleShaderProgram);
 	if (!success) {
 		std::cerr << "Failed to load particle shaders" << std::endl;
