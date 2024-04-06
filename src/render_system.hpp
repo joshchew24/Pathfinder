@@ -77,7 +77,8 @@ class RenderSystem {
 			textures_path("hintAnimation/hint7.png"),
 			textures_path("hintAnimation/hint8.png"),
 			textures_path("character_roundGreen.png"),
-			textures_path("tile_0008.png")
+			textures_path("tile_0008.png"),
+			textures_path("circle_03.png")
       };
 
 	std::array<GLuint, effect_count> effects;
@@ -148,6 +149,9 @@ public:
 	int sceneIndex = 0;
 
 	void renderEnding(int i);
+
+	void initializeParticleRendering();
+	void drawParticles(const mat3& projection);
 private:
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(Entity entity, const mat3& projection);
@@ -190,6 +194,12 @@ private:
 	GLuint introductionVao;
 	GLuint introductionVbo;
 	GLuint introductionShader;
+
+	//particle
+	GLuint particleShaderProgram;
+	GLuint particleVAO;
+	GLuint particleVBO;
+	GLuint particleInstanceVBO;
 };
 
 bool loadEffectFromFile(

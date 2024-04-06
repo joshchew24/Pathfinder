@@ -38,6 +38,9 @@ public:
 	ComponentContainer<BezierProjectile> projectiles;
 	ComponentContainer<Archer> archers;
 	ComponentContainer<ArrowCooldown> arrowCooldowns;
+	ComponentContainer<Particle> particles;
+	ComponentContainer<ParticleEmitter> particleEmitters;
+	
 
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
@@ -68,6 +71,8 @@ public:
 		registry_list.push_back(&paintCans);
 		registry_list.push_back(&projectiles);
 		registry_list.push_back(&archers);
+		registry_list.push_back(&particles);
+		registry_list.push_back(&particleEmitters);
 	}
 
 	void clear_all_components() {

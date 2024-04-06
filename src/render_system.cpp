@@ -328,6 +328,11 @@ void RenderSystem::draw()
 			// Note, its not very efficient to access elements indirectly via the entity
 			// albeit iterating through all Sprites in sequence. A good point to optimize
 			drawTexturedMesh(entity, projection_2D);
+
+			if (registry.particleEmitters.has(entity))
+			{
+				drawParticles(projection_2D);
+			}
 		}
 
 		// Truely render to the screen
@@ -405,6 +410,35 @@ void RenderSystem::renderText(const std::string& text, float x, float y, float s
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
+}
+
+void RenderSystem::drawParticles(const mat3& projection) {
+	glUseProgram(particleShaderProgram);
+
+	glm::mat4 projection_4x4 = glm::mat4(projection);
+
+	GLint projLoc = glGetUniformLocation(particleShaderProgram, "projection");
+	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection_4x4));
+
+	glUniform4f(glGetUniformLocation(particleShaderProgram, "particleColor"), 1.0f, 0.5f, 0.2f, 1.0f);
+
+	std::vector<vec2> particlePositions;
+	for (auto& entity : registry.particles.entities) {
+		auto& pos = registry.motions.get(entity).position;
+		particlePositions.emplace_back(pos.x, pos.y);
+	}
+
+	glBindBuffer(GL_ARRAY_BUFFER, particleInstanceVBO);
+	glBufferData(GL_ARRAY_BUFFER, particlePositions.size() * sizeof(vec2), particlePositions.data(), GL_STREAM_DRAW);
+
+	glBindVertexArray(particleVAO);
+	glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, static_cast<GLsizei>(particlePositions.size()));
+
+	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	gl_has_errors();
+	glUseProgram(0);
 }
 
 mat3 RenderSystem::createProjectionMatrix()

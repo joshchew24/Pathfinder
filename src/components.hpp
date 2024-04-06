@@ -191,6 +191,21 @@ struct ArrowCooldown {
 	float cooldown = 3000;
 };
 
+struct Particle {
+	vec2 position;
+	vec2 velocity;
+	vec4 color;
+	float life;
+};
+
+struct ParticleEmitter {
+	vec2 emission_point;
+	int particles_per_second;
+	vec2 initial_velocity;
+	vec4 color;
+	float lifespan;
+};
+
 /**
  * The following enumerators represent global identifiers refering to graphic
  * assets. For example TEXTURE_ASSET_ID are the identifiers of each texture
@@ -245,7 +260,8 @@ enum class TEXTURE_ASSET_ID {
 	HINT8 = HINT7 + 1,
 	GREENENEMY = HINT8 + 1,
 	BEZIERPROJECTILE = GREENENEMY + 1,
-	TEXTURE_COUNT = BEZIERPROJECTILE + 1
+	CIRCLEPARTICLE = BEZIERPROJECTILE + 1,
+	TEXTURE_COUNT = CIRCLEPARTICLE + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 

@@ -288,6 +288,13 @@ bool AISystem::archerDecisionTree(std::string choice, Entity& archerEntity, cons
                          EFFECT_ASSET_ID::TEXTURED,
                          GEOMETRY_BUFFER_ID::SPRITE });
             cooldownTimer.timeSinceLastShot = 0.f;
+
+            ParticleEmitter& emitter = registry.particleEmitters.emplace(entity);
+            emitter.emission_point = startPosition;
+            emitter.particles_per_second = 50;
+            emitter.initial_velocity = { 0.f, -50.f };
+            emitter.color = { 1.f, 0.f, 0.f, 1.f };
+            emitter.lifespan = 1.0f;
         }
 	}
 
