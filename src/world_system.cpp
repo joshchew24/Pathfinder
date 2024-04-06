@@ -438,6 +438,27 @@ void WorldSystem::handleLineCollision(const Entity& line, float elapsed_ms) {
 	//vec2 proj = dot(pm.velocity, perp) * perp;
 	//pm.velocity -= proj;
 	//pm.position = pm.last_position + pm.velocity  * step_seconds;
+
+	// https://www.reddit.com/r/gamedev/comments/28m3xy/how_do_you_handle_slopes_in_a_2d_physics_engine/
+	// // if above is true, grounded is true.
+	// update position based on the movement:
+	// if the above conditions were true, update position based on grounded
+	const DrawnLine& l = registry.drawnLines.get(line);
+	const Motion& lm = registry.motions.get(line);
+	Motion& pm = registry.motions.get(player);
+	// if player is above line, set player to grounded and not jumping (remember above is actually smaller y values)
+	float line_y_pos = l.slope * (pm.position.x - lm.position.x) + lm.position.y;
+	float pm_bot_pos = pm.position.y + pm.scale.y / 2;
+	if (pm_bot_pos <= line_y_pos) {
+		// if slope of line isn't too steep, then update player position on y
+		if (abs(l.slope) <= 1.3) {
+			pm.position.y = l.slope * (pm.position.x - pm.last_position.x) + pm.last_position.y;
+		}
+	}
+	else {
+		pm.position = pm.last_position;
+		pm.velocity.x = 0;
+	}
 }
 
 // handle all registered collisions

@@ -131,23 +131,35 @@ void PhysicsSystem::step(float elapsed_ms)
 		Motion& platform = motion_container.get(platform_container.entities[i]);
 		if (collisionSystem.rectangleCollides(platform, player)) {
 			touching_any_platform = true;
+			printf("true\n");
 			break;
 		}
 	}
-	player.grounded = touching_any_platform;
 
 	// Check collisions with drawn lines
 	Entity& oliver = registry.players.entities[0];
 	Mesh *meshptr = registry.meshPtrs.get(oliver);
 	vec4 bbox = getBox(meshptr, player);
+	//printf("min x = %f, max x = %f\n", bbox[2], bbox[0]);
 	for (auto &line_ent : registry.drawnLines.entities) {
 		const DrawnLine& line = registry.drawnLines.get(line_ent);
 		if (collisionSystem.lineCollides(line_ent, bbox[2], bbox[3], bbox[0], bbox[1])) {
 			registry.collisions.emplace_with_duplicates(oliver, line_ent);
 			registry.collisions.emplace_with_duplicates(line_ent, oliver);
 			//player.position = player.last_position;
+			const DrawnLine& l = registry.drawnLines.get(line_ent);
+			const Motion& lm = registry.motions.get(line_ent);
+			// if player is above line, set player to grounded and not jumping (remember above is actually smaller y values)
+			float line_y_pos = l.slope * (player.position.x - lm.position.x) + lm.position.y;
+			float pm_bot_pos = player.position.y + player.scale.y / 2;
+			if (pm_bot_pos <= line_y_pos) {
+				printf("true\n");
+				touching_any_platform = true;
+			}
 		}
 	}
+	player.grounded = touching_any_platform;
+	printf("player.grounded = %d\n", player.grounded);
 }
 
 template<typename T>
