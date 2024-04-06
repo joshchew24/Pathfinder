@@ -539,11 +539,7 @@ void RenderSystem::initializeParticleRendering() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-	bool success = loadEffectFromFile(shader_path("particle.vs.glsl"), shader_path("particle.fs.glsl"), particleShaderProgram);
-	if (!success) {
-		std::cerr << "Failed to load particle shaders" << std::endl;
-	}
-
+	loadEffectFromFile(shader_path("particle.vs.glsl"), shader_path("particle.fs.glsl"), particleShaderProgram);
 	gl_has_errors();
 }
 
