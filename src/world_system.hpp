@@ -78,7 +78,7 @@ private:
 	void WorldSystem::switchHintAnimation(Entity e, float elapsedTime);
 
 	LevelManager levelManager;
-	int maxLevel = 4;
+	int maxLevel = 8;
 
 	//AI
 	AISystem aiSystem;

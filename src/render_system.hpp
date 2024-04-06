@@ -78,7 +78,12 @@ class RenderSystem {
 			textures_path("hintAnimation/hint8.png"),
 			textures_path("character_roundGreen.png"),
 			textures_path("tile_0008.png"),
-			textures_path("mainMenu.png")
+			textures_path("mainMenu.png"),
+			textures_path("tutorial/tutorialDraw.png"),
+			textures_path("tutorial/tutorialJump.png"),
+			textures_path("tutorial/tutorialMainMenu.png"),
+			textures_path("tutorial/tutorialMove.png"),
+			textures_path("tutorial/tutorialRestart.png")
       };
 
 	std::array<GLuint, effect_count> effects;

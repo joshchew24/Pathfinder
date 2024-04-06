@@ -16,6 +16,7 @@ const size_t MAX_BUG = 5;
 const size_t BOULDER_DELAY_MS = 2000 * 3;
 const size_t BUG_DELAY_MS = 5000 * 3;
 const float FRICTION = 5.f;
+const size_t SPIKE_DELAY_MS = 3500;
 
 // Create the world
 WorldSystem::WorldSystem()
@@ -280,13 +281,22 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 
 	next_boulder_spawn -= elapsed_ms_since_last_update * current_speed * 2;
-	if ((level == 1 || level == 2 || level == 4) && registry.deadlys.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
+	if ((level == 5 || level == 6 || level == 8) && registry.deadlys.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
 		// Reset timer
 		next_boulder_spawn = (BOULDER_DELAY_MS / 2) + uniform_dist(rng) * (BOULDER_DELAY_MS / 2);
 		createBoulder(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), -100.f));
 	}
+	else if (level == 3 && next_boulder_spawn < 0.f) {
+		printf("right level");
+		next_boulder_spawn = (SPIKE_DELAY_MS / 2) + uniform_dist(rng) * (SPIKE_DELAY_MS / 2);
+		Entity e = createSpikes(renderer, { window_width_px - 100, 553 }, { 40, 20 }, -1.5708);
+		Motion& m = registry.motions.get(e);
+		m.velocity = { -600, 0 };
+		m.fixed = false;
+		m.grounded = true;
+	}
 
-	if(!registry.deathTimers.has(player) && level == 2)
+	if(!registry.deathTimers.has(player) && level == 6)
 	{
 		FrameCount += elapsed_ms_since_last_update;
 		if (FrameCount >= FrameInterval) {
@@ -384,7 +394,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	movementSystem.handle_inputs();
 	handlePlayerAnimation(elapsed_ms_since_last_update);
 
-	if (!level4Disappeared && level == 3) {
+	if (!level4Disappeared && level == 7) {
 		level4DisappearTimer -= elapsed_ms_since_last_update;
 		if (level4DisappearTimer <= 0) {
 			Level& level4 = this->levelManager.levels[WorldSystem::level];
@@ -404,7 +414,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
-	if (level == 4 ) {
+	if (level == 8) {
 
 		if (!currDrawn) {
 			drawLinesLevel4(currDrawing);
@@ -501,7 +511,23 @@ void WorldSystem::handlePlayerAnimation(float elapsed_ms_since_last_update) {
 
 void WorldSystem::createLevel() {
 	if (WorldSystem::level == 0) 
-		tutorial = createTutorial(renderer);
+		tutorial = createTutorialMove(renderer);
+	else if (WorldSystem::level == 1) {
+		registry.renderRequests.remove(tutorial);
+		tutorial = createTutorialJump(renderer);
+	}
+	else if (WorldSystem::level == 2) {
+		registry.renderRequests.remove(tutorial);
+		tutorial = createTutorialMainMenu(renderer);
+	}
+	else if (WorldSystem::level == 3) {
+		registry.renderRequests.remove(tutorial);
+		//should be tutorial on checkpoints
+	}
+	else if (WorldSystem::level == 4) {
+		registry.renderRequests.remove(tutorial);
+		tutorial = createTutorialDraw(renderer);
+	}
 	else if (registry.renderRequests.has(tutorial))
 		registry.renderRequests.remove(tutorial);
 
@@ -514,7 +540,7 @@ void WorldSystem::createLevel() {
 	}
 	for (int i = 0; i < currentLevel.spikes.size(); ++i) {
 		spike s = currentLevel.spikes[i];
-		createSpikes(renderer, { s.x, s.y }, { 40, 20});
+		createSpikes(renderer, { s.x, s.y }, { 40, 20}, s.angle);
 	}
 	if (currentLevel.checkpoint.first != NULL) {
 		createCheckpoint(renderer, { currentLevel.checkpoint.first, currentLevel.checkpoint.second });
@@ -524,12 +550,7 @@ void WorldSystem::createLevel() {
 	registry.colors.insert(player, { 1, 1, 1 });	
 	if (currentLevel.hintPos.first != NULL) {
 		createHint(renderer, { currentLevel.hintPos.first, currentLevel.hintPos.second }, currentLevel.hint);
-		if (level == 4) {
-			renderer->hintPos = { currentLevel.hintPos.first, currentLevel.hintPos.second };
-		}
-		else if (level == 3) {
-			renderer->hintPos = { currentLevel.hintPos.first, window_height_px - 350};
-		}
+		renderer->hintPos = { currentLevel.hintTextPos.first, currentLevel.hintTextPos.second };
 	}
 }
 
@@ -570,7 +591,7 @@ void WorldSystem::restart_game() {
 	// Center cursor to pencil location
 	glfwSetCursorPos(window, window_width_px / 2 - 25.f, window_height_px / 2 + 25.f);
 
-	if (level == 2) {
+	if (level == 6) {
 		advancedBoulder = createChaseBoulder(renderer, { window_width_px / 2, 100 });
 		bestPath = {};
 		currentNode = 0;

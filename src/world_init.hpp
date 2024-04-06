@@ -34,11 +34,19 @@ Entity createBackground(RenderSystem* renderer);
 
 Entity createPaintCan(RenderSystem* renderer, vec2 pos, vec2 size);
 
-Entity createTutorial(RenderSystem* renderer);
+Entity createTutorialDraw(RenderSystem* renderer);
+
+Entity createTutorialJump(RenderSystem* renderer);
+
+Entity createTutorialMainMenu(RenderSystem* renderer);
+
+Entity createTutorialMove(RenderSystem* renderer);
+
+Entity createTutorialRestart(RenderSystem* renderer);
 
 vec4 getBox(const Mesh* mesh, const Motion& motion);
 
-Entity createSpikes(RenderSystem* renderer, vec2 pos, vec2 size);
+Entity createSpikes(RenderSystem* renderer, vec2 pos, vec2 size, float radian);
 
 Entity createArcher(RenderSystem* renderer, vec2 pos, vec2 size);
 
