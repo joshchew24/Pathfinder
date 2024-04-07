@@ -320,26 +320,36 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 }
 
 void WorldSystem::handlePlayerAnimation(float elapsed_ms_since_last_update) {
+	static const float targetFrameTime = 1000.0f / 30.0f; // Target time for each frame (30 FPS)
+
 	Motion& m = registry.motions.get(player);
-	elapsedMsTotal += elapsed_ms_since_last_update;
-	// if moving and grounded
-	if (movementSystem.leftOrRight() && m.grounded) {
-		// if enough time has elapsed, calculate next frame that we want to change the texture
-		float minMsChange = 12.f;
-		if (elapsedMsTotal > minMsChange) {
-			currentRunningTexture += static_cast<int>(elapsedMsTotal / minMsChange);
-			elapsedMsTotal = 0;
+	static float accumulatedTime = 0.0f;
+
+	// Add the elapsed time since the last update to the accumulated time
+	accumulatedTime += elapsed_ms_since_last_update;
+
+	// Perform animation updates based on the target frame time
+	while (accumulatedTime >= targetFrameTime) {
+		// if moving and grounded
+		if (movementSystem.leftOrRight() && m.grounded) {
+			// Calculate next frame for texture change
+			currentRunningTexture++;
 			if (currentRunningTexture > (int)TEXTURE_ASSET_ID::RUN6) {
 				currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER;
 			}
 			registry.renderRequests.get(player).used_texture = static_cast<TEXTURE_ASSET_ID>(currentRunningTexture);
 		}
-	}
-	else if (!m.grounded) {
-		registry.renderRequests.get(player).used_texture = TEXTURE_ASSET_ID::RUN4;
-	}
-	else if (m.grounded) {
-		registry.renderRequests.get(player).used_texture = TEXTURE_ASSET_ID::OLIVER;
+		else if (!m.grounded) {
+			// Player is not grounded (in air)
+			registry.renderRequests.get(player).used_texture = TEXTURE_ASSET_ID::RUN4;
+		}
+		else if (m.grounded) {
+			// Player is grounded
+			registry.renderRequests.get(player).used_texture = TEXTURE_ASSET_ID::OLIVER;
+		}
+
+		// Subtract the target frame time from the accumulated time
+		accumulatedTime -= targetFrameTime;
 	}
 }
 
