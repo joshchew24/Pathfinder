@@ -30,6 +30,11 @@ void DrawingSystem::add_drawing_count(float count)
 	remainingDrawingCount = std::min(1000.f, remainingDrawingCount);
 }
 
+float DrawingSystem::get_drawing_count()
+{
+	return remainingDrawingCount;
+}
+
 
 void DrawingSystem::start_drawing() {
 	if (!is_drawing) {
