@@ -481,6 +481,7 @@ void WorldSystem::handle_collisions(float elapsed_ms) {
 				if (!registry.deathTimers.has(entity)) {
 					// chew, count points, and set the LightUp timer
 					registry.remove_all_components_of(entity_other);
+					drawings.add_drawing_count(500);
 					Mix_PlayChannel(-1, ink_pickup_sound, 0);
 				}
 			}
