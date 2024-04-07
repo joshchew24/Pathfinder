@@ -16,7 +16,7 @@ bool CollisionSystem::collides(const Motion& motion1, const Entity& entity1, con
 		return SATcollision(registry.meshPtrs.get(entity1), motion1, motion2);
 	}
 	else if (registry.renderRequests.has(entity2) && registry.renderRequests.get(entity2).used_geometry != GEOMETRY_BUFFER_ID::GEOMETRY_COUNT &&
-	registry.meshPtrs.has(entity2) && registry.meshPtrs.get(entity2)->vertices.size() > 0) {
+		registry.meshPtrs.has(entity2) && registry.meshPtrs.get(entity2)->vertices.size() > 0) {
 		return SATcollision(registry.meshPtrs.get(entity2), motion2, motion1);
 	}
 	else {
@@ -134,19 +134,11 @@ void normalizeProj(vec2& proj) {
 	}
 }
 
-// Separating Axis Theorem between mesh and motion entity
-// modified so that the vertice positions would be translated, rotated, and scaled beforehand
-bool CollisionSystem::SATcollision(const Mesh* mesh, const Motion& motion1, const Motion& motion2) {
+bool SATcollisionHelper(std::vector<vec2> trsPositions, const Motion& motion2) {
 	float bot = motion2.position.y + abs(motion2.scale.y) / 2.f;
 	float top = motion2.position.y - abs(motion2.scale.y) / 2.f;
 	float right = motion2.position.x + abs(motion2.scale.x) / 2.f;
 	float left = motion2.position.x - abs(motion2.scale.x) / 2.f;
-	std::vector<ColoredVertex> vertices = convexHull(mesh->vertices, mesh->vertices.size());
-	std::vector<vec2> trsPositions = std::vector<vec2>();
-	// modify positions so they're in the right spots
-	for (int i = 0; i < vertices.size(); i++) {
-		trsPositions.push_back(translateRotateScale(vertices[i].position, motion1));
-	}
 	for (int s = 0; s < 2; s++) {
 		if (s == 0) {
 			// get projections from mesh
@@ -228,6 +220,18 @@ bool CollisionSystem::SATcollision(const Mesh* mesh, const Motion& motion1, cons
 	return true;
 }
 
+// Separating Axis Theorem between mesh and motion entity
+// modified so that the vertice positions would be translated, rotated, and scaled beforehand
+bool CollisionSystem::SATcollision(const Mesh* mesh, const Motion& motion1, const Motion& motion2) {
+	std::vector<ColoredVertex> vertices = convexHull(mesh->vertices, mesh->vertices.size());
+	std::vector<vec2> trsPositions = std::vector<vec2>();
+	// modify positions so they're in the right spots
+	for (int i = 0; i < vertices.size(); i++) {
+		trsPositions.push_back(translateRotateScale(vertices[i].position, motion1));
+	}
+	return SATcollisionHelper(trsPositions, motion2);
+}
+
 bool boxCollision(vec4 box1, vec4 box2) {
 	// order of elements is: {min_x, min_y, max_x, max_y}	
 	bool y_val = (box1[1] < box2[3]) && (box2[1] < box1[3]);
@@ -244,7 +248,7 @@ bool CollisionSystem::rectangleCollides(const Motion& motion1, const Motion& mot
 	return y_val && x_val;
 }
 
-bool CollisionSystem::lineCollides(const Entity& line,
+bool lineCollidesDeprecated(const Entity& line,
 	       	float min_x, float min_y,
 	        float max_x, float max_y) {
 	// Takes 4 bounding box inputs to check against a particular line
@@ -293,4 +297,47 @@ bool CollisionSystem::lineCollides(const Entity& line,
 		r.used_geometry = GEOMETRY_BUFFER_ID::DEBUG_LINE; // turn the line red
 	}
 	return result;
+}
+
+bool CollisionSystem::lineCollides(const Entity& line,
+	float min_x, float min_y,
+	float max_x, float max_y) {
+	Entity player = registry.players.entities[0];
+	Motion &pmotion = registry.motions.get(player);
+
+	const Motion& lmotion = registry.motions.get(line);
+	// translate to origin -- set position to 0 basically, so it's just scale / 2;
+	float half_w = abs(lmotion.scale.x) / 2.f;
+	float half_h = abs(lmotion.scale.y) / 2.f;;
+	vec2 topLeft = vec2(-half_w, -half_h);
+	vec2 topRight = vec2(half_w, -half_h);
+	vec2 botRight = vec2(half_w, half_h);
+	vec2 botLeft = vec2(-half_w, half_h);
+
+	std::vector<vec2> trsPositions = { topLeft, topRight, botRight, botLeft };
+	// rotate + retranslate point
+	for (int i = 0; i < trsPositions.size(); i++) {
+		trsPositions[i] = { trsPositions[i].x * cosf(lmotion.angle) - trsPositions[i].y * sinf(lmotion.angle) + lmotion.position.x, trsPositions[i].x * sinf(lmotion.angle) + trsPositions[i].y * cosf(lmotion.angle) + lmotion.position.y };
+	}
+
+	bool res = SATcollisionHelper(trsPositions, pmotion);
+	//if (res == false) {
+	//	printf("collision miss\n");
+	//	for (int i = 0; i < trsPositions.size(); i++) {
+	//		printf("(%f, %f)\n", trsPositions[i].x, trsPositions[i].y);
+	//	}
+	//	// recalculate for pmotion
+	//	half_w = abs(pmotion.scale.x) / 2.f;
+	//	half_h = abs(pmotion.scale.y) / 2.f;
+	//	vec2 topLeft = pmotion.position + vec2(-half_w, -half_h);
+	//	vec2 topRight = pmotion.position + vec2(half_w, -half_h);
+	//	vec2 botRight = pmotion.position + vec2(half_w, half_h);
+	//	vec2 botLeft = pmotion.position + vec2(-half_w, half_h);
+
+	//	trsPositions = { topLeft, topRight, botRight, botLeft };
+	//	for (int i = 0; i < trsPositions.size(); i++) {
+	//		printf("(%f, %f)\n", trsPositions[i].x, trsPositions[i].y);
+	//	}
+	//}
+	return res;
 }
