@@ -182,6 +182,11 @@ void drawLinesLoop(int startX, int gapX, int startY, int gapY, int n, float rota
 	}
 }
 
+void WorldSystem::createDrawOnLines(int x, int y, float rotation) {
+	Entity e = createLine({ x, y }, { 10, 20 }, rotation);
+	registry.toDrawOns.emplace(e);
+}
+
 void WorldSystem::createIndividualPlatforms(vec2 position, vec2 size) {
 	createWall(renderer, position, size);
 	int platformHeight = abs(position.y - window_height_px) + size.y / 2 + 2;
@@ -201,6 +206,12 @@ void WorldSystem::drawLinesLevel4(int currDrawing) {
 		drawLinesLoop(620, 25, 195, 0, 10, M_PI / 2, 0);
 		drawLinesLoop(865, 0, 200, 25, 10, 0, 0);
 		drawLinesLoop(620, 25, 430, 0, 10, M_PI / 2,0 );
+
+		//actual lines
+		//createDrawOnLines(600, 200, 0);
+		//createDrawOnLines(620, 195, M_PI / 2);
+		//createDrawOnLines(865, 200, 0);
+		//createDrawOnLines(620, 430, M_PI / 2);
 	}
 	else if (currDrawing == 1) {
 		createIndividualPlatforms({ 600, window_height_px - 300 }, { 200, 100 });
@@ -236,11 +247,11 @@ void WorldSystem::drawLinesLevel4(int currDrawing) {
 		drawLinesLoop(980, 25, 55, 40, 10, 2.44346, 0);
 		drawLinesLoop(770, 70, 425, 0, 7, M_PI / 2, 0);
 
-		drawLinesLoop(740, 0, 400, -30, 5, 0, 0);
-		drawLinesLoop(1210, 0, 400, -30, 5, 0, 0);
+		//drawLinesLoop(740, 0, 400, -30, 5, 0, 0);
+		//drawLinesLoop(1210, 0, 400, -30, 5, 0, 0);
 
-		drawLinesLoop(740, 35, 250, -30, 7, 0.698132, 0);
-		drawLinesLoop(1000, 35, 75, 30, 7, 2.44346, 0);
+		//drawLinesLoop(740, 35, 250, -30, 7, 0.698132, 0);
+		//drawLinesLoop(1000, 35, 75, 30, 7, 2.44346, 0);
 	}
 	else if (currDrawing == 4) {
 		createIndividualPlatforms({ 1350, window_height_px - 300 }, { 200, 100 });
@@ -422,7 +433,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 		//printf("size: %d\n", registry.toDrawOns.size());
 		bool allTouched = true;
-		int tolerance = 70;
+		int tolerance = 200;
 		if (registry.toDrawOns.size() == 0) {
 			allTouched = false;
 		}

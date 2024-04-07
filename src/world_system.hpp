@@ -77,6 +77,8 @@ private:
 
 	void WorldSystem::switchHintAnimation(Entity e, float elapsedTime);
 
+	void createDrawOnLines(int x, int y, float rotation);
+
 	LevelManager levelManager;
 	int maxLevel = 8;
 
@@ -138,4 +140,5 @@ private:
 	bool exit = false;
 
 	Entity mainMenuEntity;
+
 };
