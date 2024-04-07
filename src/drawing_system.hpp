@@ -25,6 +25,8 @@ public:
 
 	void add_drawing_count(float count);
 
+	float get_drawing_count();
+
 private:
 	std::unordered_map<unsigned int, std::vector<Entity>> map_drawings_points_id;
 	vec2 drawPos{0,0};
