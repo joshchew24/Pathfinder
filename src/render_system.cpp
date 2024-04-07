@@ -423,24 +423,31 @@ void RenderSystem::drawParticles(const mat3& projection) {
 
 	GLint projLoc = glGetUniformLocation(particleShaderProgram, "projection");
 	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection_4x4));
-
+	gl_has_errors();
 	glUniform4f(glGetUniformLocation(particleShaderProgram, "color"), 1.0f, 0.5f, 0.2f, 1.0f);
 	std::vector<glm::vec4> particleOffsets;
-
+	gl_has_errors();
 	for (auto& entity : registry.particles.entities) {
 		auto& pos = registry.motions.get(entity).position;
 		particleOffsets.emplace_back(pos.x, pos.y, 0.0f, 0.0f);
 	}
 
 	glBindBuffer(GL_ARRAY_BUFFER, particleVBO);
-
+	gl_has_errors();
 	glBindBuffer(GL_ARRAY_BUFFER, particleInstanceVBO);
+	gl_has_errors();
 	glBufferData(GL_ARRAY_BUFFER, particleOffsets.size() * sizeof(glm::vec4), particleOffsets.data(), GL_STREAM_DRAW);
+	gl_has_errors();
 	glBindVertexArray(particleVAO);
+	gl_has_errors();
 	glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, static_cast<GLsizei>(particleOffsets.size()));
+	gl_has_errors();
 	glBindVertexArray(0);
+	gl_has_errors();
 	glBindTexture(GL_TEXTURE_2D, 0);
+	gl_has_errors();
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	gl_has_errors();
 	glUseProgram(0);
 
 	gl_has_errors();

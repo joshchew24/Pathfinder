@@ -509,13 +509,13 @@ bool RenderSystem::fontInit(GLFWwindow& window, const std::string& font_filename
 }
 
 void RenderSystem::initializeParticleRendering() {
-	// Define the particle quad (only positions and texCoords, as before)
 	float particle_quad[] = {
 		-0.5f, -0.5f, 0.0f, 0.0f,
 		 0.5f, -0.5f, 1.0f, 0.0f,
 		 0.5f,  0.5f, 1.0f, 1.0f,
 		-0.5f,  0.5f, 0.0f, 1.0f
 	};
+
 
 	glGenVertexArrays(1, &particleVAO);
 	glBindVertexArray(particleVAO);
@@ -532,16 +532,15 @@ void RenderSystem::initializeParticleRendering() {
 
 	glGenBuffers(1, &particleInstanceVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, particleInstanceVBO);
+	glBufferData(GL_ARRAY_BUFFER, 100 * sizeof(glm::vec2), nullptr, GL_STREAM_DRAW);
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 100, nullptr, GL_STREAM_DRAW);
-
-	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)0);
+	glEnableVertexAttribArray(2);
 	glVertexAttribDivisor(2, 1);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-
+	gl_has_errors();
 	loadEffectFromFile(shader_path("particle.vs.glsl"), shader_path("particle.fs.glsl"), particleShaderProgram);
 	gl_has_errors();
 }
