@@ -883,6 +883,16 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		printf("Current speed = %f\n", current_speed);
 	}
 	current_speed = fmax(0.f, current_speed);
+
+	//next level
+	if (action == GLFW_RELEASE && key == GLFW_KEY_EQUAL) {
+		level++;
+		restart_game();
+	}
+	if (action == GLFW_RELEASE && key == GLFW_KEY_MINUS) {
+		level--;
+		restart_game();
+	}
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
