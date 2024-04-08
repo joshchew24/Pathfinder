@@ -29,7 +29,7 @@ public:
 	GLFWwindow* create_window();
 
 	// starts the game
-	void init(RenderSystem* renderer);
+	void init(RenderSystem* renderer, bool* mainMenu);
 
 	// Releases all associated resources
 	~WorldSystem();
@@ -71,8 +71,16 @@ private:
 	
 	void handleLineCollision(const Entity& line, float elapsed_ms);
 
+	void createIndividualPlatforms(vec2 position, vec2 size);
+
+	void drawLinesLevel4(int currDrawing);
+
+	void WorldSystem::switchHintAnimation(Entity e, float elapsedTime);
+
+	void createDrawOnLines(int x, int y, float rotation);
+
 	LevelManager levelManager;
-	int maxLevel = 3;
+	int maxLevel = 8;
 
 	//AI
 	AISystem aiSystem;
@@ -118,4 +126,19 @@ private:
 	// C++ random number generator
 	std::default_random_engine rng;
 	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
+
+	int currDrawing = 0;
+	bool currDrawn = false;
+
+	//hint animation index
+	int currentHintTexture = (int)TEXTURE_ASSET_ID::HINT1;
+	int hintElapsedMsTotal = 0;
+
+	bool* mainMenu;
+	bool restart = false;
+	bool resume = false;
+	bool exit = false;
+
+	Entity mainMenuEntity;
+
 };

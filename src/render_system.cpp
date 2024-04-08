@@ -332,6 +332,17 @@ void RenderSystem::draw()
 
 		// Truely render to the screen
 		drawToScreen();
+
+		// renderHint
+		if (!renderMainMenuText) {
+			renderText(hint, hintPos.x - 100, hintPos.y - 70, 0.6, glm::vec3(1.0f, 1.0f, 1.0f), trans);
+		}
+
+		if (renderMainMenuText) {
+			renderText("PLAY", window_width_px / 2 - 75 , window_height_px / 2 + 90, 1.7, glm::vec3(0,0,0), trans);
+			renderText("RESTART", window_width_px / 2 - 110, window_height_px / 2 - 50, 1.5, glm::vec3(0, 0, 0), trans);
+			renderText("EXIT", window_width_px / 2 - 75, window_height_px / 2 - 200, 1.7, glm::vec3(0, 0, 0), trans);
+		}
 	}
 
 	gl_has_errors();
@@ -429,9 +440,9 @@ void RenderSystem::renderHelper(float transX, float transY, float textX, float t
 	glBindVertexArray(introductionVao);
 
 	glUniform1i(glGetUniformLocation(introductionShader, "texture1"), 1);
-	glm::vec3 translation1(-0.8f, 0.1f, 0.0f);
+	glm::vec3 translation1(-1.8f, 0.1f, 0.0f);
 	glUniform3fv(glGetUniformLocation(introductionShader, "transform"), 1, glm::value_ptr(translation1));
-	glm::vec3 scale1(0.8f, 1.0f, 1.0f);
+	glm::vec3 scale1(0.3f, 1.0f, 1.0f);
 	glUniform3fv(glGetUniformLocation(introductionShader, "scale"), 1, glm::value_ptr(scale1));
 	glUniform1f(glGetUniformLocation(introductionShader, "transparency"), oliverTransparency);
 	glActiveTexture(GL_TEXTURE1);
@@ -499,7 +510,7 @@ void RenderSystem::renderIntroduction(int i) {
 		renderHelper(0.25f, -0.7f, 800, 200, 3, 1, dialogueBoxRight, "You will also turn into a stickman", 1.5);
 	}
 	else if (i == 11) {
-		renderHelper(0.25f, -0.7f, 800, 200, 3, 1, dialogueBoxRight, "Goodluck.", 1.7);
+		renderHelper(0.25f, -0.7f, 800, 200, 3, 1, dialogueBoxRight, "Goodluck, there will be a tutorial waiting for you..", 1.11);
 	}
 	else if (i == 12) {
 		renderHelper(-0.23f, -0.7f, 140, 200, 1, 3, dialogueBoxLeft, "wait, I still have ques....", 1.5);
