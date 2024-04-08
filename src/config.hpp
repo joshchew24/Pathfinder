@@ -10,6 +10,8 @@ public:
 	float friction;
 	float terminal_velocity;
 	int starting_level;
+	int tick_rate;
+	int target_fps;
 
 	void load(std::string file_name="config.json") {
 		std::ifstream file(data_path() + "/" + file_name);
@@ -21,6 +23,8 @@ public:
 		friction = config["friction"];
 		terminal_velocity = config["terminal_velocity"];
 		starting_level = config["starting_level"];
+		tick_rate = config["tick_rate"];
+		target_fps = config["target_fps"];
 	}
 };
 
