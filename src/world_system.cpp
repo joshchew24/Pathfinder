@@ -886,12 +886,16 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 
 	//next level
 	if (action == GLFW_RELEASE && key == GLFW_KEY_EQUAL) {
-		level++;
-		restart_game();
+		if (level < maxLevel) {
+			level++;
+			restart_game();
+		}
 	}
 	if (action == GLFW_RELEASE && key == GLFW_KEY_MINUS) {
-		level--;
-		restart_game();
+		if (level > 0) {
+			level--;
+			restart_game();
+		}
 	}
 }
 
