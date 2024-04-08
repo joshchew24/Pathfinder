@@ -131,7 +131,6 @@ void PhysicsSystem::step(float elapsed_ms)
 		Motion& platform = motion_container.get(platform_container.entities[i]);
 		if (collisionSystem.rectangleCollides(platform, player)) {
 			touching_any_platform = true;
-			printf("true\n");
 			break;
 		}
 	}
@@ -153,13 +152,11 @@ void PhysicsSystem::step(float elapsed_ms)
 			float line_y_pos = l.slope * (player.position.x - lm.position.x) + lm.position.y;
 			float pm_bot_pos = player.position.y + player.scale.y / 2;
 			if (pm_bot_pos <= line_y_pos) {
-				printf("true\n");
 				touching_any_platform = true;
 			}
 		}
 	}
 	player.grounded = touching_any_platform;
-	printf("player.grounded = %d\n", player.grounded);
 }
 
 template<typename T>
