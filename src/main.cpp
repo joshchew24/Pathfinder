@@ -15,6 +15,10 @@
 // Entry point
 int main()
 {
+
+	bool value = false;
+	bool* mainMenu = &value;
+
 	// Global systems
 	WorldSystem world;
 	RenderSystem renderer;
@@ -33,7 +37,7 @@ int main()
 	// initialize the main systems
 	config.load();
 	renderer.init(window);
-	world.init(&renderer);
+	world.init(&renderer, mainMenu);
 	movementSystem.init();
 	physics.init();
 	glfwSetWindowTitle(window, "Pathfinder");
@@ -76,12 +80,13 @@ int main()
 		game_logic_accumulator += elapsed_ms;
 		while (game_logic_accumulator >= ms_per_tick) {
 			game_logic_accumulator -= ms_per_tick;
-
-			world.step(ms_per_tick);
-			world.handle_collisions(ms_per_tick);
-			physics.step(ms_per_tick);
-			ai.step(ms_per_tick);
-			drawings.step(ms_per_tick);
+      if (!*mainMenu) {
+        world.step(ms_per_tick);
+        world.handle_collisions(ms_per_tick);
+        physics.step(ms_per_tick);
+        ai.step(ms_per_tick);
+        drawings.step(ms_per_tick);
+      }
 		}
 
 		render_accumulator += elapsed_ms;
