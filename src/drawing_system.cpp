@@ -147,7 +147,7 @@ void DrawingSystem::step(float elapsed_ms) {
 			}
 
 			remainingDrawingCount = std::max(remainingDrawingCount, 0.0f);
-			std::cout << remainingDrawingCount << std::endl;
+			std::cout << drawings.get_drawing_count() << std::endl;
 
 		}
 		Entity point = Entity();

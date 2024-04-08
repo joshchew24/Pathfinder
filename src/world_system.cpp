@@ -498,7 +498,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 }
 
 void WorldSystem::handlePlayerAnimation(float elapsed_ms_since_last_update) {
-	static const float targetFrameTime = 1000.0f / 30.0f; // Target time for each frame (30 FPS)
+	static const float targetFrameTime = 1000.0f / 24.0f; // Target time for each frame (24 FPS)
 
 	Motion& m = registry.motions.get(player);
 	static float accumulatedTime = 0.0f;
@@ -512,14 +512,14 @@ void WorldSystem::handlePlayerAnimation(float elapsed_ms_since_last_update) {
 		if (movementSystem.leftOrRight() && m.grounded) {
 			// Calculate next frame for texture change
 			currentRunningTexture++;
-			if (currentRunningTexture > (int)TEXTURE_ASSET_ID::RUN6) {
+			if (currentRunningTexture > (int)TEXTURE_ASSET_ID::RUN9) {
 				currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER;
 			}
 			registry.renderRequests.get(player).used_texture = static_cast<TEXTURE_ASSET_ID>(currentRunningTexture);
 		}
 		else if (!m.grounded) {
 			// Player is not grounded (in air)
-			registry.renderRequests.get(player).used_texture = TEXTURE_ASSET_ID::RUN4;
+			registry.renderRequests.get(player).used_texture = TEXTURE_ASSET_ID::RUN7;
 		}
 		else if (m.grounded) {
 			// Player is grounded
