@@ -75,7 +75,7 @@ private:
 
 	void drawLinesLevel4(int currDrawing);
 
-	void WorldSystem::switchHintAnimation(Entity e, float elapsedTime);
+	void switchHintAnimation(Entity e, float elapsedTime);
 
 	void createDrawOnLines(int x, int y, float rotation);
 
