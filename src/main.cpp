@@ -40,14 +40,7 @@ int main()
 	world.init(&renderer, mainMenu);
 	movementSystem.init();
 	physics.init();
-
-	
-	// report fps average across this many updates
-	const size_t NUM_UPDATES_AVERAGE = 25;
-	std::deque<int> frame_counts;
-	int frame_update_counter = 20;
-	int total_frame_count = 0;
-	int curr_fps = 0;
+	glfwSetWindowTitle(window, "Pathfinder");
 
 #ifdef __unix__ // linux
 	std::string font_filename = "..//data//fonts//Kenney_Pixel.ttf";
@@ -58,48 +51,66 @@ int main()
 	renderer.fontInit(*window, font_filename, font_default_size);
 	gl_has_errors();
 
-	// variable timestep loop
-	auto t = Clock::now();
+	// game loop initialization
+	auto prevTime = Clock::now();
+	auto currentTime = Clock::now();
+
+	float game_logic_accumulator = 0.f;
+	float render_accumulator = 0.f;
+	float fps_reporting_accumulator = 0.f;
+
+	float elapsed_ms = 0.f;
+	float ms_per_tick = 1000.f / config.tick_rate;
+	float ms_per_frame = 1000.f / config.target_fps;
+
+	int last_fps_report = 0;
+	int num_frames = 0;
+
+	// game loop
 	while (!world.is_over()) {
 		// Processes system messages, if this wasn't present the window would become unresponsive
 		glfwPollEvents();
 
-		// Calculating elapsed times in milliseconds from the previous iteration
-		auto now = Clock::now();
-		float elapsed_ms =
-			(float)(std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count() / 1000;
-		t = now;
+		// Calculating elapsed time in milliseconds from the previous iteration
+		currentTime = Clock::now();
+		elapsed_ms =
+			(float)(std::chrono::duration_cast<std::chrono::microseconds>(currentTime - prevTime)).count() / 1000;
+		prevTime = currentTime;
 
 		if (!*mainMenu) {
-			world.step(elapsed_ms);
-			world.handle_collisions(elapsed_ms);
-			physics.step(elapsed_ms);
-			ai.step(elapsed_ms);
-			drawings.step(elapsed_ms);
-		}
-		// fps reporting
-		if (frame_update_counter++ == 20) {
-			frame_update_counter = 0;
-			curr_fps = 1000 / elapsed_ms;
-			if (debugging.in_debug_mode) printf("actual FPS: %i\n", curr_fps);
-			frame_counts.push_back(curr_fps);
-			total_frame_count += curr_fps;
-
-			if (frame_counts.size() > NUM_UPDATES_AVERAGE) {
-				total_frame_count -= frame_counts.front();
-				frame_counts.pop_front();
+			game_logic_accumulator += elapsed_ms;
+			while (game_logic_accumulator >= ms_per_tick) {
+				game_logic_accumulator -= ms_per_tick;
+				world.step(ms_per_tick);
+				world.handle_collisions(ms_per_tick);
+				physics.step(ms_per_tick);
+				ai.step(ms_per_tick);
+				drawings.step(ms_per_tick);
 			}
-
-			curr_fps = total_frame_count / frame_counts.size();
-
-			std::stringstream title_ss;
-			title_ss << "Pathfinder - Level: " << world.level + 1 << ", FPS: " << curr_fps;
-			glfwSetWindowTitle(window, title_ss.str().c_str());
 		}
 
-		renderer.draw();
+		render_accumulator += elapsed_ms;
+		if (render_accumulator >= ms_per_frame) {
+			num_frames += 1;
+			render_accumulator = 0.f;
 
-		glfwSwapBuffers(window);
+			renderer.draw();
+
+			// render the fps counter
+			std::stringstream fps_display;
+			fps_display << "FPS: " << last_fps_report;
+			renderer.renderText(fps_display.str().c_str(), 10.f, window_height_px - 20.f, 0.5f, glm::vec3(1.f), glm::mat4(1.f));
+			
+			glfwSwapBuffers(window);
+		}
+
+		fps_reporting_accumulator += elapsed_ms;
+		if (fps_reporting_accumulator >= 1000.f) {
+			fps_reporting_accumulator = 0.f;
+			last_fps_report = num_frames;
+			num_frames = 0;
+		}
+
 	}
 
 	return EXIT_SUCCESS;

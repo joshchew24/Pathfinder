@@ -444,8 +444,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 				float y = m.position.y;
 
 				bool currTouched = false;
-				for (Entity e : registry.drawnLines.entities) {
-					DrawnLine d = registry.drawnLines.get(e);
+				for (Entity el : registry.drawnLines.entities) {
+					DrawnLine d = registry.drawnLines.get(el);
 					DrawnPoint p1 = registry.drawnPoints.get(d.p1);
 					DrawnPoint p2 = registry.drawnPoints.get(d.p2);
 					float x1 = p1.position.x;
@@ -463,6 +463,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 						//printf("left: %f, right: %f, top: %f, bottom: %f\n", left, right, top, bottom);
 						if (aiSystem.line_intersects_box(x1,y1,x2,y2,left,top,right,bottom)) {
 							//printf("ever true?");
+							registry.toDrawOns.remove(e);
 							currTouched = true;
 							break;
 						}
