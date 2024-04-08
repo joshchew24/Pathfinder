@@ -459,7 +459,7 @@ void WorldSystem::handleLineCollision(const Entity& line, float elapsed_ms) {
 	// if player is above line, set player to grounded and not jumping (remember above is actually smaller y values)
 	float line_y_pos = l.slope * (pm.position.x - lm.position.x) + lm.position.y;
 	float pm_bot_pos = pm.position.y + pm.scale.y / 2;
-	float slope_threshold = 1.3;
+	float slope_threshold = 2.f;
 	if (pm_bot_pos <= line_y_pos) {
 		// if slope of line isn't too steep, then update player position on y
 		if (abs(l.slope) <= slope_threshold) {
@@ -468,7 +468,7 @@ void WorldSystem::handleLineCollision(const Entity& line, float elapsed_ms) {
 	}
 	else {
 		pm.position = pm.last_position;
-		pm.velocity.x = 0;
+		pm.velocity.y = 0;
 	}
 }
 

@@ -148,11 +148,21 @@ void PhysicsSystem::step(float elapsed_ms)
 			//player.position = player.last_position;
 			const DrawnLine& l = registry.drawnLines.get(line_ent);
 			const Motion& lm = registry.motions.get(line_ent);
-			// if player is above line, set player to grounded and not jumping (remember above is actually smaller y values)
-			float line_y_pos = l.slope * (player.position.x - lm.position.x) + lm.position.y;
-			float pm_bot_pos = player.position.y + player.scale.y / 2;
-			if (pm_bot_pos <= line_y_pos) {
+			// if player is above line, set player to grounded
+			// if the player is on the edge of the line, use the edge of the line's x value instead
+			float player_pos = player.position.x;
+			float min_x = min(line.x_bounds[0], line.x_bounds[1]);
+			float max_x = max(line.x_bounds[0], line.x_bounds[1]);
+			if (player.position.x < min_x) {
+				player_pos = min_x;
+			}
+			else if (player.position.x > max_x) {
+				player_pos = max_x;
+			}
+			float line_y_pos = l.slope * (player_pos - lm.position.x) + lm.position.y;
+			if (player.position.y <= line_y_pos) {
 				touching_any_platform = true;
+				break;
 			}
 		}
 	}
