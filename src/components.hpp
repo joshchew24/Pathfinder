@@ -103,6 +103,15 @@ struct PaintCan
 
 };
 
+struct toDrawOn
+{
+
+};
+
+struct hint {
+	std::string text;
+};
+
 // All data relevant to the shape and motion of entities
 struct Motion {
 	vec2 position = { 0.f, 0.f };
@@ -245,7 +254,13 @@ enum class TEXTURE_ASSET_ID {
 	HINT8 = HINT7 + 1,
 	GREENENEMY = HINT8 + 1,
 	BEZIERPROJECTILE = GREENENEMY + 1,
-	TEXTURE_COUNT = BEZIERPROJECTILE + 1
+	MAINMENU = BEZIERPROJECTILE + 1,
+	TUTORIALDRAW = MAINMENU + 1,
+	TUTORIALJUMP = TUTORIALDRAW + 1,
+	TUTORIALMAINMENU = TUTORIALJUMP +1,
+	TUTORIALMOVE = TUTORIALMAINMENU + 1,
+	TUTORIALRESTART = TUTORIALMOVE + 1,
+	TEXTURE_COUNT = TUTORIALRESTART + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 

@@ -15,6 +15,10 @@
 // Entry point
 int main()
 {
+
+	bool value = false;
+	bool* mainMenu = &value;
+
 	// Global systems
 	WorldSystem world;
 	RenderSystem renderer;
@@ -33,7 +37,7 @@ int main()
 	// initialize the main systems
 	config.load();
 	renderer.init(window);
-	world.init(&renderer);
+	world.init(&renderer, mainMenu);
 	movementSystem.init();
 	physics.init();
 
@@ -66,12 +70,13 @@ int main()
 			(float)(std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count() / 1000;
 		t = now;
 
-		world.step(elapsed_ms);
-		world.handle_collisions(elapsed_ms);
-		physics.step(elapsed_ms);
-		ai.step(elapsed_ms);
-		drawings.step(elapsed_ms);
-    
+		if (!*mainMenu) {
+			world.step(elapsed_ms);
+			world.handle_collisions(elapsed_ms);
+			physics.step(elapsed_ms);
+			ai.step(elapsed_ms);
+			drawings.step(elapsed_ms);
+		}
 		// fps reporting
 		if (frame_update_counter++ == 20) {
 			frame_update_counter = 0;
