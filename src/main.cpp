@@ -83,7 +83,7 @@ int main()
 				game_logic_accumulator -= ms_per_tick;
 				world.step(ms_per_tick);
 				world.handle_collisions(ms_per_tick);
-				physics.step(ms_per_tick);
+				physics.step(ms_per_tick, world.isLineCollisionsOn());
 				ai.step(ms_per_tick);
 				drawings.step(ms_per_tick);
 			}

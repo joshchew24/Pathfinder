@@ -258,6 +258,10 @@ void WorldSystem::drawLinesLevel4(int currDrawing) {
 	}
 }
 
+bool WorldSystem::isLineCollisionsOn() {
+	return levelManager.levels[this->level].lineCollisionOn;
+}
+
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	// Remove debug info from the last step
@@ -668,7 +672,11 @@ void WorldSystem::handleLineCollision(const Entity& line, float elapsed_ms) {
 	if (pm_bot_pos <= line_y_pos) {
 		// if slope of line isn't too steep, then update player position on y
 		if (abs(l.slope) <= slope_threshold) {
-			pm.position.y = l.slope * (pm.position.x - pm.last_position.x) + pm.last_position.y;
+			float mx = l.slope * (pm.position.x - pm.last_position.x);
+			// if moving the player up a slope:
+			if (mx < 0) {
+				pm.position.y = mx + pm.last_position.y;
+			}
 		}
 	}
 	else {
@@ -738,7 +746,7 @@ void WorldSystem::handle_collisions(float elapsed_ms) {
 				next_level();
 			}
 
-			else if (registry.drawnLines.has(entity_other)) {
+			else if (registry.drawnLines.has(entity_other) && isLineCollisionsOn()) {
 				handleLineCollision(entity_other, elapsed_ms);
 			}
 

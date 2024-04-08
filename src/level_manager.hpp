@@ -28,6 +28,7 @@ public:
 	std::pair<float, float> hintPos;
 	std::string hint;
 	std::pair<float, float> hintTextPos;
+	bool lineCollisionOn = true;
 };
 
 class LevelManager {
@@ -256,6 +257,8 @@ public:
 		Level8.hintTextPos.first = 150;
 		Level8.hintTextPos.second = window_height_px - 350;
 
+		Level8.lineCollisionOn = false;
+
 		levels.push_back(Level8);
 
 		//level 9
@@ -284,7 +287,34 @@ public:
 		level9.hintTextPos.first = 150;
 		level9.hintTextPos.second = window_height_px - 435;
 
+		level9.lineCollisionOn = false;
+
 		levels.push_back(level9);
+
+		//level 10
+		Level level10;
+		initWall w_10 = { 200, window_height_px - 100, 400, 600 };
+		initWall w_10_1 = { window_width_px - 200, window_height_px - 100, 400, 600 };
+		level10.walls.push_back(w_10);
+		level10.walls.push_back(w_10_1);
+
+		level10.playerPos.first = 200;
+		level10.playerPos.second = window_height_px - 445;
+
+		level10.endPoint.first = w_10_1.x + w_10_1.xSize / 2 - 200;
+		level10.endPoint.second = w_10_1.y - w_10_1.ySize / 2 - 55;
+
+		level10.checkpoint.first = NULL;
+		level10.checkpoint.second = NULL;
+
+		level10.hintPos.first = 150;
+		level10.hintPos.second = window_height_px - 435;
+		level10.hint = "Hint: maybe you can draw the platform...";
+
+		level10.hintTextPos.first = 150;
+		level10.hintTextPos.second = window_height_px - 435;
+
+		levels.push_back(level10);
 	}
 
 	void printLevelsInfo() {
