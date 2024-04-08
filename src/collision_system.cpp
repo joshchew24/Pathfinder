@@ -135,10 +135,10 @@ void normalizeProj(vec2& proj) {
 }
 
 bool SATcollisionHelper(std::vector<vec2> trsPositions, const Motion& motion2) {
-	float bot = motion2.position.y + abs(motion2.scale.y) / 2.f;
-	float top = motion2.position.y - abs(motion2.scale.y) / 2.f;
-	float right = motion2.position.x + abs(motion2.scale.x) / 2.f;
-	float left = motion2.position.x - abs(motion2.scale.x) / 2.f;
+	int bot = motion2.position.y + abs(motion2.scale.y) / 2.f;
+	int top = motion2.position.y - abs(motion2.scale.y) / 2.f;
+	int right = motion2.position.x + abs(motion2.scale.x) / 2.f;
+	int left = motion2.position.x - abs(motion2.scale.x) / 2.f;
 	for (int s = 0; s < 2; s++) {
 		if (s == 0) {
 			// get projections from mesh
@@ -147,19 +147,19 @@ bool SATcollisionHelper(std::vector<vec2> trsPositions, const Motion& motion2) {
 				j = j % trsPositions.size();
 				vec2 proj = { -(trsPositions[j].y - trsPositions[i].y), trsPositions[j].x - trsPositions[i].x };
 				normalizeProj(proj);
-				float min_r1 = INFINITY, max_r1 = -INFINITY;
+				int min_r1 = INT_MAX, max_r1 = INT_MIN;
 				for (int p = 0; p < trsPositions.size(); p++) {
-					float val = (trsPositions[p].x * proj.x + trsPositions[p].y * proj.y);
+					int val = (trsPositions[p].x * proj.x + trsPositions[p].y * proj.y);
 					min_r1 = min(min_r1, val);
 					max_r1 = max(max_r1, val);
 				}
 
-				float min_r2 = INFINITY, max_r2 = -INFINITY;
+				int min_r2 = INT_MAX, max_r2 = INT_MIN;
 
-				float topLeft = top * proj.y + left * proj.x;
-				float topRight = top * proj.y + right * proj.x;
-				float botLeft = bot * proj.y + left * proj.x;
-				float botRight = bot * proj.y + right * proj.x;
+				int topLeft = top * proj.y + left * proj.x;
+				int topRight = top * proj.y + right * proj.x;
+				int botLeft = bot * proj.y + left * proj.x;
+				int botRight = bot * proj.y + right * proj.x;
 				min_r2 = min(min_r2, topLeft);
 				min_r2 = min(min_r2, topRight);
 				min_r2 = min(min_r2, botLeft);
@@ -186,20 +186,20 @@ bool SATcollisionHelper(std::vector<vec2> trsPositions, const Motion& motion2) {
 					proj = { 0, 1 };
 				}
 
-				float min_r1 = FLT_MAX, max_r1 = FLT_MIN;
+				int min_r1 = INT_MAX, max_r1 = INT_MIN;
 				for (int p = 0; p < trsPositions.size(); p++) {
-					float val = (trsPositions[p].x * proj.x + trsPositions[p].y * proj.y);
+					int val = (trsPositions[p].x * proj.x + trsPositions[p].y * proj.y);
 					min_r1 = min(min_r1, val);
 					max_r1 = max(max_r1, val);
 				}
 
-				float min_r2 = FLT_MAX, max_r2 = FLT_MIN;
+				int min_r2 = INT_MAX, max_r2 = INT_MIN;
 
 				// do top left
-				float topLeft = top * proj.y + left * proj.x;
-				float topRight = top * proj.y + right * proj.x;
-				float botLeft = bot * proj.y + left * proj.x;
-				float botRight = bot * proj.y + right * proj.x;
+				int topLeft = top * proj.y + left * proj.x;
+				int topRight = top * proj.y + right * proj.x;
+				int botLeft = bot * proj.y + left * proj.x;
+				int botRight = bot * proj.y + right * proj.x;
 				min_r2 = min(min_r2, topLeft);
 				min_r2 = min(min_r2, topRight);
 				min_r2 = min(min_r2, botLeft);
@@ -317,7 +317,7 @@ bool CollisionSystem::lineCollides(const Entity& line,
 	std::vector<vec2> trsPositions = { topLeft, topRight, botRight, botLeft };
 	// rotate + retranslate point
 	for (int i = 0; i < trsPositions.size(); i++) {
-		trsPositions[i] = { trsPositions[i].x * cosf(lmotion.angle) - trsPositions[i].y * sinf(lmotion.angle) + lmotion.position.x, trsPositions[i].x * sinf(lmotion.angle) + trsPositions[i].y * cosf(lmotion.angle) + lmotion.position.y };
+		trsPositions[i] = { static_cast<int>(trsPositions[i].x * cosf(lmotion.angle) - trsPositions[i].y * sinf(lmotion.angle) + lmotion.position.x), static_cast<int>(trsPositions[i].x * sinf(lmotion.angle) + trsPositions[i].y * cosf(lmotion.angle) + lmotion.position.y) };
 	}
 
 	bool res = SATcollisionHelper(trsPositions, pmotion);
