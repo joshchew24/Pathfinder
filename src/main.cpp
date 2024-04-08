@@ -77,16 +77,16 @@ int main()
 			(float)(std::chrono::duration_cast<std::chrono::microseconds>(currentTime - prevTime)).count() / 1000;
 		prevTime = currentTime;
 
-		game_logic_accumulator += elapsed_ms;
-		while (game_logic_accumulator >= ms_per_tick) {
-			game_logic_accumulator -= ms_per_tick;
-      if (!*mainMenu) {
-        world.step(ms_per_tick);
-        world.handle_collisions(ms_per_tick);
-        physics.step(ms_per_tick);
-        ai.step(ms_per_tick);
-        drawings.step(ms_per_tick);
-      }
+		if (!*mainMenu) {
+			game_logic_accumulator += elapsed_ms;
+			while (game_logic_accumulator >= ms_per_tick) {
+				game_logic_accumulator -= ms_per_tick;
+				world.step(ms_per_tick);
+				world.handle_collisions(ms_per_tick);
+				physics.step(ms_per_tick);
+				ai.step(ms_per_tick);
+				drawings.step(ms_per_tick);
+			}
 		}
 
 		render_accumulator += elapsed_ms;
