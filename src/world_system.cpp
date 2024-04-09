@@ -303,7 +303,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 
 	next_boulder_spawn -= elapsed_ms_since_last_update * current_speed * 2;
-	if ((level == 5 || level == 6) && registry.deadlys.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
+	if ((level == 5 || level == 6 || level == 8) && registry.deadlys.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
 		// Reset timer
 		next_boulder_spawn = (BOULDER_DELAY_MS / 2) + uniform_dist(rng) * (BOULDER_DELAY_MS / 2);
 		createBoulder(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), -100.f));
@@ -416,25 +416,25 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	movementSystem.handle_inputs();
 	handlePlayerAnimation(elapsed_ms_since_last_update);
 
-	//if (!level4Disappeared && level == 7) {
-	//	level4DisappearTimer -= elapsed_ms_since_last_update;
-	//	if (level4DisappearTimer <= 0) {
-	//		Level& level4 = this->levelManager.levels[WorldSystem::level];
-	//		for (Entity entity : registry.platforms.entities) {
-	//			RenderRequest& r = registry.renderRequests.get(entity);
-	//			r.used_texture = TEXTURE_ASSET_ID::EMPTY;
-	//		}
-	//		for (Entity entity : registry.walls.entities) {
-	//			RenderRequest& r = registry.renderRequests.get(entity);
-	//			r.used_texture = TEXTURE_ASSET_ID::EMPTY;
-	//		}
-	//		for (Entity entity : registry.deadlys.entities) {
-	//			RenderRequest& r = registry.renderRequests.get(entity);
-	//			r.used_texture = TEXTURE_ASSET_ID::EMPTY;
-	//		}
-	//		level4Disappeared = true;
-	//	}
-	//}
+	if (!level4Disappeared && level == 7) {
+		level4DisappearTimer -= elapsed_ms_since_last_update;
+		if (level4DisappearTimer <= 0) {
+			Level& level4 = this->levelManager.levels[WorldSystem::level];
+			for (Entity entity : registry.platforms.entities) {
+				RenderRequest& r = registry.renderRequests.get(entity);
+				r.used_texture = TEXTURE_ASSET_ID::EMPTY;
+			}
+			for (Entity entity : registry.walls.entities) {
+				RenderRequest& r = registry.renderRequests.get(entity);
+				r.used_texture = TEXTURE_ASSET_ID::EMPTY;
+			}
+			for (Entity entity : registry.deadlys.entities) {
+				RenderRequest& r = registry.renderRequests.get(entity);
+				r.used_texture = TEXTURE_ASSET_ID::EMPTY;
+			}
+			level4Disappeared = true;
+		}
+	}
 
 	if (level == 8) {
 
