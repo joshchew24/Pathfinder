@@ -82,7 +82,7 @@ private:
 	void createDrawOnLines(int x, int y, float rotation);
 
 	LevelManager levelManager;
-	int maxLevel = 9;
+	int maxLevel;
 
 	//AI
 	AISystem aiSystem;
