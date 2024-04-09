@@ -88,7 +88,7 @@ private:
 	//AI
 	AISystem aiSystem;
 	//advanced AI
-	Entity advancedBoulder;
+	Entity chaseBoulder;
 	int currentNode = 0;
 	std::vector<std::pair<int, int>> bestPath;
 	float speed = 0.01f;
