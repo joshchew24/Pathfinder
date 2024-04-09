@@ -41,5 +41,11 @@
       }
     ]
   },
-  "paintcans": null
+  "paintcans": [
+    {
+      "x": 1700,
+      "y": 500,
+      "value": null
+    }
+  ]
 }

@@ -618,6 +618,9 @@ LevelStruct WorldSystem::createLevelStruct(int level_idx) {
 	for (vec2 archer : level.archers) {
 		createArcher(renderer, archer, vec2(70.f));
 	}
+	for (InitPaintCan paintcan : level.paintcans) {
+		createPaintCan(renderer, paintcan.pos, vec2(25, 50));
+	}
 	player = createOliver(renderer, level.playerSpawn);
 	return level;
 }
@@ -663,7 +666,6 @@ void WorldSystem::restart_game() {
 
 	if (level_idx == 6) {
 		createPaintCan(renderer, { window_width_px - 300, window_height_px / 2 }, { 25.f, 50.f });
-		createArcher(renderer, { window_width_px - 600, window_height_px / 2 - 25}, { 70.f, 70.f });
 	}
 
 	level4DisappearTimer = 4000;
