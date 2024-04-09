@@ -45,6 +45,7 @@ void DrawingSystem::start_drawing() {
 void DrawingSystem::stop_drawing() {
 	// Stop drawing and signal to our system instance to construct lines
 	is_drawing = false;
+	prev_line = Entity();
 }
 
 void DrawingSystem::set_draw_pos(const vec2 &pos) {
