@@ -32,9 +32,13 @@ public:
 };
 
 class LevelManager {
+private:
+	int numLevels = 9;
 public:
 	std::vector<Level> levels;
-
+	
+	void loadLevels();
+	void loadLevel(int levelNumber);
 	void initLevel();
 
 	void printLevelsInfo() {

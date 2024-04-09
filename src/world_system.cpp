@@ -143,6 +143,7 @@ void WorldSystem::init(RenderSystem* renderer_arg, bool* mainMenu) {
 	//init levels
 	WorldSystem::level = config.starting_level;
 	LevelManager lm;
+	lm.loadLevels();
 	lm.initLevel();
 	lm.printLevelsInfo();
 	this->levelManager = lm;
@@ -532,6 +533,7 @@ void WorldSystem::handlePlayerAnimation(float elapsed_ms_since_last_update) {
 }
 
 void WorldSystem::createLevel() {
+	// render tutorial images
 	if (WorldSystem::level == 0) 
 		tutorial = createTutorialMove(renderer);
 	else if (WorldSystem::level == 1) {
