@@ -1,7 +1,7 @@
 #include "level_manager.hpp"
 
 void LevelManager::loadLevels() {
-	for (int i = 0; i < numLevels; i++) {
+	for (int i = 0; i <= config.max_level; i++) {
 		levels.push_back(loadLevel(i));
 	}
 	return;

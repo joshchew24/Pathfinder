@@ -64,7 +64,6 @@ struct Level {
 
 class LevelManager {
 private:
-	int numLevels = 9;
 	InitWall parseWall(json wallJson);
 	void parseStair(Level& level, json stairJson);
 	void parseSpike(Level& level, json spikeJson);

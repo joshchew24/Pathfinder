@@ -755,7 +755,7 @@ void WorldSystem::handle_collisions(float elapsed_ms) {
 
 
 void WorldSystem::next_level() {
-	if (level_idx == maxLevel) {
+	if (level_idx == config.max_level) {
 		level_idx = 0;
 		restart_game();
 		renderer->endScreen = true;
@@ -905,7 +905,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 
 	//next level
 	if (action == GLFW_RELEASE && key == GLFW_KEY_EQUAL) {
-		if (level_idx < maxLevel) {
+		if (level_idx < config.max_level) {
 			level_idx++;
 			restart_game();
 		}

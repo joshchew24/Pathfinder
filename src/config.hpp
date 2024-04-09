@@ -12,6 +12,7 @@ public:
 	float paintcan_value;
 	float terminal_velocity;
 	int starting_level;
+	int max_level;
 	int tick_rate;
 	int target_fps;
 
@@ -27,6 +28,7 @@ public:
 		paintcan_value = config["paintcan_value"];
 		terminal_velocity = config["terminal_velocity"];
 		starting_level = config["starting_level"];
+		max_level = config["max_level"];
 		tick_rate = config["tick_rate"];
 		target_fps = config["target_fps"];
 	}
