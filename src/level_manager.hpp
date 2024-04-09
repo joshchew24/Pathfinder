@@ -37,8 +37,8 @@ struct LevelStruct {
 	glm::vec2 hintTextPos;
 	float gravity;
 	float friction;
+	float inkLimit;
 	glm::vec2 playerSpawn;
-	float ink_limit;
 	std::vector<glm::vec2> boulderSpawns;
 	std::vector<glm::vec2> chaseBoulderSpawns;
 	std::vector<glm::vec2> archerSpawns;

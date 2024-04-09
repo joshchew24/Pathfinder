@@ -8,6 +8,7 @@ public:
 	float move_speed;
 	float jump_height;
 	float friction;
+	float ink_limit;
 	float terminal_velocity;
 	int starting_level;
 	int tick_rate;
@@ -21,6 +22,7 @@ public:
 		move_speed = config["move_speed"];
 		jump_height = config["jump_height"];
 		friction = config["friction"];
+		ink_limit = config["ink_limit"];
 		terminal_velocity = config["terminal_velocity"];
 		starting_level = config["starting_level"];
 		tick_rate = config["tick_rate"];
