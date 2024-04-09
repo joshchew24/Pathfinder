@@ -141,7 +141,7 @@ void WorldSystem::init(RenderSystem* renderer_arg, bool* mainMenu) {
 	fprintf(stderr, "Loaded music\n");
 
 	//init levels
-	WorldSystem::level = config.starting_level;
+	WorldSystem::level_idx = config.starting_level;
 	LevelManager lm;
 	lm.loadLevels();
 	lm.initLevel();
@@ -293,12 +293,12 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 
 	next_boulder_spawn -= elapsed_ms_since_last_update * current_speed * 2;
-	if ((level == 5 || level == 6 || level == 8) && registry.deadlys.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
+	if ((level_idx == 5 || level_idx == 6 || level_idx == 8) && registry.deadlys.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
 		// Reset timer
 		next_boulder_spawn = (BOULDER_DELAY_MS / 2) + uniform_dist(rng) * (BOULDER_DELAY_MS / 2);
 		createBoulder(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), -100.f));
 	}
-	else if (level == 3 && next_boulder_spawn < 0.f) {
+	else if (level_idx == 3 && next_boulder_spawn < 0.f) {
 		printf("right level");
 		next_boulder_spawn = (SPIKE_DELAY_MS / 2) + uniform_dist(rng) * (SPIKE_DELAY_MS / 2);
 		Entity e = createSpikes(renderer, { window_width_px - 100, 553 }, { 40, 20 }, -1.5708);
@@ -308,11 +308,11 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		m.grounded = true;
 	}
 
-	if(!registry.deathTimers.has(player) && level == 6)
+	if(!registry.deathTimers.has(player) && level_idx == 6)
 	{
 		FrameCount += elapsed_ms_since_last_update;
 		if (FrameCount >= FrameInterval) {
-			aiSystem.updateGrid(levelManager.levels[level].walls);
+			aiSystem.updateGrid(levelManager.levels[level_idx].walls);
 			//aiSystem.printGrid();
 			Motion& eMotion = registry.motions.get(advancedBoulder);
 			Motion& pMotion = registry.motions.get(player);
@@ -406,7 +406,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	movementSystem.handle_inputs();
 	handlePlayerAnimation(elapsed_ms_since_last_update);
 
-	if (!level4Disappeared && level == 7) {
+	if (!level4Disappeared && level_idx == 7) {
 		level4DisappearTimer -= elapsed_ms_since_last_update;
 		if (level4DisappearTimer <= 0) {
 			for (Entity entity : registry.platforms.entities) {
@@ -425,7 +425,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
-	if (level == 8) {
+	if (level_idx == 8) {
 
 		if (!currDrawn) {
 			drawLinesLevel4(currDrawing);
@@ -533,21 +533,21 @@ void WorldSystem::handlePlayerAnimation(float elapsed_ms_since_last_update) {
 
 void WorldSystem::displayTutorialImage() {
 	// render tutorial images
-	if (WorldSystem::level == 0)
+	if (WorldSystem::level_idx == 0)
 		tutorial = createTutorialMove(renderer);
-	else if (WorldSystem::level == 1) {
+	else if (WorldSystem::level_idx == 1) {
 		registry.renderRequests.remove(tutorial);
 		tutorial = createTutorialJump(renderer);
 	}
-	else if (WorldSystem::level == 2) {
+	else if (WorldSystem::level_idx == 2) {
 		registry.renderRequests.remove(tutorial);
 		tutorial = createTutorialMainMenu(renderer);
 	}
-	else if (WorldSystem::level == 3) {
+	else if (WorldSystem::level_idx == 3) {
 		registry.renderRequests.remove(tutorial);
 		//should be tutorial on checkpoints
 	}
-	else if (WorldSystem::level == 4) {
+	else if (WorldSystem::level_idx == 4) {
 		registry.renderRequests.remove(tutorial);
 		tutorial = createTutorialDraw(renderer);
 	}
@@ -556,7 +556,7 @@ void WorldSystem::displayTutorialImage() {
 }
 
 void WorldSystem::createLevel() {
-	Level currentLevel = this->levelManager.levels[WorldSystem::level];
+	Level currentLevel = this->levelManager.levels[WorldSystem::level_idx];
 	for (int i = 0; i < currentLevel.walls.size(); ++i) {
 		InitWall w = currentLevel.walls[i];
 		int platformHeight = abs(w.y - window_height_px) + w.ySize / 2 + 2;
@@ -579,26 +579,26 @@ void WorldSystem::createLevel() {
 	}
 }
 
-void WorldSystem::createLevelStruct() {
-	LevelStruct currentLevel = this->levelManager.structLevels[WorldSystem::level];
+void WorldSystem::createLevelStruct(int level_idx) {
+	level = this->levelManager.structLevels[level_idx];
 	int platformHeight;
-	for (InitWall w : currentLevel.walls) {
+	for (InitWall w : level.walls) {
 		platformHeight = abs(w.y - window_height_px) + w.ySize / 2 + 2;
 		createPlatform(renderer, { w.x, window_height_px - platformHeight }, { w.xSize - 10, 10.f });
 		createWall(renderer, { w.x, w.y }, { w.xSize, w.ySize });
 	}
-	for (Spike s : currentLevel.spikes) {
+	for (Spike s : level.spikes) {
 		createSpikes(renderer, { s.x, s.y }, { 40, 20 }, s.angle);
 	}
-	if (currentLevel.hasCheckpoint) {
-		createCheckpoint(renderer, { currentLevel.checkpoint.x, currentLevel.checkpoint.y });
+	if (level.hasCheckpoint) {
+		createCheckpoint(renderer, { level.checkpoint.x, level.checkpoint.y });
 	}
-	createEndpoint(renderer, currentLevel.endPoint);
-	if (currentLevel.hasHint) {
-		createHint(renderer, currentLevel.hintPos, currentLevel.hint);
-		renderer->hintPos = currentLevel.hintTextPos;
+	createEndpoint(renderer, level.endPoint);
+	if (level.hasHint) {
+		createHint(renderer, level.hintPos, level.hint);
+		renderer->hintPos = level.hintTextPos;
 	}
-	player = createOliver(renderer, currentLevel.playerSpawn);
+	player = createOliver(renderer, level.playerSpawn);
 }
 
 // Reset the world state to its initial state
@@ -629,7 +629,8 @@ void WorldSystem::restart_game() {
 
 	// reset level
 	displayTutorialImage();
-	createLevel();
+	//createLevel();
+	createLevelStruct(level_idx);
 	
 	// Create pencil
 	pencil = createPencil(renderer, { window_width_px / 2, window_height_px / 2 }, { 50.f, 50.f });
@@ -639,7 +640,7 @@ void WorldSystem::restart_game() {
 	// Center cursor to pencil location
 	glfwSetCursorPos(window, window_width_px / 2 - 25.f, window_height_px / 2 + 25.f);
 
-	if (level == 6) {
+	if (level_idx == 6) {
 		advancedBoulder = createChaseBoulder(renderer, { window_width_px / 2, 100 });
 		bestPath = {};
 		currentNode = 0;
@@ -763,13 +764,13 @@ void WorldSystem::handle_collisions(float elapsed_ms) {
 
 
 void WorldSystem::next_level() {
-	if (level == maxLevel) {
-		level = 0;
+	if (level_idx == maxLevel) {
+		level_idx = 0;
 		restart_game();
 		renderer->endScreen = true;
 	}
 	else {
-		level++;
+		level_idx++;
 		restart_game();
 	}
 	checkPointAudioPlayer = false;
@@ -792,7 +793,7 @@ void WorldSystem::save_checkpoint() {
 	j["scale"]["x"] = m.scale[0];
 	j["scale"]["y"] = m.scale[1];
 	j["gravity"] = m.gravityScale;
-	j["level"] = level;
+	j["level"] = level_idx;
 
 	std::ofstream o("../save.json");
 	o << j.dump() << std::endl;
@@ -807,7 +808,7 @@ void WorldSystem::load_checkpoint() {
 	json j = json::parse(i);
 
 	int currentLevel = j["level"];
-	if (currentLevel == level) {
+	if (currentLevel == level_idx) {
 		// reset game to default then reposition player
 		restart_game();
 		Motion& m = registry.motions.get(player);
@@ -913,14 +914,14 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 
 	//next level
 	if (action == GLFW_RELEASE && key == GLFW_KEY_EQUAL) {
-		if (level < maxLevel) {
-			level++;
+		if (level_idx < maxLevel) {
+			level_idx++;
 			restart_game();
 		}
 	}
 	if (action == GLFW_RELEASE && key == GLFW_KEY_MINUS) {
-		if (level > 0) {
-			level--;
+		if (level_idx > 0) {
+			level_idx--;
 			restart_game();
 		}
 	}
