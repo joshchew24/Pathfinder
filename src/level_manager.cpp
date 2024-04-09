@@ -75,10 +75,10 @@ LevelStruct LevelManager::loadLevel(int levelNumber) {
 
 	auto enemiesJson = levelData["enemies"];
 	if (!enemiesJson.is_null()) {
-		if (!enemiesJson["chase_boulders"].is_null()) {
-			for (json chaseBoulder : enemiesJson["chase_boulders"]) {
-				levelObject.chaseBoulders.push_back(glm::vec2(chaseBoulder["x"], chaseBoulder["y"]));
-			}
+		if (!enemiesJson["chase_boulder"].is_null()) {
+			levelObject.hasChaseBoulder = true;
+			levelObject.chaseBoulder.x = enemiesJson["chase_boulder"][0];
+			levelObject.chaseBoulder.y = enemiesJson["chase_boulder"][1];
 		}
 		if (!enemiesJson["archers"].is_null()) {
 			for (json archer : enemiesJson["archers"]) {
