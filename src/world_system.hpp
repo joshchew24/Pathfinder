@@ -28,6 +28,8 @@ public:
 	// Creates a window
 	GLFWwindow* create_window();
 
+	bool isLineCollisionsOn();
+
 	// starts the game
 	void init(RenderSystem* renderer, bool* mainMenu);
 

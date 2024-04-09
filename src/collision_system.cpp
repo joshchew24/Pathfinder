@@ -16,7 +16,7 @@ bool CollisionSystem::collides(const Motion& motion1, const Entity& entity1, con
 		return SATcollision(registry.meshPtrs.get(entity1), motion1, motion2);
 	}
 	else if (registry.renderRequests.has(entity2) && registry.renderRequests.get(entity2).used_geometry != GEOMETRY_BUFFER_ID::GEOMETRY_COUNT &&
-	registry.meshPtrs.has(entity2) && registry.meshPtrs.get(entity2)->vertices.size() > 0) {
+		registry.meshPtrs.has(entity2) && registry.meshPtrs.get(entity2)->vertices.size() > 0) {
 		return SATcollision(registry.meshPtrs.get(entity2), motion2, motion1);
 	}
 	else {
@@ -134,19 +134,11 @@ void normalizeProj(vec2& proj) {
 	}
 }
 
-// Separating Axis Theorem between mesh and motion entity
-// modified so that the vertice positions would be translated, rotated, and scaled beforehand
-bool CollisionSystem::SATcollision(const Mesh* mesh, const Motion& motion1, const Motion& motion2) {
-	float bot = motion2.position.y + abs(motion2.scale.y) / 2.f;
-	float top = motion2.position.y - abs(motion2.scale.y) / 2.f;
-	float right = motion2.position.x + abs(motion2.scale.x) / 2.f;
-	float left = motion2.position.x - abs(motion2.scale.x) / 2.f;
-	std::vector<ColoredVertex> vertices = convexHull(mesh->vertices, mesh->vertices.size());
-	std::vector<vec2> trsPositions = std::vector<vec2>();
-	// modify positions so they're in the right spots
-	for (int i = 0; i < vertices.size(); i++) {
-		trsPositions.push_back(translateRotateScale(vertices[i].position, motion1));
-	}
+bool SATcollisionHelper(std::vector<vec2> trsPositions, const Motion& motion2) {
+	int bot = motion2.position.y + abs(motion2.scale.y) / 2.f;
+	int top = motion2.position.y - abs(motion2.scale.y) / 2.f;
+	int right = motion2.position.x + abs(motion2.scale.x) / 2.f;
+	int left = motion2.position.x - abs(motion2.scale.x) / 2.f;
 	for (int s = 0; s < 2; s++) {
 		if (s == 0) {
 			// get projections from mesh
@@ -155,19 +147,19 @@ bool CollisionSystem::SATcollision(const Mesh* mesh, const Motion& motion1, cons
 				j = j % trsPositions.size();
 				vec2 proj = { -(trsPositions[j].y - trsPositions[i].y), trsPositions[j].x - trsPositions[i].x };
 				normalizeProj(proj);
-				float min_r1 = INFINITY, max_r1 = -INFINITY;
+				int min_r1 = INT_MAX, max_r1 = INT_MIN;
 				for (int p = 0; p < trsPositions.size(); p++) {
-					float val = (trsPositions[p].x * proj.x + trsPositions[p].y * proj.y);
+					int val = (trsPositions[p].x * proj.x + trsPositions[p].y * proj.y);
 					min_r1 = min(min_r1, val);
 					max_r1 = max(max_r1, val);
 				}
 
-				float min_r2 = INFINITY, max_r2 = -INFINITY;
+				int min_r2 = INT_MAX, max_r2 = INT_MIN;
 
-				float topLeft = top * proj.y + left * proj.x;
-				float topRight = top * proj.y + right * proj.x;
-				float botLeft = bot * proj.y + left * proj.x;
-				float botRight = bot * proj.y + right * proj.x;
+				int topLeft = top * proj.y + left * proj.x;
+				int topRight = top * proj.y + right * proj.x;
+				int botLeft = bot * proj.y + left * proj.x;
+				int botRight = bot * proj.y + right * proj.x;
 				min_r2 = min(min_r2, topLeft);
 				min_r2 = min(min_r2, topRight);
 				min_r2 = min(min_r2, botLeft);
@@ -194,20 +186,20 @@ bool CollisionSystem::SATcollision(const Mesh* mesh, const Motion& motion1, cons
 					proj = { 0, 1 };
 				}
 
-				float min_r1 = FLT_MAX, max_r1 = FLT_MIN;
+				int min_r1 = INT_MAX, max_r1 = INT_MIN;
 				for (int p = 0; p < trsPositions.size(); p++) {
-					float val = (trsPositions[p].x * proj.x + trsPositions[p].y * proj.y);
+					int val = (trsPositions[p].x * proj.x + trsPositions[p].y * proj.y);
 					min_r1 = min(min_r1, val);
 					max_r1 = max(max_r1, val);
 				}
 
-				float min_r2 = FLT_MAX, max_r2 = FLT_MIN;
+				int min_r2 = INT_MAX, max_r2 = INT_MIN;
 
 				// do top left
-				float topLeft = top * proj.y + left * proj.x;
-				float topRight = top * proj.y + right * proj.x;
-				float botLeft = bot * proj.y + left * proj.x;
-				float botRight = bot * proj.y + right * proj.x;
+				int topLeft = top * proj.y + left * proj.x;
+				int topRight = top * proj.y + right * proj.x;
+				int botLeft = bot * proj.y + left * proj.x;
+				int botRight = bot * proj.y + right * proj.x;
 				min_r2 = min(min_r2, topLeft);
 				min_r2 = min(min_r2, topRight);
 				min_r2 = min(min_r2, botLeft);
@@ -228,13 +220,17 @@ bool CollisionSystem::SATcollision(const Mesh* mesh, const Motion& motion1, cons
 	return true;
 }
 
-bool boxCollision(vec4 box1, vec4 box2) {
-	// order of elements is: {min_x, min_y, max_x, max_y}	
-	bool y_val = (box1[1] < box2[3]) && (box2[1] < box1[3]);
-	bool x_val = (box1[0] < box2[2]) && (box2[0] < box1[2]);
-	return y_val && x_val;
+// Separating Axis Theorem between mesh and motion entity
+// modified so that the vertice positions would be translated, rotated, and scaled beforehand
+bool CollisionSystem::SATcollision(const Mesh* mesh, const Motion& motion1, const Motion& motion2) {
+	std::vector<ColoredVertex> vertices = convexHull(mesh->vertices, mesh->vertices.size());
+	std::vector<vec2> trsPositions = std::vector<vec2>();
+	// modify positions so they're in the right spots
+	for (int i = 0; i < vertices.size(); i++) {
+		trsPositions.push_back(translateRotateScale(vertices[i].position, motion1));
+	}
+	return SATcollisionHelper(trsPositions, motion2);
 }
-
 
 bool CollisionSystem::rectangleCollides(const Motion& motion1, const Motion& motion2) {
 	bool y_val = (motion1.position[1] - abs(motion1.scale.y) / 2.f) < (motion2.position[1] + abs(motion2.scale.y) / 2.f) &&
@@ -244,53 +240,71 @@ bool CollisionSystem::rectangleCollides(const Motion& motion1, const Motion& mot
 	return y_val && x_val;
 }
 
-bool CollisionSystem::lineCollides(const Entity& line,
-	       	float min_x, float min_y,
-	        float max_x, float max_y) {
-	// Takes 4 bounding box inputs to check against a particular line
-	DrawnLine& dline = registry.drawnLines.get(line);
-	const Motion& line_m = registry.motions.get(line);
+bool lineLineCollision(vec2 linePos1, vec2 linePos2, vec2 rectLinePos3, vec2 rectLinePos4) {
+	float x1 = linePos1.x;
+	float y1 = linePos1.y;
+	float x2 = linePos2.x;
+	float y2 = linePos2.y;
 
-	// Determine whether there is intersection
-	// const bool y_intersects = !(dline.y_bounds[1] < min_y || dline.y_bounds[0] > max_y);
-	// const bool x_intersects = !(dline.x_bounds[1] < min_x || dline.x_bounds[0] > max_x);
-
-	// if (!y_intersects || !x_intersects)
-	// 	return false;
-
-	// // Check if line eqn. output is within the bounding box for overlapping x values
-	// vec2 x_overlap(std::max(min_x, dline.x_bounds[0]),  std::min(max_x, dline.x_bounds[1]));
-	// vec2 test_y = dline.slope * x_overlap + dline.intercept;
-	// // Same for x against y values; we check both to guard against perfect vert/horizontal lines
-	// vec2 y_overlap(std::max(min_y, dline.y_bounds[0]),  std::min(max_y, dline.y_bounds[1]));
-	// vec2 test_x = (1 / dline.slope) * (y_overlap - dline.intercept);
-
-	// const bool result = (test_y[0] >= min_y && test_y[1] <= max_y) ||
-	// 		    (test_x[0] >= min_x && test_x[1] <= max_x);
-
-	// apply "undo" rotation to both line and bbox to test collision like a normal upright rect
-	Transform transform;
-	transform.rotate(-line_m.angle);
-	vec2 upper_left(min_x, min_y);
-	vec2 lower_right(max_x, max_y);
-	upper_left = vec2(transform.mat * vec3(upper_left, 1.f));
-	lower_right = vec2(transform.mat * vec3(lower_right, 1.f));
-	// need to re-sort because rotation may have changed relative bounds
-	vec2 x_bounds  = (upper_left.x < lower_right.x) ? vec2(upper_left.x, lower_right.x) : vec2(lower_right.x, upper_left.x);
-	vec2 y_bounds  = (upper_left.y < lower_right.y) ? vec2(upper_left.y, lower_right.y) : vec2(lower_right.y, upper_left.y);
-	vec4 test_box(x_bounds[0], y_bounds[0], x_bounds[1], y_bounds[1]);
-		
-	vec2 test_line = vec2(transform.mat * vec3(line_m.position, 1.f));
-	const float half_w = abs(line_m.scale.x) / 2.f;
-	const float half_h = abs(line_m.scale.y) / 2.f;
-	vec4 line_box(test_line.x - half_w, test_line.y - half_h,
-		      test_line.x + half_w, test_line.y + half_h);
-	bool result = boxCollision(test_box, line_box);
-
-	// DEBUG code
-	if (result && debugging.in_debug_mode) { 
-		auto& r = registry.renderRequests.get(line);
-		r.used_geometry = GEOMETRY_BUFFER_ID::DEBUG_LINE; // turn the line red
+	float x3 = rectLinePos3.x;
+	float y3 = rectLinePos3.y;
+	float x4 = rectLinePos4.x;
+	float y4 = rectLinePos4.y;
+	
+	float uA = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1));
+	float uB = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1));
+	if (uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1) {
+		return true;
 	}
-	return result;
+	return false;
+}
+
+bool lineRectCollision(vec2 linePos1, vec2 linePos2, const Motion& motion) {
+	const float box_w = abs(motion.scale.x) / 2;
+	const float box_h = abs(motion.scale.y) / 2;
+	const float top = motion.position.y - box_h;
+	const float bot = motion.position.y + box_h;
+	const float left = motion.position.x - box_w;
+	const float right = motion.position.x + box_w;
+	const vec2& leftTop = vec2(left, top);
+	const vec2& rightTop = vec2(right, top);
+	const vec2& leftBot = vec2(left, bot);
+	const vec2& rightBot = vec2(right, bot);
+
+	bool leftLine = lineLineCollision(linePos1, linePos2, leftTop, leftBot);
+	bool rightLine = lineLineCollision(linePos1, linePos2, rightTop, rightBot);
+	bool topLine = lineLineCollision(linePos1, linePos2, leftTop, rightTop);
+	bool botLine = lineLineCollision(linePos1, linePos2, leftBot, rightBot);
+
+	// if the line hit any of the lines from the rectangle, then true collision
+	if (leftLine || rightLine || topLine || botLine) {
+		return true;
+	}
+	return false;
+}
+
+bool CollisionSystem::lineCollides(const Entity& line,
+	float min_x, float min_y,
+	float max_x, float max_y) {
+	Entity player = registry.players.entities[0];
+	Motion &pmotion = registry.motions.get(player);
+
+	const Motion& lmotion = registry.motions.get(line);
+	// translate to origin -- set position to 0 basically, so it's just scale / 2;
+	float half_w = abs(lmotion.scale.x) / 2.f;
+	float half_h = abs(lmotion.scale.y) / 2.f;;
+	vec2 topLeft = vec2(-half_w, -half_h);
+	vec2 topRight = vec2(half_w, -half_h);
+	vec2 botRight = vec2(half_w, half_h);
+	vec2 botLeft = vec2(-half_w, half_h);
+
+	std::vector<vec2> trsPositions = { topLeft, topRight, botRight, botLeft };
+	// rotate + retranslate point
+	for (int i = 0; i < trsPositions.size(); i++) {
+		trsPositions[i] = { static_cast<int>(trsPositions[i].x * cosf(lmotion.angle) - trsPositions[i].y * sinf(lmotion.angle) + lmotion.position.x), static_cast<int>(trsPositions[i].x * sinf(lmotion.angle) + trsPositions[i].y * cosf(lmotion.angle) + lmotion.position.y) };
+	}
+
+	bool res = SATcollisionHelper(trsPositions, pmotion);
+	// other option to replace SAT: use lineRectCollision if it's is easier
+	return res;
 }
