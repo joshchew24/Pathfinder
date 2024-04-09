@@ -4,7 +4,7 @@ void LevelManager::loadLevels() {
 	//for (int i = 0; i < numLevels; i++) {
 	//	structLevels.push_back(loadLevel(i));
 	//}
-	structLevels.push_back(loadLevel(0));
+	structLevels.push_back(loadLevel(6));
 	structLevels.push_back(loadLevel(-1));
 	// test file
 	//loadLevel(-1);
@@ -105,13 +105,13 @@ InitWall LevelManager::parseWall(json wallJson) {
 	return wall;
 }
 
-void LevelManager::parseStair(LevelStruct level, json stairJson) {
+void LevelManager::parseStair(LevelStruct& level, json stairJson) {
 	int numStairs = stairJson["quantity"];
 	int startX = stairJson["x"];
 	int startY = stairJson["y"];
+	int stairGap = stairJson["gap"];
 	int stairWidth = stairJson["width"];
 	int stairHeight = stairJson["height"];
-	int stairGap = stairJson["gap"];
 	for (int i = 0; i < numStairs; ++i) {
 		InitWall stair;
 		stair.x = startX + i * (stairWidth + stairGap);
@@ -122,7 +122,7 @@ void LevelManager::parseStair(LevelStruct level, json stairJson) {
 	}
 }
 
-void LevelManager::parseSpike(LevelStruct level, json spikeJson) {
+void LevelManager::parseSpike(LevelStruct& level, json spikeJson) {
 	int x = spikeJson["x"];
 	int y = spikeJson["y"];
 	int numSpikes = spikeJson["quantity"];

@@ -319,7 +319,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
-	if(!registry.deathTimers.has(player) && level_idx == 6)
+	if(!registry.deathTimers.has(player) && level.hasChaseBoulder)
 	{
 		FrameCount += elapsed_ms_since_last_update;
 		if (FrameCount >= FrameInterval) {
@@ -591,6 +591,7 @@ void WorldSystem::createLevel() {
 }
 
 LevelStruct WorldSystem::createLevelStruct(int level_idx) {
+	printf("creating level: %i\n", level_idx);
 	LevelStruct level = this->levelManager.structLevels[level_idx];
 	int platformHeight;
 	for (InitWall w : level.walls) {
@@ -602,12 +603,17 @@ LevelStruct WorldSystem::createLevelStruct(int level_idx) {
 		createSpikes(renderer, { s.x, s.y }, { 40, 20 }, s.angle);
 	}
 	if (level.hasCheckpoint) {
-		createCheckpoint(renderer, { level.checkpoint.x, level.checkpoint.y });
+		createCheckpoint(renderer, level.checkpoint);
 	}
 	createEndpoint(renderer, level.endPoint);
 	if (level.hasHint) {
 		createHint(renderer, level.hintPos, level.hint);
 		renderer->hintPos = level.hintTextPos;
+	}
+	if (level.hasChaseBoulder) {
+		advancedBoulder = createChaseBoulder(renderer, level.chaseBoulder);
+		bestPath = {};
+		currentNode = 0;
 	}
 	player = createOliver(renderer, level.playerSpawn);
 	return level;

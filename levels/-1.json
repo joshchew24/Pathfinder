@@ -60,7 +60,7 @@
     ]
   },
   "enemies": {
-    "chase_boulder": [ 1000, 1000 ],
+    "chase_boulder": [ 1000, 100 ],
     "archers": [
       {
         "x": 1000,
