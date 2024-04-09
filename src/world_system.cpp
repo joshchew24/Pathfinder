@@ -214,13 +214,21 @@ void WorldSystem::drawLinesLevel4(int currDrawing) {
 		//createDrawOnLines(620, 430, M_PI / 2);
 	}
 	else if (currDrawing == 1) {
+		DrawingSystem::remainingDrawingCount = 1000;
 		createIndividualPlatforms({ 600, window_height_px - 300 }, { 200, 100 });
+		Entity e = createPaintCan(renderer, { 600, window_height_px - 350 }, { 25.f, 50.f }, 300);
+		Motion& m = registry.motions.get(e);
+		m.fixed = true;
 		drawLinesLoop(700, 25, 400, -25, 10, 0.698132, 0);
 		drawLinesLoop(950, 25, 175, 25, 10, 2.44346, 0);
 		drawLinesLoop(724, 47, 410, 0, 10, M_PI / 2, 0);
 	}
 	else if (currDrawing == 2) {
+		DrawingSystem::remainingDrawingCount = 1000;
 		createIndividualPlatforms({ 850, window_height_px - 300 }, { 200, 100 });
+		Entity e = createPaintCan(renderer, { 850, window_height_px - 350 }, { 25.f, 50.f }, 300);
+		Motion& m = registry.motions.get(e);
+		m.fixed = true;
 		drawLinesLoop(950, 25, 100, 0, 7, 1.5708, 0);
 		drawLinesLoop(950, 25, 250, 0, 7, 1.5708, 0);
 		//drawLinesLoop(950, 25, 550, 0, 7, 1.5708, 0);
@@ -241,8 +249,11 @@ void WorldSystem::drawLinesLevel4(int currDrawing) {
 		//drawLinesLoop(1185, 0, 200, 45, 7, 0, 0);
 	}
 	else if (currDrawing == 3) {
+		DrawingSystem::remainingDrawingCount = 1000;
 		createIndividualPlatforms({ 1100, window_height_px - 300 }, { 200, 100 });
-
+		Entity e = createPaintCan(renderer, { 1100, window_height_px - 350 }, { 25.f, 50.f }, 300);
+		Motion& m = registry.motions.get(e);
+		m.fixed = true;
 		drawLinesLoop(750, 25, 420, -40, 10, 0.698132, 0);
 		drawLinesLoop(980, 25, 55, 40, 10, 2.44346, 0);
 		drawLinesLoop(770, 70, 425, 0, 7, M_PI / 2, 0);
@@ -292,7 +303,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 
 	next_boulder_spawn -= elapsed_ms_since_last_update * current_speed * 2;
-	if ((level == 5 || level == 6 || level == 8) && registry.deadlys.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
+	if ((level == 5 || level == 6) && registry.deadlys.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
 		// Reset timer
 		next_boulder_spawn = (BOULDER_DELAY_MS / 2) + uniform_dist(rng) * (BOULDER_DELAY_MS / 2);
 		createBoulder(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), -100.f));
@@ -405,25 +416,25 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	movementSystem.handle_inputs();
 	handlePlayerAnimation(elapsed_ms_since_last_update);
 
-	if (!level4Disappeared && level == 7) {
-		level4DisappearTimer -= elapsed_ms_since_last_update;
-		if (level4DisappearTimer <= 0) {
-			Level& level4 = this->levelManager.levels[WorldSystem::level];
-			for (Entity entity : registry.platforms.entities) {
-				RenderRequest& r = registry.renderRequests.get(entity);
-				r.used_texture = TEXTURE_ASSET_ID::EMPTY;
-			}
-			for (Entity entity : registry.walls.entities) {
-				RenderRequest& r = registry.renderRequests.get(entity);
-				r.used_texture = TEXTURE_ASSET_ID::EMPTY;
-			}
-			for (Entity entity : registry.deadlys.entities) {
-				RenderRequest& r = registry.renderRequests.get(entity);
-				r.used_texture = TEXTURE_ASSET_ID::EMPTY;
-			}
-			level4Disappeared = true;
-		}
-	}
+	//if (!level4Disappeared && level == 7) {
+	//	level4DisappearTimer -= elapsed_ms_since_last_update;
+	//	if (level4DisappearTimer <= 0) {
+	//		Level& level4 = this->levelManager.levels[WorldSystem::level];
+	//		for (Entity entity : registry.platforms.entities) {
+	//			RenderRequest& r = registry.renderRequests.get(entity);
+	//			r.used_texture = TEXTURE_ASSET_ID::EMPTY;
+	//		}
+	//		for (Entity entity : registry.walls.entities) {
+	//			RenderRequest& r = registry.renderRequests.get(entity);
+	//			r.used_texture = TEXTURE_ASSET_ID::EMPTY;
+	//		}
+	//		for (Entity entity : registry.deadlys.entities) {
+	//			RenderRequest& r = registry.renderRequests.get(entity);
+	//			r.used_texture = TEXTURE_ASSET_ID::EMPTY;
+	//		}
+	//		level4Disappeared = true;
+	//	}
+	//}
 
 	if (level == 8) {
 
@@ -574,6 +585,9 @@ void WorldSystem::createLevel() {
 		createHint(renderer, { currentLevel.hintPos.first, currentLevel.hintPos.second }, currentLevel.hint);
 		renderer->hintPos = { currentLevel.hintTextPos.first, currentLevel.hintTextPos.second };
 	}
+	if (level == 7) {
+		DrawingSystem::remainingDrawingCount = 550;
+	}
 }
 
 // Reset the world state to its initial state
@@ -617,7 +631,7 @@ void WorldSystem::restart_game() {
 		advancedBoulder = createChaseBoulder(renderer, { window_width_px / 2, 100 });
 		bestPath = {};
 		currentNode = 0;
-		createPaintCan(renderer, { window_width_px - 300, window_height_px / 2 }, { 25.f, 50.f });
+		createPaintCan(renderer, { window_width_px - 300, window_height_px / 2 }, { 25.f, 50.f }, 168);
 		createArcher(renderer, { window_width_px - 600, window_height_px / 2 - 25}, { 70.f, 70.f });
 	}
 
@@ -684,9 +698,9 @@ void WorldSystem::handle_collisions(float elapsed_ms) {
 			// Checking Player - Eatable collisions
 			else if (registry.eatables.has(entity_other)) {
 				if (!registry.deathTimers.has(entity)) {
-					// chew, count points, and set the LightUp timer
+					PaintCan p = registry.paintCans.get(entity_other);
+					drawings.add_drawing_count(p.paintRefill);
 					registry.remove_all_components_of(entity_other);
-					drawings.add_drawing_count(500);
 					Mix_PlayChannel(-1, ink_pickup_sound, 0);
 				}
 			}
