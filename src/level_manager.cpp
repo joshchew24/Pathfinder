@@ -54,6 +54,31 @@ LevelStruct LevelManager::loadLevel(int levelNumber) {
 	levelObject.playerSpawn.x = levelData["player_spawn"][0];
 	levelObject.playerSpawn.y = levelData["player_spawn"][1];
 
+	auto enemiesJson = levelData["enemies"];
+	if (!enemiesJson.is_null()) {
+		if (!enemiesJson["boulderSpawn"].is_null()) {
+			for (json boulder : enemiesJson["boulder_spawn"]) {
+				levelObject.boulderSpawns.push_back(glm::vec2(boulder["x"], boulder["y"]));
+			}
+		}
+		if (!enemiesJson["chaseBoulderSpawn"].is_null()) {
+			for (json chaseBoulder : enemiesJson["chaseBoulderSpawn"]) {
+				levelObject.chaseBoulderSpawns.push_back(glm::vec2(chaseBoulder["x"], chaseBoulder["y"]));
+			}
+		}
+		if (!enemiesJson["archerSpawn"].is_null()) {
+			for (json archer : enemiesJson["archerSpawn"]) {
+				levelObject.archerSpawns.push_back(glm::vec2(archer["x"], archer["y"]));
+			}
+		}
+	}
+	auto paintcans = levelData["paintcans"];
+	if (!paintcans.is_null()) {
+		for (json paintcan : paintcans) {
+			levelObject.paintCanSpawns.push_back(parsePaintCan(paintcan));
+		}
+	}
+
 	return levelObject;
 }
 
@@ -97,6 +122,14 @@ void LevelManager::parseSpike(LevelStruct level, json spikeJson) {
 		spike.angle = angle;
 		level.spikes.push_back(spike);
 	}
+}
+
+InitPaintCan LevelManager::parsePaintCan(json paintcanJson) {
+	InitPaintCan paintcan;
+	paintcan.x = paintcanJson["spawn"][0];
+	paintcan.y = paintcanJson["spawn"][1];
+	paintcan.value = paintcanJson["refill_value"].is_null() ? config.default_paintcan_value : paintcanJson["refill_value"];
+	return paintcan;
 }
 
 void LevelManager::initLevel() {

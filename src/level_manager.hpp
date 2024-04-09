@@ -63,6 +63,8 @@ private:
 	InitWall parseWall(json wallJson);
 	void parseStair(LevelStruct level, json stairJson);
 	void parseSpike(LevelStruct level, json spikeJson);
+	InitPaintCan LevelManager::parsePaintCan(json paintcanJson);
+
 public:
 	std::vector<Level> levels;
 	std::vector<LevelStruct> structLevels;
