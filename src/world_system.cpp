@@ -748,6 +748,14 @@ void WorldSystem::handle_collisions(float elapsed_ms) {
 
 			else if (registry.drawnLines.has(entity_other) && isLineCollisionsOn()) {
 				handleLineCollision(entity_other, elapsed_ms);
+				// if the player hit the line that's being currently drawn, cause player death to occur
+				if (entity_other == drawings.get_prev_line() && drawings.currently_drawing() && !registry.deathTimers.has(entity)) {
+					registry.deathTimers.emplace(entity);
+					Mix_PlayChannel(-1, dead_sound, 0);
+					pMotion.fixed = true;
+					if (drawings.currently_drawing())
+						drawings.stop_drawing();
+				}
 			}
 
 			else if (registry.hints.has(entity_other)) {

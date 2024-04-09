@@ -23,6 +23,8 @@ public:
 
 	bool currently_drawing() { return is_drawing; }
 
+	Entity get_prev_line() { return prev_line; }
+
 private:
 	std::unordered_map<unsigned int, std::vector<Entity>> map_drawings_points_id;
 	vec2 drawPos{0,0};
