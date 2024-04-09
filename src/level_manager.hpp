@@ -22,8 +22,7 @@ struct Spike {
 };
 
 struct InitPaintCan {
-	int x;
-	int y;
+	vec2 pos;
 	float value;
 };
 

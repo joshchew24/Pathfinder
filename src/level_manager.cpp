@@ -140,9 +140,9 @@ void LevelManager::parseSpike(LevelStruct& level, json spikeJson) {
 
 InitPaintCan LevelManager::parsePaintCan(json paintcanJson) {
 	InitPaintCan paintcan;
-	paintcan.x = paintcanJson["spawn"][0];
-	paintcan.y = paintcanJson["spawn"][1];
-	paintcan.value = paintcanJson["refill_value"].is_null() ? config.paintcan_value : paintcanJson["refill_value"];
+	paintcan.pos.x = paintcanJson["x"];
+	paintcan.pos.y = paintcanJson["y"];
+	paintcan.value = paintcanJson["value"].is_null() ? config.paintcan_value : paintcanJson["value"];
 	return paintcan;
 }
 

@@ -70,8 +70,9 @@
   },
   "paintcans": [
     {
-      "spawn": [ 1000, 1000 ],
-      "refill_value": 100
+      "x": 1000,
+      "y": 1000,
+      "value": 100
     }
   ]
 }
