@@ -57,8 +57,9 @@ struct LevelStruct {
 	vec2 playerSpawn;
 	std::vector<InitBoulderSpawner> boulderSpawners;
 	std::vector<InitSpikeProjectileSpawner> spikeProjectileSpawners;
-	std::vector<glm::vec2> chaseBoulders;
-	std::vector<glm::vec2> archers;
+	bool hasChaseBoulder = false;
+	vec2 chaseBoulder;
+	std::vector<vec2> archers;
 	std::vector<InitPaintCan> paintcans;
 };
 
