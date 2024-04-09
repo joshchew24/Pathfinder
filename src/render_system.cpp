@@ -7,7 +7,7 @@
 #include <chrono>
 #include <thread>
 
-bool RenderSystem::introductionScreen = false;
+bool RenderSystem::introductionScreen = true;
 
 bool RenderSystem::endScreen = false;
 
