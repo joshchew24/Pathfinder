@@ -2,24 +2,28 @@
 
 void LevelManager::loadLevels() {
 	for (int i = 0; i < numLevels; i++) {
-		levels.push_back(loadLevel(i));
+		structLevels.push_back(loadLevel(i));
 	}
 	return;
 }
 
-Level LevelManager::loadLevel(int levelNumber) {
+LevelStruct LevelManager::loadLevel(int levelNumber) {
 	std::stringstream file_path;
 	file_path << level_path() << "/" << levelNumber << ".json";
 	printf("level file: %s\n", file_path.str().c_str());
 	std::ifstream file(file_path.str());
 	json levelData = json::parse(file);
 
-	Level levelObject;
+	LevelStruct levelObject;
 
-	std::vector<json> walls = levelData["walls"];
-	for (json wall : walls) {
+	for (json wall : levelData["walls"]) {
 		levelObject.walls.push_back(parseWall(wall));
 	}
+
+	for (json stair : levelData["stairs"]) {
+		parseStair(levelObject, stair);
+	}
+
 	return levelObject;
 }
 
@@ -30,6 +34,23 @@ InitWall LevelManager::parseWall(json wallJson) {
 	wall.xSize = wallJson["width"];
 	wall.ySize = wallJson["height"];
 	return wall;
+}
+
+void LevelManager::parseStair(LevelStruct level, json stairJson) {
+	int numStairs = stairJson["quantity"];
+	int startX = stairJson["x"];
+	int startY = stairJson["y"];
+	int stairWidth = stairJson["width"];
+	int stairHeight = stairJson["height"];
+	int stairGap = stairJson["gap"];
+	for (int i = 0; i < numStairs; ++i) {
+		InitWall stair;
+		stair.x = startX + i * (stairWidth + stairGap);
+		stair.y = startY - i * (stairHeight + stairGap);
+		stair.xSize = stairWidth;
+		stair.ySize = stairHeight;
+		level.walls.push_back(stair);
+	}
 }
 
 void LevelManager::initLevel() {
