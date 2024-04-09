@@ -53,7 +53,7 @@ public:
 
 	void createLevel();
 
-	void createLevelStruct(int level_idx);
+	LevelStruct createLevelStruct(int level_idx);
 
 	void next_level();
 private:

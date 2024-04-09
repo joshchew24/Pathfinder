@@ -579,8 +579,8 @@ void WorldSystem::createLevel() {
 	}
 }
 
-void WorldSystem::createLevelStruct(int level_idx) {
-	level = this->levelManager.structLevels[level_idx];
+LevelStruct WorldSystem::createLevelStruct(int level_idx) {
+	LevelStruct level = this->levelManager.structLevels[level_idx];
 	int platformHeight;
 	for (InitWall w : level.walls) {
 		platformHeight = abs(w.y - window_height_px) + w.ySize / 2 + 2;
@@ -599,6 +599,7 @@ void WorldSystem::createLevelStruct(int level_idx) {
 		renderer->hintPos = level.hintTextPos;
 	}
 	player = createOliver(renderer, level.playerSpawn);
+	return level;
 }
 
 // Reset the world state to its initial state
@@ -630,7 +631,7 @@ void WorldSystem::restart_game() {
 	// reset level
 	displayTutorialImage();
 	//createLevel();
-	createLevelStruct(level_idx);
+	WorldSystem::level = createLevelStruct(level_idx);
 	
 	// Create pencil
 	pencil = createPencil(renderer, { window_width_px / 2, window_height_px / 2 }, { 50.f, 50.f });
