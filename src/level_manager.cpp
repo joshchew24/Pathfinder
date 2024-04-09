@@ -128,7 +128,7 @@ InitPaintCan LevelManager::parsePaintCan(json paintcanJson) {
 	InitPaintCan paintcan;
 	paintcan.x = paintcanJson["spawn"][0];
 	paintcan.y = paintcanJson["spawn"][1];
-	paintcan.value = paintcanJson["refill_value"].is_null() ? config.default_paintcan_value : paintcanJson["refill_value"];
+	paintcan.value = paintcanJson["refill_value"].is_null() ? config.paintcan_value : paintcanJson["refill_value"];
 	return paintcan;
 }
 

@@ -5,7 +5,7 @@
 	"friction": 1000000,
 	"terminal_velocity": 1000,
 	"ink_limit": 1000,
-	"default_paintcan_value": 100,
+	"paintcan_value": 100,
 	"starting_level": 0,
 	"tick_rate": 120,
 	"target_fps": 120
