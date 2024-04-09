@@ -15,7 +15,7 @@ struct InitWall {
 	int ySize;
 };
 
-struct Spike {
+struct InitSpike {
 	int x;
 	int y;
 	float angle;
@@ -40,9 +40,9 @@ struct InitSpikeProjectileSpawner {
 	float delay;
 };
 
-struct LevelStruct {
+struct Level {
 	std::vector<InitWall> walls;
-	std::vector<Spike> spikes;
+	std::vector<InitSpike> spikes;
 	bool hasCheckpoint = false;
 	vec2 checkpoint;
 	vec2 endPoint;
@@ -66,21 +66,21 @@ class LevelManager {
 private:
 	int numLevels = 9;
 	InitWall parseWall(json wallJson);
-	void parseStair(LevelStruct& level, json stairJson);
-	void parseSpike(LevelStruct& level, json spikeJson);
+	void parseStair(Level& level, json stairJson);
+	void parseSpike(Level& level, json spikeJson);
 	InitPaintCan LevelManager::parsePaintCan(json paintcanJson);
 	InitBoulderSpawner LevelManager::parseBoulderSpawner(json boulderSpawnerJson);
 	InitSpikeProjectileSpawner LevelManager::parseSpikeProjectileSpawner(json spikeProjectileSpawnerJson);
 
 public:
-	std::vector<LevelStruct> structLevels;
+	std::vector<Level> levels;
 	
 	void loadLevels();
-	LevelStruct loadLevel(int levelNumber);
+	Level loadLevel(int levelNumber);
 
 	void printLevelsInfo() {
-		std::cout << "Number of levels: " << structLevels.size() << std::endl;
-		for (const auto& level : structLevels) {
+		std::cout << "Number of levels: " << levels.size() << std::endl;
+		for (const auto& level : levels) {
 			std::cout << "Level Info:" << std::endl;
 			std::cout << "  Walls:" << std::endl;
 			for (const auto& wall : level.walls) {

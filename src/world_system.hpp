@@ -53,7 +53,7 @@ public:
 
 	void createLevel();
 
-	LevelStruct createLevelStruct(int level_idx);
+	Level createLevel(int level_idx);
 
 	void next_level();
 private:
@@ -83,7 +83,7 @@ private:
 
 	LevelManager levelManager;
 	int maxLevel = 8;
-	LevelStruct level;
+	Level level;
 
 	//AI
 	AISystem aiSystem;

@@ -322,7 +322,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	{
 		FrameCount += elapsed_ms_since_last_update;
 		if (FrameCount >= FrameInterval) {
-			aiSystem.updateGrid(levelManager.structLevels[level_idx].walls);
+			aiSystem.updateGrid(levelManager.levels[level_idx].walls);
 			//aiSystem.printGrid();
 			Motion& eMotion = registry.motions.get(chaseBoulder);
 			Motion& pMotion = registry.motions.get(player);
@@ -565,16 +565,16 @@ void WorldSystem::displayTutorialImage() {
 		registry.renderRequests.remove(tutorial);
 }
 
-LevelStruct WorldSystem::createLevelStruct(int level_idx) {
+Level WorldSystem::createLevel(int level_idx) {
 	printf("creating level: %i\n", level_idx);
-	LevelStruct level = this->levelManager.structLevels[level_idx];
+	Level level = this->levelManager.levels[level_idx];
 	int platformHeight;
 	for (InitWall w : level.walls) {
 		platformHeight = abs(w.y - window_height_px) + w.ySize / 2 + 2;
 		createPlatform(renderer, { w.x, window_height_px - platformHeight }, { w.xSize - 10, 10.f });
 		createWall(renderer, { w.x, w.y }, { w.xSize, w.ySize });
 	}
-	for (Spike s : level.spikes) {
+	for (InitSpike s : level.spikes) {
 		createSpikes(renderer, { s.x, s.y }, { 40, 20 }, s.angle);
 	}
 	if (level.hasCheckpoint) {
@@ -629,7 +629,7 @@ void WorldSystem::restart_game() {
 	// reset level
 	displayTutorialImage();
 	//createLevel();
-	WorldSystem::level = createLevelStruct(level_idx);
+	WorldSystem::level = createLevel(level_idx);
 	
 	// Create pencil
 	pencil = createPencil(renderer, { window_width_px / 2, window_height_px / 2 }, { 50.f, 50.f });

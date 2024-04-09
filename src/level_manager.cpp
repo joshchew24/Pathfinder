@@ -2,19 +2,19 @@
 
 void LevelManager::loadLevels() {
 	for (int i = 0; i < numLevels; i++) {
-		structLevels.push_back(loadLevel(i));
+		levels.push_back(loadLevel(i));
 	}
 	return;
 }
 
-LevelStruct LevelManager::loadLevel(int levelNumber) {
+Level LevelManager::loadLevel(int levelNumber) {
 	std::stringstream file_path;
 	file_path << level_path() << "/" << levelNumber << ".json";
 	printf("level file: %s\n", file_path.str().c_str());
 	std::ifstream file(file_path.str());
 	json levelData = json::parse(file);
 
-	LevelStruct levelObject;
+	Level levelObject;
 
 	for (json wall : levelData["walls"]) {
 		levelObject.walls.push_back(parseWall(wall));
@@ -101,7 +101,7 @@ InitWall LevelManager::parseWall(json wallJson) {
 	return wall;
 }
 
-void LevelManager::parseStair(LevelStruct& level, json stairJson) {
+void LevelManager::parseStair(Level& level, json stairJson) {
 	int numStairs = stairJson["quantity"];
 	int startX = stairJson["x"];
 	int startY = stairJson["y"];
@@ -118,7 +118,7 @@ void LevelManager::parseStair(LevelStruct& level, json stairJson) {
 	}
 }
 
-void LevelManager::parseSpike(LevelStruct& level, json spikeJson) {
+void LevelManager::parseSpike(Level& level, json spikeJson) {
 	int x = spikeJson["x"];
 	int y = spikeJson["y"];
 	int numSpikes = spikeJson["quantity"];
@@ -126,7 +126,7 @@ void LevelManager::parseSpike(LevelStruct& level, json spikeJson) {
 	int angle_deg = spikeJson["angle"];
 	float angle = angle_deg * (M_PI / 180);
 	for (int i = 0; i < numSpikes; ++i) {
-		Spike spike;
+		InitSpike spike;
 		spike.x = x + i * gap;
 		spike.y = y;
 		spike.angle = angle;
