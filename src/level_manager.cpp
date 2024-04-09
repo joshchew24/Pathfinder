@@ -5,8 +5,9 @@ void LevelManager::loadLevels() {
 	//	structLevels.push_back(loadLevel(i));
 	//}
 	structLevels.push_back(loadLevel(0));
+	structLevels.push_back(loadLevel(-1));
 	// test file
-	loadLevel(-1);
+	//loadLevel(-1);
 	return;
 }
 
@@ -147,18 +148,24 @@ InitPaintCan LevelManager::parsePaintCan(json paintcanJson) {
 
 InitBoulderSpawner LevelManager::parseBoulderSpawner(json boulderSpawnerJson) {
 	InitBoulderSpawner boulderSpawner;
-	boulderSpawner.x = boulderSpawnerJson["x"];
-	boulderSpawner.y = boulderSpawnerJson["y"];
+	boulderSpawner.pos.x = boulderSpawnerJson["x"];
+	boulderSpawner.pos.y = boulderSpawnerJson["y"];
 	boulderSpawner.random_x = boulderSpawnerJson["random_x"];
+	boulderSpawner.delay = boulderSpawnerJson["delay"];
 	return boulderSpawner;
 }
 
 InitSpikeProjectileSpawner LevelManager::parseSpikeProjectileSpawner(json spikeProjectileSpawnerJson) {
 	InitSpikeProjectileSpawner spikeProjectileSpawner;
-	spikeProjectileSpawner.x = spikeProjectileSpawnerJson["x"];
-	spikeProjectileSpawner.y = spikeProjectileSpawnerJson["y"];
-	spikeProjectileSpawner.x_vel = spikeProjectileSpawnerJson["x_vel"];
-	spikeProjectileSpawner.y_vel = spikeProjectileSpawnerJson["y_vel"];
+	spikeProjectileSpawner.pos.x = spikeProjectileSpawnerJson["x"];
+	spikeProjectileSpawner.pos.y = spikeProjectileSpawnerJson["y"];
+	spikeProjectileSpawner.size.x = spikeProjectileSpawnerJson["width"];
+	spikeProjectileSpawner.size.y = spikeProjectileSpawnerJson["height"];
+	spikeProjectileSpawner.vel.x = spikeProjectileSpawnerJson["x_vel"];
+	spikeProjectileSpawner.vel.y = spikeProjectileSpawnerJson["y_vel"];
+	int angle_deg = spikeProjectileSpawnerJson["angle"];
+	spikeProjectileSpawner.angle = angle_deg * (M_PI / 180);
+	spikeProjectileSpawner.delay = spikeProjectileSpawnerJson["delay"];
 	return spikeProjectileSpawner;
 }
 
