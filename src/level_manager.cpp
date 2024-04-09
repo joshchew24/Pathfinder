@@ -2,18 +2,34 @@
 
 void LevelManager::loadLevels() {
 	for (int i = 0; i < numLevels; i++) {
-		loadLevel(i);
+		levels.push_back(loadLevel(i));
 	}
 	return;
 }
 
-void LevelManager::loadLevel(int levelNumber) {
+Level LevelManager::loadLevel(int levelNumber) {
 	std::stringstream file_path;
 	file_path << level_path() << "/" << levelNumber << ".json";
 	printf("level file: %s\n", file_path.str().c_str());
 	std::ifstream file(file_path.str());
-	json level_data = json::parse(file);
-	return;
+	json levelData = json::parse(file);
+
+	Level levelObject;
+
+	std::vector<json> walls = levelData["walls"];
+	for (json wall : walls) {
+		levelObject.walls.push_back(parseWall(wall));
+	}
+	return levelObject;
+}
+
+InitWall LevelManager::parseWall(json wallJson) {
+	InitWall wall;
+	wall.x = wallJson["x"];
+	wall.y = wallJson["y"];
+	wall.xSize = wallJson["width"];
+	wall.ySize = wallJson["height"];
+	return wall;
 }
 
 void LevelManager::initLevel() {
