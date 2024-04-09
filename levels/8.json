@@ -27,7 +27,14 @@
   "ink_limit": null,
   "player_spawn": [ 200, 555 ],
   "spawners": {
-    "boulder_spawners": null,
+    "boulder_spawners": [
+      {
+        "x": 0,
+        "y": -100,
+        "random_x": true,
+        "delay": 6000
+      }
+    ],
     "spike_projectile_spawners": null
   },
   "enemies": {

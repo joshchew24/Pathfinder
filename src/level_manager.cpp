@@ -1,13 +1,9 @@
 #include "level_manager.hpp"
 
 void LevelManager::loadLevels() {
-	//for (int i = 0; i < numLevels; i++) {
-	//	structLevels.push_back(loadLevel(i));
-	//}
-	structLevels.push_back(loadLevel(8));
-	structLevels.push_back(loadLevel(-1));
-	// test file
-	//loadLevel(-1);
+	for (int i = 0; i < numLevels; i++) {
+		structLevels.push_back(loadLevel(i));
+	}
 	return;
 }
 
