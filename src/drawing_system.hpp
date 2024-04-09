@@ -11,7 +11,7 @@ class DrawingSystem
 public:
 	DrawingSystem();
 
-	void step(float elapsed_ms);
+	void step(float elapsed_ms, bool lineCollisionOn);
 	
 	void start_drawing();
 	void stop_drawing();
