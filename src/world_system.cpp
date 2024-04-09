@@ -409,7 +409,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	if (!level4Disappeared && level == 7) {
 		level4DisappearTimer -= elapsed_ms_since_last_update;
 		if (level4DisappearTimer <= 0) {
-			Level& level4 = this->levelManager.levels[WorldSystem::level];
 			for (Entity entity : registry.platforms.entities) {
 				RenderRequest& r = registry.renderRequests.get(entity);
 				r.used_texture = TEXTURE_ASSET_ID::EMPTY;
