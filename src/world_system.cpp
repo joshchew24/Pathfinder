@@ -144,7 +144,6 @@ void WorldSystem::init(RenderSystem* renderer_arg, bool* mainMenu) {
 	WorldSystem::level_idx = config.starting_level;
 	LevelManager lm;
 	lm.loadLevels();
-	lm.initLevel();
 	//lm.printLevelsInfo();
 	this->levelManager = lm;
 	// Set all states to default
@@ -323,7 +322,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	{
 		FrameCount += elapsed_ms_since_last_update;
 		if (FrameCount >= FrameInterval) {
-			aiSystem.updateGrid(levelManager.levels[level_idx].walls);
+			aiSystem.updateGrid(levelManager.structLevels[level_idx].walls);
 			//aiSystem.printGrid();
 			Motion& eMotion = registry.motions.get(chaseBoulder);
 			Motion& pMotion = registry.motions.get(player);
@@ -564,30 +563,6 @@ void WorldSystem::displayTutorialImage() {
 	}
 	else if (registry.renderRequests.has(tutorial))
 		registry.renderRequests.remove(tutorial);
-}
-
-void WorldSystem::createLevel() {
-	Level currentLevel = this->levelManager.levels[WorldSystem::level_idx];
-	for (int i = 0; i < currentLevel.walls.size(); ++i) {
-		InitWall w = currentLevel.walls[i];
-		int platformHeight = abs(w.y - window_height_px) + w.ySize / 2 + 2;
-		createPlatform(renderer, {w.x, window_height_px - platformHeight}, {w.xSize - 10, 10.f});
-		createWall(renderer, { w.x, w.y }, { w.xSize, w.ySize });
-	}
-	for (int i = 0; i < currentLevel.spikes.size(); ++i) {
-		Spike s = currentLevel.spikes[i];
-		createSpikes(renderer, { s.x, s.y }, { 40, 20}, s.angle);
-	}
-	if (currentLevel.checkpoint.first != NULL) {
-		createCheckpoint(renderer, { currentLevel.checkpoint.first, currentLevel.checkpoint.second });
-	}
-	createEndpoint(renderer, { currentLevel.endPoint.first, currentLevel.endPoint.second });
-	player = createOliver(renderer, { currentLevel.playerPos.first, currentLevel.playerPos.second });
-	registry.colors.insert(player, { 1, 1, 1 });	
-	if (currentLevel.hintPos.first != NULL) {
-		createHint(renderer, { currentLevel.hintPos.first, currentLevel.hintPos.second }, currentLevel.hint);
-		renderer->hintPos = { currentLevel.hintTextPos.first, currentLevel.hintTextPos.second };
-	}
 }
 
 LevelStruct WorldSystem::createLevelStruct(int level_idx) {
