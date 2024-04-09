@@ -41,7 +41,7 @@ void AISystem::updateGrid(std::vector<InitWall> walls) {
             for (top; top <= bottom; top++) {
                 grid[top][left] = 1;
             }
-             top = (w.y - w.ySize / 2) / gridSize;
+            top = (w.y - w.ySize / 2) / gridSize;
         }
     }
 }
