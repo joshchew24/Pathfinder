@@ -1,5 +1,17 @@
 #include "level_manager.hpp"
 
+void LevelManager::loadLevels() {
+	for (int i = 0; i < numLevels; i++) {
+		loadLevel(i);
+	}
+	return;
+}
+
+void LevelManager::loadLevel(int levelNumber) {
+	printf("level file: %s%i.json\n", level_path().c_str(), levelNumber);
+	return;
+}
+
 void LevelManager::initLevel() {
 	//level 1
 	InitWall w1_2 = { window_width_px - 1000, window_height_px - 60, window_width_px - 600, 400 };
