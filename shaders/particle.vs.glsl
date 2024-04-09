@@ -1,6 +1,6 @@
 #version 330 core
 layout (location = 0) in vec2 position;
-layout (location = 1) in vec2 texCoords;
+layout (location = 1) in vec2 texCoords; 
 layout (location = 2) in vec2 instanceOffset;
 
 out vec2 TexCoords;

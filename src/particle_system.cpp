@@ -54,7 +54,6 @@ void ParticleSystem::spawn_particle(const ParticleEmitter& emitter, Motion m) {
 	auto& particle = registry.particles.emplace(entity);
 	particle.color = emitter.color;
 	particle.life = emitter.lifespan;
-
 	auto& motion = registry.motions.emplace(entity);
 
 	motion.position = { m.position.x - 20, m.position.y + 30 };
