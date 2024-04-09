@@ -28,6 +28,8 @@ public:
 	// Creates a window
 	GLFWwindow* create_window();
 
+	bool isLineCollisionsOn();
+
 	// starts the game
 	void init(RenderSystem* renderer, bool* mainMenu);
 
@@ -80,7 +82,7 @@ private:
 	void createDrawOnLines(int x, int y, float rotation);
 
 	LevelManager levelManager;
-	int maxLevel = 8;
+	int maxLevel;
 
 	//AI
 	AISystem aiSystem;

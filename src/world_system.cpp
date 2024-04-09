@@ -146,6 +146,7 @@ void WorldSystem::init(RenderSystem* renderer_arg, bool* mainMenu) {
 	lm.initLevel();
 	lm.printLevelsInfo();
 	this->levelManager = lm;
+	this->maxLevel = lm.levels.size() - 1;
 	// Set all states to default
     restart_game();
 }
@@ -256,6 +257,10 @@ void WorldSystem::drawLinesLevel4(int currDrawing) {
 	else if (currDrawing == 4) {
 		createIndividualPlatforms({ 1350, window_height_px - 300 }, { 200, 100 });
 	}
+}
+
+bool WorldSystem::isLineCollisionsOn() {
+	return levelManager.levels[this->level].lineCollisionOn;
 }
 
 // Update our game world
@@ -653,6 +658,32 @@ void WorldSystem::handleLineCollision(const Entity& line, float elapsed_ms) {
 	//vec2 proj = dot(pm.velocity, perp) * perp;
 	//pm.velocity -= proj;
 	//pm.position = pm.last_position + pm.velocity  * step_seconds;
+
+	// https://www.reddit.com/r/gamedev/comments/28m3xy/how_do_you_handle_slopes_in_a_2d_physics_engine/
+	// // if above is true, grounded is true.
+	// update position based on the movement:
+	// if the above conditions were true, update position based on grounded
+	const DrawnLine& l = registry.drawnLines.get(line);
+	const Motion& lm = registry.motions.get(line);
+	Motion& pm = registry.motions.get(player);
+	// if player is above line, set player to grounded and not jumping (remember above is actually smaller y values)
+	float line_y_pos = l.slope * (pm.position.x - lm.position.x) + lm.position.y;
+	float pm_bot_pos = pm.position.y + pm.scale.y / 2;
+	float slope_threshold = 2.f;
+	if (pm_bot_pos <= line_y_pos) {
+		// if slope of line isn't too steep, then update player position on y
+		if (abs(l.slope) <= slope_threshold) {
+			float mx = l.slope * (pm.position.x - pm.last_position.x);
+			// if moving the player up a slope:
+			if (mx < 0) {
+				pm.position.y = mx + pm.last_position.y;
+			}
+		}
+	}
+	else {
+		pm.position = pm.last_position;
+		pm.velocity.y = 0;
+	}
 }
 
 // handle all registered collisions
@@ -716,8 +747,16 @@ void WorldSystem::handle_collisions(float elapsed_ms) {
 				next_level();
 			}
 
-			else if (registry.drawnLines.has(entity_other)) {
+			else if (registry.drawnLines.has(entity_other) && isLineCollisionsOn()) {
 				handleLineCollision(entity_other, elapsed_ms);
+				// if the player hit the line that's being currently drawn, cause player death to occur
+				if (entity_other == drawings.get_prev_line() && drawings.currently_drawing() && !registry.deathTimers.has(entity)) {
+					registry.deathTimers.emplace(entity);
+					Mix_PlayChannel(-1, dead_sound, 0);
+					pMotion.fixed = true;
+					if (drawings.currently_drawing())
+						drawings.stop_drawing();
+				}
 			}
 
 			else if (registry.hints.has(entity_other)) {

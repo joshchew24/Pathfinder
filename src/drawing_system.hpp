@@ -11,7 +11,7 @@ class DrawingSystem
 public:
 	DrawingSystem();
 
-	void step(float elapsed_ms);
+	void step(float elapsed_ms, bool lineCollisionOn);
 	
 	void start_drawing();
 	void stop_drawing();
@@ -22,6 +22,8 @@ public:
 	bool check_player_collision(Entity& line);
 
 	bool currently_drawing() { return is_drawing; }
+
+	Entity get_prev_line() { return prev_line; }
 
 private:
 	std::unordered_map<unsigned int, std::vector<Entity>> map_drawings_points_id;

@@ -197,12 +197,13 @@ void RenderSystem::initializeGlGeometryBuffers()
 
 	//////////////////////////////////
 	// Initialize debug line
-	std::vector<ColoredVertex> line_vertices, line_vertices_debug;
+	std::vector<ColoredVertex> line_vertices, line_vertices_debug, line_vertices_permeable;
 	std::vector<uint16_t> line_indices;
 
 	constexpr float depth = 0.5f;
 	constexpr vec3 red = { 0.8,0.1,0.1 };
 	constexpr vec3 black = { 0.0, 0.0, 0.0 };
+	constexpr vec3 grey = { 0.5, 0.5, 0.5 };
 
 	// Corner points
 	line_vertices_debug = {
@@ -210,6 +211,13 @@ void RenderSystem::initializeGlGeometryBuffers()
 		{{-0.5, 0.5, depth}, red},
 		{{ 0.5, 0.5, depth}, red},
 		{{ 0.5,-0.5, depth}, red},
+	};
+
+	line_vertices_permeable = {
+		{{-0.5,-0.5, depth}, grey},
+		{{-0.5, 0.5, depth}, grey},
+		{{ 0.5, 0.5, depth}, grey},
+		{{ 0.5,-0.5, depth}, grey},
 	};
 
 	line_vertices = {
@@ -226,6 +234,11 @@ void RenderSystem::initializeGlGeometryBuffers()
 	meshes[geom_index].vertices = line_vertices_debug;
 	meshes[geom_index].vertex_indices = line_indices;
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::DEBUG_LINE, line_vertices_debug, line_indices);
+
+	geom_index = (int)GEOMETRY_BUFFER_ID::PERMEABLE_LINE;
+	meshes[geom_index].vertices = line_vertices_debug;
+	meshes[geom_index].vertex_indices = line_indices;
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::PERMEABLE_LINE, line_vertices_permeable, line_indices);
 
 	geom_index = (int)GEOMETRY_BUFFER_ID::DRAWN_LINE;
 	meshes[geom_index].vertices = line_vertices;
@@ -244,11 +257,20 @@ void RenderSystem::initializeGlGeometryBuffers()
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::SCREEN_TRIANGLE, screen_vertices, screen_indices);
 
 	// Triangle for line joints
-	std::vector<vec3> joint_vertices(3);
-	joint_vertices[0] = { -sqrt(3), -1, 0.f };
-	joint_vertices[1] = { 0, 0, 0.f };
-	joint_vertices[2] = { -sqrt(3), 1, 0.f };
+	std::vector<ColoredVertex> joint_vertices = {
+		{{ -sqrt(3), -1.f, 0.f }, black},
+		{{ 0.f, 0.f, 0.f }, black},
+		{{ -sqrt(3), 1.f, 0.f }, black},
+	};
+
+	std::vector<ColoredVertex> joint_vertices_permeable = {
+		{{ -sqrt(3), -1.f, 0.f }, black},
+		{{ 0.f, 0.f, 0.f }, black},
+		{{ -sqrt(3), 1.f, 0.f }, black},
+	};
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::JOINT_TRIANGLE, joint_vertices, screen_indices);
+
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::JOINT_TRIANGLE, joint_vertices_permeable, screen_indices);
 }
 
 RenderSystem::~RenderSystem()

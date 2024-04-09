@@ -28,6 +28,7 @@ public:
 	std::pair<float, float> hintPos;
 	std::string hint;
 	std::pair<float, float> hintTextPos;
+	bool lineCollisionOn = true;
 };
 
 class LevelManager {
@@ -256,6 +257,8 @@ public:
 		Level8.hintTextPos.first = 150;
 		Level8.hintTextPos.second = window_height_px - 350;
 
+		Level8.lineCollisionOn = false;
+
 		levels.push_back(Level8);
 
 		//level 9
@@ -283,6 +286,8 @@ public:
 
 		level9.hintTextPos.first = 150;
 		level9.hintTextPos.second = window_height_px - 435;
+
+		level9.lineCollisionOn = false;
 
 		levels.push_back(level9);
 	}
