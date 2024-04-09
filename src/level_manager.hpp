@@ -5,14 +5,15 @@
 #include "common.hpp"
 #include <iostream>
 
-struct initWall {
+// data to generate walls
+struct InitWall {
 	int x;
 	int y;
 	int xSize;
 	int ySize;
 };
 
-struct spike {
+struct Spike {
 	int x;
 	int y;
 	float angle;
@@ -20,11 +21,11 @@ struct spike {
 
 class Level {
 public:
-	std::vector<initWall> walls;
+	std::vector<InitWall> walls;
 	std::pair<float, float> checkpoint;
 	std::pair<float, float> endPoint;
 	std::pair<float, float> playerPos;
-	std::vector<spike> spikes;
+	std::vector<Spike> spikes;
 	std::pair<float, float> hintPos;
 	std::string hint;
 	std::pair<float, float> hintTextPos;
@@ -36,7 +37,7 @@ public:
 
 	void initLevel() {
 		//level 1
-		initWall w1_2 = { window_width_px - 1000, window_height_px - 60, window_width_px - 600, 400 };
+		InitWall w1_2 = { window_width_px - 1000, window_height_px - 60, window_width_px - 600, 400 };
 		Level Level1;
 		Level1.walls.push_back(w1_2);
 		Level1.endPoint.first = window_width_px - 400;
@@ -52,9 +53,9 @@ public:
 		levels.push_back(Level1);
 
 		//level 2
-		initWall w2 = { 900, window_height_px - 70, 1000, 600 };
-		initWall w2_1 = { window_width_px - window_width_px + 40, window_height_px - 100, 400, 400 };
-		initWall w2_2 = { window_width_px - 200, window_height_px - 230, 500, 455 };
+		InitWall w2 = { 900, window_height_px - 70, 1000, 600 };
+		InitWall w2_1 = { window_width_px - window_width_px + 40, window_height_px - 100, 400, 400 };
+		InitWall w2_2 = { window_width_px - 200, window_height_px - 230, 500, 455 };
 		Level Level2;
 		Level2.walls.push_back(w2);
 		Level2.walls.push_back(w2_1);
@@ -66,9 +67,9 @@ public:
 		levels.push_back(Level2);
 
 		//level 3
-		initWall w3 = { 900, window_height_px - 70, 1000, 600 };
-		initWall w3_1 = { window_width_px - window_width_px + 40, window_height_px - 100, 400, 400 };
-		initWall w3_2 = { window_width_px - 200, window_height_px - 60, 500, 400 };
+		InitWall w3 = { 900, window_height_px - 70, 1000, 600 };
+		InitWall w3_1 = { window_width_px - window_width_px + 40, window_height_px - 100, 400, 400 };
+		InitWall w3_2 = { window_width_px - 200, window_height_px - 60, 500, 400 };
 		Level Level3;
 
 		Level3.walls.push_back(w3);
@@ -90,8 +91,8 @@ public:
 		levels.push_back(Level3);
 
 		//level 4
-		initWall w4_1 = { window_width_px / 2, window_height_px, window_width_px, 600 };
-		initWall w4_2 = { window_width_px / 2, 90, window_width_px, window_height_px / 2 + 300 };
+		InitWall w4_1 = { window_width_px / 2, window_height_px, window_width_px, 600 };
+		InitWall w4_2 = { window_width_px / 2, 90, window_width_px, window_height_px / 2 + 300 };
 		Level Level4;
 		Level4.walls.push_back(w4_1);
 		Level4.walls.push_back(w4_2);
@@ -120,9 +121,9 @@ public:
 		levels.push_back(Level4);
 
 		//level 5
-		initWall w5 = { 900, window_height_px - 90, 1000, 600 };
-		initWall w5_1 = { window_width_px - window_width_px, window_height_px - 100, 400, 400 };
-		initWall w5_2 = { window_width_px - 200, window_height_px - 60, 500, 400 };
+		InitWall w5 = { 900, window_height_px - 90, 1000, 600 };
+		InitWall w5_1 = { window_width_px - window_width_px, window_height_px - 100, 400, 400 };
+		InitWall w5_2 = { window_width_px - 200, window_height_px - 60, 500, 400 };
 		Level Level5;
 
 		Level5.walls.push_back(w5);
@@ -179,8 +180,8 @@ public:
 
 
 		Level Level7;
-		initWall w_7 = { window_width_px - 500, window_height_px - 200, 1000, 600 };
-		initWall w7_2 = { window_width_px - window_width_px, window_height_px - 100, 400, 400 };
+		InitWall w_7 = { window_width_px - 500, window_height_px - 200, 1000, 600 };
+		InitWall w7_2 = { window_width_px - window_width_px, window_height_px - 100, 400, 400 };
 
 		Level7.walls.push_back(w_7);
 		Level7.walls.push_back(w7_2);
@@ -208,16 +209,16 @@ public:
 
 		//level 8
 		Level Level8;
-		initWall w_8 = { 0, window_height_px - 200, 600, 600 };
+		InitWall w_8 = { 0, window_height_px - 200, 600, 600 };
 
 		Level8.walls.push_back(w_8);
 
-		initWall wall8_1 = { 400, window_height_px - 400, 150, 20 };
-		initWall wall8_2 = { 700, window_height_px - 400, 150, 20 };
-		initWall wall8_3 = { 1040, window_height_px - 400, 150, 20 };
-		initWall wall8_4 = { 1300, window_height_px - 500, 150, 20 };
-		initWall wall8_5 = { 1500, window_height_px - 500, 150, 20 };
-		initWall wall8_6 = { 1840, window_height_px - 500, 200, 20 };
+		InitWall wall8_1 = { 400, window_height_px - 400, 150, 20 };
+		InitWall wall8_2 = { 700, window_height_px - 400, 150, 20 };
+		InitWall wall8_3 = { 1040, window_height_px - 400, 150, 20 };
+		InitWall wall8_4 = { 1300, window_height_px - 500, 150, 20 };
+		InitWall wall8_5 = { 1500, window_height_px - 500, 150, 20 };
+		InitWall wall8_6 = { 1840, window_height_px - 500, 200, 20 };
 
 		Level8.walls.push_back(wall8_1);
 		Level8.walls.push_back(wall8_2);
@@ -226,12 +227,12 @@ public:
 		Level8.walls.push_back(wall8_5);
 		Level8.walls.push_back(wall8_6);
 
-		spike spike1 = { 350, window_height_px - 425, 0};
-		spike spike2 = { 387, window_height_px - 425, 0 };
-		spike spike3 = { 1455, window_height_px - 523, 0 };
-		spike spike4 = { 1495, window_height_px - 523, 0 };
-		spike spike5 = { 1825, window_height_px - 523, 0 };
-		spike spike6 = { 1860, window_height_px - 523, 0 };
+		Spike spike1 = { 350, window_height_px - 425, 0};
+		Spike spike2 = { 387, window_height_px - 425, 0 };
+		Spike spike3 = { 1455, window_height_px - 523, 0 };
+		Spike spike4 = { 1495, window_height_px - 523, 0 };
+		Spike spike5 = { 1825, window_height_px - 523, 0 };
+		Spike spike6 = { 1860, window_height_px - 523, 0 };
 
 		Level8.spikes.push_back(spike1);
 		Level8.spikes.push_back(spike2);
@@ -260,11 +261,11 @@ public:
 
 		//level 9
 		Level level9;
-		initWall w_9 = { 200, window_height_px- 100, 400, 600};
+		InitWall w_9 = { 200, window_height_px- 100, 400, 600};
 
 		level9.walls.push_back(w_9);
 
-		initWall w_9_1 = { window_width_px - 200, window_height_px - 100, 400, 600 };
+		InitWall w_9_1 = { window_width_px - 200, window_height_px - 100, 400, 600 };
 
 		level9.walls.push_back(w_9_1);
 	
@@ -302,7 +303,7 @@ public:
 
 	void createStairs(int numStairs, Level& level, int startX, int startY, int stairWidth, int stairGap, int stairHeight) {
 		for (int i = 0; i < numStairs; ++i) {
-			initWall stair;
+			InitWall stair;
 			stair.x = startX + i * (stairWidth + stairGap);
 			stair.y = startY - i * (stairHeight + stairGap);
 			stair.xSize = stairWidth;
@@ -313,7 +314,7 @@ public:
 
 	void createSpikes(Level& level, int x, int y, int numOfSpikes, int gap, float angle) {
 		for (int i = 0; i < numOfSpikes; ++i) {
-			spike spike;
+			Spike spike;
 			spike.x = x + i * gap;
 			spike.y = y;
 			spike.angle = angle;

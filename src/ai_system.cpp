@@ -21,9 +21,9 @@ void AISystem::init() {
     };
 }
 
-void AISystem::updateGrid(std::vector<initWall> walls) {
+void AISystem::updateGrid(std::vector<InitWall> walls) {
     init();
-    for (initWall w : walls) {
+    for (InitWall w : walls) {
         int left = (w.x - w.xSize / 2) / gridSize;
         int top = (w.y - w.ySize / 2) / gridSize;
         int right = (w.x + w.xSize / 2) / gridSize;

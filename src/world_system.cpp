@@ -555,13 +555,13 @@ void WorldSystem::createLevel() {
 
 	Level currentLevel = this->levelManager.levels[WorldSystem::level];
 	for (int i = 0; i < currentLevel.walls.size(); ++i) {
-		initWall w = currentLevel.walls[i];
+		InitWall w = currentLevel.walls[i];
 		int platformHeight = abs(w.y - window_height_px) + w.ySize / 2 + 2;
 		createPlatform(renderer, {w.x, window_height_px - platformHeight}, {w.xSize - 10, 10.f});
 		createWall(renderer, { w.x, w.y }, { w.xSize, w.ySize });
 	}
 	for (int i = 0; i < currentLevel.spikes.size(); ++i) {
-		spike s = currentLevel.spikes[i];
+		Spike s = currentLevel.spikes[i];
 		createSpikes(renderer, { s.x, s.y }, { 40, 20}, s.angle);
 	}
 	if (currentLevel.checkpoint.first != NULL) {
