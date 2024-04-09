@@ -35,8 +35,8 @@
   },
   "gravity": 1500,
   "friction": 1000000,
-  "player_spawn": [ 600, 750 ],
   "ink_limit": 1000,
+  "player_spawn": [ 600, 750 ],
   "enemies": {
     "boulder_spawn": [
       {

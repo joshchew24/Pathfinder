@@ -35,7 +35,6 @@ LevelStruct LevelManager::loadLevel(int levelNumber) {
 		levelObject.checkpoint.y = levelData["checkpoint"][1];
 	}
 
-	auto endpoint = levelData["level_end"];
 	levelObject.endPoint.x = levelData["level_end"][0];
 	levelObject.endPoint.y = levelData["level_end"][1];
 
@@ -49,6 +48,11 @@ LevelStruct LevelManager::loadLevel(int levelNumber) {
 	}
 
 	levelObject.gravity = levelData["gravity"].is_null() ? config.gravity : levelData["gravity"];
+	levelObject.friction = levelData["friction"].is_null() ? config.friction : levelData["friction"];
+	levelObject.inkLimit = levelData["ink_limit"].is_null() ? config.ink_limit : levelData["ink_limit"];
+
+	levelObject.playerSpawn.x = levelData["player_spawn"][0];
+	levelObject.playerSpawn.y = levelData["player_spawn"][1];
 
 	return levelObject;
 }

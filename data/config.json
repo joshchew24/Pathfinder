@@ -4,6 +4,7 @@
 	"jump_height": 400,
 	"friction": 1000000,
 	"terminal_velocity": 1000,
+	"ink_limit":  1000,
 	"starting_level": 0,
 	"tick_rate": 120,
 	"target_fps": 120
