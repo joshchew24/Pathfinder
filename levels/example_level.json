@@ -1,0 +1,56 @@
+{
+  "walls": [
+    {
+      "x": 1000,
+      "y": 940,
+      "width": 1400,
+      "height": 400
+    }
+  ],
+  "stairs": [
+    {
+      "x": 800,
+      "y": 250,
+      "quantity": 10,
+      "gap": 50,
+      "width": 100,
+      "height": 20
+    }
+  ],
+  "spikes": [
+    {
+      "x": 100,
+      "y": 503,
+      "num": 46,
+      "gap": 40,
+      "angle": 180
+    }
+  ],
+  "checkpoint": [ null ],
+  "level_end": [ 1600, 690 ],
+  "hint": {
+    "npc": [ 750, 702 ],
+    "text": "Hello, I am the hint guy, I will give you a hint on certain levels! For now, just follow the tutorial and reach the trophy",
+    "text_pos": [ 550, 440 ]
+  },
+  "gravity": "default",
+  "friction": "default",
+  "player_spawn": [ 600, 750 ],
+  "ink_limit": 1000,
+  "enemies": {
+    "boulder_spawn": [
+      {
+        "x": 1000,
+        "y": 1000
+      }
+    ],
+    "chaseboulder_spawn": [ null ],
+    "archer_spawn": [ null ],
+    "paintcan": [
+      {
+        "spawn": [ null ],
+        "refill_value": 100
+      }
+    ]
+  }
+}
