@@ -1,9 +1,10 @@
 #include "level_manager.hpp"
 
 void LevelManager::loadLevels() {
-	for (int i = 0; i < numLevels; i++) {
-		structLevels.push_back(loadLevel(i));
-	}
+	//for (int i = 0; i < numLevels; i++) {
+	//	structLevels.push_back(loadLevel(i));
+	//}
+	loadLevel(-1);
 	return;
 }
 
@@ -27,6 +28,27 @@ LevelStruct LevelManager::loadLevel(int levelNumber) {
 	for (json spike : levelData["spike"]) {
 		parseSpike(levelObject, spike);
 	}
+
+	if (!levelData["checkpoint"].is_null()) {
+		printf("there's a checkpoint\n");
+		levelObject.checkpoint.x = levelData["checkpoint"][0];
+		levelObject.checkpoint.y = levelData["checkpoint"][1];
+	}
+
+	auto endpoint = levelData["level_end"];
+	levelObject.endPoint.x = levelData["level_end"][0];
+	levelObject.endPoint.y = levelData["level_end"][1];
+
+	if (!levelData["hint"].is_null()) {
+		printf("there's a hint\n");
+		levelObject.hintPos.x = levelData["hint"]["npc"][0];
+		levelObject.hintPos.y = levelData["hint"]["npc"][1];
+		levelObject.hint = levelData["hint"]["text"];
+		levelObject.hintTextPos.x = levelData["hint"]["text_pos"][0];
+		levelObject.hintTextPos.y = levelData["hint"]["text_pos"][1];
+	}
+
+	levelObject.gravity = levelData["gravity"].is_null() ? config.gravity : levelData["gravity"];
 
 	return levelObject;
 }

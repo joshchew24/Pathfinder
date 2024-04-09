@@ -14,7 +14,7 @@
       "height": 999
     }
   ],
-  "completion_flag": [ 1600, 690 ],
+  "level_end": [ 1600, 690 ],
   "player_spawn": [ 600, 750 ],
   "hint_npc": [ 750, 702 ],
   "hint_text": "Hello, I am the hint guy, I will give you a hint on certain levels! For now, just follow the tutorial and reach the trophy",

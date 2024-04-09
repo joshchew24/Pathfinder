@@ -26,15 +26,15 @@
       "angle": 180
     }
   ],
-  "checkpoint": [ null ],
+  "checkpoint": [ 400, 400 ],
   "level_end": [ 1600, 690 ],
   "hint": {
     "npc": [ 750, 702 ],
     "text": "Hello, I am the hint guy, I will give you a hint on certain levels! For now, just follow the tutorial and reach the trophy",
     "text_pos": [ 550, 440 ]
   },
-  "gravity": "default",
-  "friction": "default",
+  "gravity": 1500,
+  "friction": 1000000,
   "player_spawn": [ 600, 750 ],
   "ink_limit": 1000,
   "enemies": {
