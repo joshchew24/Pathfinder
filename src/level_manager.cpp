@@ -4,7 +4,9 @@ void LevelManager::loadLevels() {
 	//for (int i = 0; i < numLevels; i++) {
 	//	structLevels.push_back(loadLevel(i));
 	//}
-	loadLevel(-1);
+	structLevels.push_back(loadLevel(0));
+	// test file
+	//loadLevel(-1);
 	return;
 }
 
@@ -21,16 +23,17 @@ LevelStruct LevelManager::loadLevel(int levelNumber) {
 		levelObject.walls.push_back(parseWall(wall));
 	}
 
+	// automatically ignores null arrays
 	for (json stair : levelData["stairs"]) {
 		parseStair(levelObject, stair);
 	}
 
+	// automatically ignores null arrays
 	for (json spike : levelData["spike"]) {
 		parseSpike(levelObject, spike);
 	}
 
 	if (!levelData["checkpoint"].is_null()) {
-		printf("there's a checkpoint\n");
 		levelObject.checkpoint.x = levelData["checkpoint"][0];
 		levelObject.checkpoint.y = levelData["checkpoint"][1];
 	}
@@ -39,7 +42,6 @@ LevelStruct LevelManager::loadLevel(int levelNumber) {
 	levelObject.endPoint.y = levelData["level_end"][1];
 
 	if (!levelData["hint"].is_null()) {
-		printf("there's a hint\n");
 		levelObject.hintPos.x = levelData["hint"]["npc"][0];
 		levelObject.hintPos.y = levelData["hint"]["npc"][1];
 		levelObject.hint = levelData["hint"]["text"];
