@@ -4,7 +4,7 @@ void LevelManager::loadLevels() {
 	//for (int i = 0; i < numLevels; i++) {
 	//	structLevels.push_back(loadLevel(i));
 	//}
-	structLevels.push_back(loadLevel(1));
+	structLevels.push_back(loadLevel(2));
 	structLevels.push_back(loadLevel(-1));
 	// test file
 	//loadLevel(-1);

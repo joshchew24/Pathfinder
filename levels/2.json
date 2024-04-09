@@ -1,0 +1,41 @@
+{
+  "walls": [
+    {
+      "x": 900,
+      "y": 930,
+      "width": 1000,
+      "height": 600
+    },
+    {
+      "x": 40,
+      "y": 900,
+      "width": 400,
+      "height": 400
+    },
+    {
+      "x": 1800,
+      "y": 940,
+      "width": 500,
+      "height": 400
+    }
+  ],
+  "stairs": null,
+  "spikes": null,
+  "checkpoint": null,
+  "level_end": [ 1800, 695 ],
+  "hint": {
+    "npc": [ 650, 598 ],
+    "text": "Hit escape for the main menu",
+    "text_pos": [ 650, 525 ]
+  },
+  "gravity": null,
+  "friction": null,
+  "ink_limit": null,
+  "player_spawn": [ 100, 460 ],
+  "enemies": {
+    "boulder_spawn": null,
+    "chaseboulder_spawn": null,
+    "archer_spawn": null
+  },
+  "paintcans": null
+}
