@@ -58,12 +58,13 @@ public:
 class LevelManager {
 private:
 	int numLevels = 1;
+	InitWall parseWall(json wallJson);
 public:
 	std::vector<Level> levels;
 	std::vector<LevelStruct> structLevels;
 	
 	void loadLevels();
-	void loadLevel(int levelNumber);
+	Level loadLevel(int levelNumber);
 	void initLevel();
 
 	void printLevelsInfo() {
