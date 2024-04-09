@@ -32,7 +32,7 @@ Entity createEndpoint(RenderSystem* renderer, vec2 position);
 
 Entity createBackground(RenderSystem* renderer);
 
-Entity createPaintCan(RenderSystem* renderer, vec2 pos, vec2 size);
+Entity createPaintCan(RenderSystem* renderer, vec2 pos, vec2 size, float paintRefill);
 
 Entity createTutorialDraw(RenderSystem* renderer);
 

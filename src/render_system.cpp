@@ -7,7 +7,7 @@
 #include <chrono>
 #include <thread>
 
-bool RenderSystem::introductionScreen = true;
+bool RenderSystem::introductionScreen = false;
 
 bool RenderSystem::endScreen = false;
 
@@ -332,6 +332,12 @@ void RenderSystem::draw()
 
 		// Truely render to the screen
 		drawToScreen();
+
+		for (auto e : registry.paintCans.entities) {
+			Motion m = registry.motions.get(e);
+			PaintCan p = registry.paintCans.get(e);
+			renderText(std::to_string((int)p.paintRefill), m.position.x - 20, window_height_px - m.position.y, 0.55, glm::vec3(1.0f, 1.0f, 1.0f), trans);
+		}
 
 		// renderHint
 		if (!renderMainMenuText) {

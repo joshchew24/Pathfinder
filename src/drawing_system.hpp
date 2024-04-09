@@ -27,6 +27,8 @@ public:
 
 	float get_drawing_count();
 
+	static float remainingDrawingCount;
+
 private:
 	std::unordered_map<unsigned int, std::vector<Entity>> map_drawings_points_id;
 	vec2 drawPos{0,0};
@@ -36,7 +38,6 @@ private:
 	bool is_drawing = false;
 	bool just_finished_drawing = false;
 	bool start_connecting = false;
-	float remainingDrawingCount = 1000.f; 
 };
 
 extern DrawingSystem drawings;

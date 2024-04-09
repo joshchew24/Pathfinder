@@ -100,7 +100,7 @@ struct levelEnd
 
 struct PaintCan
 {
-
+	float paintRefill;
 };
 
 struct toDrawOn
