@@ -21,7 +21,7 @@ class WorldSystem
 {
 public:
 	//level index
-	int level;
+	int level_idx;
 
 	WorldSystem();
 
@@ -53,7 +53,7 @@ public:
 
 	void createLevel();
 
-	void createLevelStruct();
+	void createLevelStruct(int level_idx);
 
 	void next_level();
 private:
@@ -83,6 +83,7 @@ private:
 
 	LevelManager levelManager;
 	int maxLevel = 8;
+	LevelStruct level;
 
 	//AI
 	AISystem aiSystem;

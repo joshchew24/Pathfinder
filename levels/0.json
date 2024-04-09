@@ -19,7 +19,7 @@
   "gravity": null,
   "friction": null,
   "ink_limit": null,
-  "player_spawn": [ 600, 750 ],
+  "player_spawn": [ 600, 650 ],
   "enemies": {
     "boulder_spawn": null,
     "chaseboulder_spawn": null,
