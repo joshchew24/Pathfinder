@@ -325,14 +325,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		if (FrameCount >= FrameInterval) {
 			aiSystem.updateGrid(levelManager.levels[level_idx].walls);
 			//aiSystem.printGrid();
-			Motion& eMotion = registry.motions.get(advancedBoulder);
+			Motion& eMotion = registry.motions.get(chaseBoulder);
 			Motion& pMotion = registry.motions.get(player);
 			bestPath = aiSystem.bestPath(eMotion, pMotion);
 			currentNode = 0;
 			FrameCount = 0;
 		}
 
-		Motion& eMotion = registry.motions.get(advancedBoulder);
+		Motion& eMotion = registry.motions.get(chaseBoulder);
 
 		//std::cout << "Path found: ";
 		//for (const auto& p : bestPath) {
@@ -611,7 +611,7 @@ LevelStruct WorldSystem::createLevelStruct(int level_idx) {
 		renderer->hintPos = level.hintTextPos;
 	}
 	if (level.hasChaseBoulder) {
-		advancedBoulder = createChaseBoulder(renderer, level.chaseBoulder);
+		chaseBoulder = createChaseBoulder(renderer, level.chaseBoulder);
 		bestPath = {};
 		currentNode = 0;
 	}
@@ -659,9 +659,6 @@ void WorldSystem::restart_game() {
 	glfwSetCursorPos(window, window_width_px / 2 - 25.f, window_height_px / 2 + 25.f);
 
 	if (level_idx == 6) {
-		advancedBoulder = createChaseBoulder(renderer, { window_width_px / 2, 100 });
-		bestPath = {};
-		currentNode = 0;
 		createPaintCan(renderer, { window_width_px - 300, window_height_px / 2 }, { 25.f, 50.f });
 		createArcher(renderer, { window_width_px - 600, window_height_px / 2 - 25}, { 70.f, 70.f });
 	}
