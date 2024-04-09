@@ -328,6 +328,7 @@ void RenderSystem::draw()
 				continue;
 			// Note, its not very efficient to access elements indirectly via the entity
 			// albeit iterating through all Sprites in sequence. A good point to optimize
+			
 			drawTexturedMesh(entity, projection_2D);
 
 			if (registry.particleEmitters.has(entity))
@@ -431,6 +432,7 @@ void RenderSystem::drawParticles(const mat3& projection) {
 	for (auto& entity : registry.particles.entities) {
 		auto& pos = registry.motions.get(entity).position;
 		particleOffsets.emplace_back(pos.x, pos.y, 0.0f, 0.0f);
+
 	}
 
 	glBindBuffer(GL_ARRAY_BUFFER, particleVBO);
@@ -443,14 +445,13 @@ void RenderSystem::drawParticles(const mat3& projection) {
 	gl_has_errors();
 	glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, static_cast<GLsizei>(particleOffsets.size()));
 	gl_has_errors();
-	glBindVertexArray(0);
-	gl_has_errors();
 	glBindTexture(GL_TEXTURE_2D, 0);
 	gl_has_errors();
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	gl_has_errors();
 	glUseProgram(0);
-
+	gl_has_errors();
+	glBindVertexArray(0);
 	gl_has_errors();
 }
 

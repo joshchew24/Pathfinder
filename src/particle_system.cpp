@@ -8,7 +8,7 @@
 
 void ParticleSystem::step(float elapsed_ms) {
 	// Update particle positions
-	float step_sceond = elapsed_ms / 1000.f;
+	float step_second = elapsed_ms / 1000.f;
 
 	auto& particles_container = registry.particles;
 	std::vector<Entity> to_be_removed;
@@ -17,8 +17,8 @@ void ParticleSystem::step(float elapsed_ms) {
 		auto& particle = particles_container.get(particleEntity);
 		auto& motion = registry.motions.get(particleEntity);
 
-		motion.position += motion.velocity * step_sceond;
-		particle.life -= step_sceond;
+		motion.position += motion.velocity * step_second;
+		particle.life -= step_second;
 
 		if (particle.life <= 0.0f) {
 			to_be_removed.push_back(particleEntity);
@@ -30,19 +30,26 @@ void ParticleSystem::step(float elapsed_ms) {
 	}
 
 	auto& emtitter_container = registry.particleEmitters;
+	//printf("size of emitter: %d, size of particles: %d\n", emtitter_container.size(), particles_container.size());
 
-	for (auto& emitterEntity : emtitter_container.entities) {
-		auto& emitter = emtitter_container.get(emitterEntity);
-		int particlesToSpawn = emitter.particles_per_second * step_sceond;
+	frameCount += elapsed_ms;
 
-		for (int i = 0; i < particlesToSpawn; i++) {
-			spawn_particle(emitter);
+	if (frameCount >= frameMax) {
+		for (auto& emitterEntity : emtitter_container.entities) {
+			auto& emitter = emtitter_container.get(emitterEntity);
+			int particlesToSpawn = emitter.particles_per_second;
+			//printf("particles to spawn: %d\n", particlesToSpawn);
+
+			for (int i = 0; i < particlesToSpawn; i++) {
+				spawn_particle(emitter, registry.motions.get(emitterEntity));
+			}
 		}
+		frameCount = 0;
 	}
 
 }
 
-void ParticleSystem::spawn_particle(const ParticleEmitter& emitter) {
+void ParticleSystem::spawn_particle(const ParticleEmitter& emitter, Motion m) {
 	Entity entity = Entity();
 	auto& particle = registry.particles.emplace(entity);
 	particle.color = emitter.color;
@@ -50,8 +57,9 @@ void ParticleSystem::spawn_particle(const ParticleEmitter& emitter) {
 
 	auto& motion = registry.motions.emplace(entity);
 
-	motion.position = emitter.emission_point;
-	motion.velocity = emitter.initial_velocity;
+	motion.position = { m.position.x - 20, m.position.y + 30 };
+	motion.velocity = m.velocity;
+	motion.scale = { 10, 10 };
 
 	registry.renderRequests.insert(
 		entity,

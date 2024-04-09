@@ -192,7 +192,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 
 	next_boulder_spawn -= elapsed_ms_since_last_update * current_speed * 2;
-	if ((level == 1 || level == 2) && registry.deadlys.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
+	if ((level == 1) && registry.deadlys.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
 		// Reset timer
 		next_boulder_spawn = (BOULDER_DELAY_MS / 2) + uniform_dist(rng) * (BOULDER_DELAY_MS / 2);
 		createBoulder(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), -100.f));
@@ -397,6 +397,14 @@ void WorldSystem::restart_game() {
 	
 	// Create pencil
 	pencil = createPencil(renderer, { window_width_px / 2, window_height_px / 2 }, { 50.f, 50.f });
+
+	Motion& mParticle = registry.motions.get(pencil);
+	ParticleEmitter& emitter = registry.particleEmitters.emplace(pencil);
+	emitter.emission_point = { mParticle.position.x - 20, mParticle.position.y + 30 };
+	emitter.particles_per_second = 1;
+	emitter.initial_velocity = {0, 10.f};
+	emitter.color = { 1.f, 0.f, 0.f, 1.f };
+	emitter.lifespan = 0.4f;
 
 	// Create test paint can
 
@@ -685,6 +693,7 @@ void WorldSystem::on_mouse_click(int button, int action, int mod) {
 			       drawings.stop_drawing();
 		       }
 		}
+
 	}
 }
 

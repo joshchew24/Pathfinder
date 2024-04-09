@@ -11,6 +11,7 @@
 #include "ai_system.hpp"
 #include "config.hpp"
 #include "movement_system.hpp"
+#include "particle_system.hpp"
 
 // Entry point
 int main()
@@ -20,6 +21,7 @@ int main()
 	RenderSystem renderer;
 	PhysicsSystem physics;
 	AISystem ai;
+	ParticleSystem particles;
 
 	// Initializing window
 	GLFWwindow* window = world.create_window();
@@ -71,6 +73,7 @@ int main()
 		physics.step(elapsed_ms);
 		ai.step(elapsed_ms);
 		drawings.step(elapsed_ms);
+		particles.step(elapsed_ms);
     
 		// fps reporting
 		if (frame_update_counter++ == 20) {
