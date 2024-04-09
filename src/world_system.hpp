@@ -49,9 +49,11 @@ public:
 	// Should the game be over ?
 	bool is_over()const;
 
-	void initLevels();
+	void displayTutorialImage();
 
 	void createLevel();
+
+	void createLevelStruct();
 
 	void next_level();
 private:

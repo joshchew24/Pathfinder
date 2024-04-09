@@ -34,6 +34,7 @@ LevelStruct LevelManager::loadLevel(int levelNumber) {
 	}
 
 	if (!levelData["checkpoint"].is_null()) {
+		levelObject.hasCheckpoint = true;
 		levelObject.checkpoint.x = levelData["checkpoint"][0];
 		levelObject.checkpoint.y = levelData["checkpoint"][1];
 	}
@@ -42,6 +43,7 @@ LevelStruct LevelManager::loadLevel(int levelNumber) {
 	levelObject.endPoint.y = levelData["level_end"][1];
 
 	if (!levelData["hint"].is_null()) {
+		levelObject.hasHint = true;
 		levelObject.hintPos.x = levelData["hint"]["npc"][0];
 		levelObject.hintPos.y = levelData["hint"]["npc"][1];
 		levelObject.hint = levelData["hint"]["text"];
