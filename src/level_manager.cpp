@@ -24,6 +24,10 @@ LevelStruct LevelManager::loadLevel(int levelNumber) {
 		parseStair(levelObject, stair);
 	}
 
+	for (json spike : levelData["spike"]) {
+		parseSpike(levelObject, spike);
+	}
+
 	return levelObject;
 }
 
@@ -50,6 +54,22 @@ void LevelManager::parseStair(LevelStruct level, json stairJson) {
 		stair.xSize = stairWidth;
 		stair.ySize = stairHeight;
 		level.walls.push_back(stair);
+	}
+}
+
+void LevelManager::parseSpike(LevelStruct level, json spikeJson) {
+	int x = spikeJson["x"];
+	int y = spikeJson["y"];
+	int numSpikes = spikeJson["quantity"];
+	int gap = spikeJson["gap"];
+	int angle_deg = spikeJson["angle"];
+	float angle = angle_deg * (M_PI / 180);
+	for (int i = 0; i < numSpikes; ++i) {
+		Spike spike;
+		spike.x = x + i * gap;
+		spike.y = y;
+		spike.angle = angle;
+		level.spikes.push_back(spike);
 	}
 }
 

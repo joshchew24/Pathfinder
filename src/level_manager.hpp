@@ -60,6 +60,7 @@ private:
 	int numLevels = 1;
 	InitWall parseWall(json wallJson);
 	void parseStair(LevelStruct level, json stairJson);
+	void parseSpike(LevelStruct level, json spikeJson);
 public:
 	std::vector<Level> levels;
 	std::vector<LevelStruct> structLevels;
