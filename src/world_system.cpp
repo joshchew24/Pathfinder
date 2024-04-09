@@ -664,10 +664,6 @@ void WorldSystem::restart_game() {
 	// Center cursor to pencil location
 	glfwSetCursorPos(window, window_width_px / 2 - 25.f, window_height_px / 2 + 25.f);
 
-	if (level_idx == 6) {
-		createPaintCan(renderer, { window_width_px - 300, window_height_px / 2 }, { 25.f, 50.f });
-	}
-
 	level4DisappearTimer = 4000;
 	level4Disappeared = false;
 
