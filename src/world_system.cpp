@@ -531,9 +531,9 @@ void WorldSystem::handlePlayerAnimation(float elapsed_ms_since_last_update) {
 	}
 }
 
-void WorldSystem::createLevel() {
+void WorldSystem::displayTutorialImage() {
 	// render tutorial images
-	if (WorldSystem::level == 0) 
+	if (WorldSystem::level == 0)
 		tutorial = createTutorialMove(renderer);
 	else if (WorldSystem::level == 1) {
 		registry.renderRequests.remove(tutorial);
@@ -553,7 +553,9 @@ void WorldSystem::createLevel() {
 	}
 	else if (registry.renderRequests.has(tutorial))
 		registry.renderRequests.remove(tutorial);
+}
 
+void WorldSystem::createLevel() {
 	Level currentLevel = this->levelManager.levels[WorldSystem::level];
 	for (int i = 0; i < currentLevel.walls.size(); ++i) {
 		InitWall w = currentLevel.walls[i];
@@ -575,6 +577,28 @@ void WorldSystem::createLevel() {
 		createHint(renderer, { currentLevel.hintPos.first, currentLevel.hintPos.second }, currentLevel.hint);
 		renderer->hintPos = { currentLevel.hintTextPos.first, currentLevel.hintTextPos.second };
 	}
+}
+
+void WorldSystem::createLevelStruct() {
+	LevelStruct currentLevel = this->levelManager.structLevels[WorldSystem::level];
+	int platformHeight;
+	for (InitWall w : currentLevel.walls) {
+		platformHeight = abs(w.y - window_height_px) + w.ySize / 2 + 2;
+		createPlatform(renderer, { w.x, window_height_px - platformHeight }, { w.xSize - 10, 10.f });
+		createWall(renderer, { w.x, w.y }, { w.xSize, w.ySize });
+	}
+	for (Spike s : currentLevel.spikes) {
+		createSpikes(renderer, { s.x, s.y }, { 40, 20 }, s.angle);
+	}
+	if (currentLevel.hasCheckpoint) {
+		createCheckpoint(renderer, { currentLevel.checkpoint.x, currentLevel.checkpoint.y });
+	}
+	createEndpoint(renderer, currentLevel.endPoint);
+	if (currentLevel.hasHint) {
+		createHint(renderer, currentLevel.hintPos, currentLevel.hint);
+		renderer->hintPos = currentLevel.hintTextPos;
+	}
+	player = createOliver(renderer, currentLevel.playerSpawn);
 }
 
 // Reset the world state to its initial state
@@ -603,7 +627,8 @@ void WorldSystem::restart_game() {
 	
 	//createBackground(renderer);
 
-	//platform
+	// reset level
+	displayTutorialImage();
 	createLevel();
 	
 	// Create pencil

@@ -30,8 +30,10 @@ struct InitPaintCan {
 struct LevelStruct {
 	std::vector<InitWall> walls;
 	std::vector<Spike> spikes;
+	bool hasCheckpoint = false;
 	glm::vec2 checkpoint;
 	glm::vec2 endPoint;
+	bool hasHint = false;
 	glm::vec2 hintPos;
 	std::string hint;
 	glm::vec2 hintTextPos;
