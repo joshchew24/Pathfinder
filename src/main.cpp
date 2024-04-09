@@ -12,6 +12,8 @@
 #include "config.hpp"
 #include "movement_system.hpp"
 
+void step_game_logic(WorldSystem& world, PhysicsSystem& physics, AISystem& ai, DrawingSystem& drawings, float ms);
+
 // Entry point
 int main()
 {
@@ -78,14 +80,15 @@ int main()
 		prevTime = currentTime;
 
 		if (!*mainMenu) {
-			game_logic_accumulator += elapsed_ms;
-			while (game_logic_accumulator >= ms_per_tick) {
-				game_logic_accumulator -= ms_per_tick;
-				world.step(ms_per_tick);
-				world.handle_collisions(ms_per_tick);
-				physics.step(ms_per_tick, world.isLineCollisionsOn());
-				ai.step(ms_per_tick);
-				drawings.step(ms_per_tick, world.isLineCollisionsOn());
+			if (config.tick_rate >= 0) {
+				game_logic_accumulator += elapsed_ms;
+				while (game_logic_accumulator >= ms_per_tick) {
+					game_logic_accumulator -= ms_per_tick;
+					step_game_logic(world, physics, ai, drawings, ms_per_tick);
+				}
+			}
+			else {
+				step_game_logic(world, physics, ai, drawings, elapsed_ms);
 			}
 		}
 
@@ -114,4 +117,12 @@ int main()
 	}
 
 	return EXIT_SUCCESS;
+}
+
+void step_game_logic(WorldSystem& world, PhysicsSystem& physics, AISystem& ai, DrawingSystem& drawings, float ms) {
+	world.step(ms);
+	world.handle_collisions(ms);
+	physics.step(ms, world.isLineCollisionsOn());
+	ai.step(ms);
+	drawings.step(ms, world.isLineCollisionsOn());
 }
