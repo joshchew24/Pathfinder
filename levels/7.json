@@ -1,0 +1,90 @@
+{
+  "walls": [
+    {
+      "x": 0,
+      "y": 800,
+      "width": 600,
+      "height": 600
+    },
+    {
+      "x": 400,
+      "y": 600,
+      "width": 150,
+      "height": 20
+    },
+    {
+      "x": 700,
+      "y": 600,
+      "width": 150,
+      "height": 20
+    },
+    {
+      "x": 1040,
+      "y": 600,
+      "width": 150,
+      "height": 20
+    },
+    {
+      "x": 1300,
+      "y": 500,
+      "width": 150,
+      "height": 20
+    },
+    {
+      "x": 1500,
+      "y": 500,
+      "width": 150,
+      "height": 20
+    },
+    {
+      "x": 1840,
+      "y": 500,
+      "width": 200,
+      "height": 20
+    }
+  ],
+  "stairs": null,
+  "spikes": [
+    {
+      "quantity": 2,
+      "x": 350,
+      "y": 575,
+      "gap": 40,
+      "angle": 0
+    },
+    {
+      "quantity": 2,
+      "x": 1455,
+      "y": 477,
+      "gap": 40,
+      "angle": 0
+    },
+    {
+      "quantity": 2,
+      "x": 1825,
+      "y": 477,
+      "gap": 40,
+      "angle": 0
+    }
+  ],
+  "checkpoint": null,
+  "level_end": [ 1910, 435 ],
+  "hint": {
+    "npc": [ 150, 465 ],
+    "text": "Hint: the levels will disappear.. There must be some way to help you memorize them",
+    "text_pos": [ 150, 650 ]
+  },
+  "gravity": null,
+  "friction": null,
+  "ink_limit": null,
+  "player_spawn": [ 50, 400 ],
+  "spawners": {
+    "boulder_spawners": null,
+    "spike_projectile_spawners": null
+  },
+  "enemies": {
+    "chase_boulder": null,
+    "archers": null
+  },
+  "paintcans": null
+}
