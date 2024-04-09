@@ -34,7 +34,12 @@
   "spawners": null,
   "enemies": {
     "chase_boulder": [ 1000, 100 ],
-    "archers": null
+    "archers": [
+      {
+        "x": 1400,
+        "y": 475
+      }
+    ]
   },
   "paintcans": null
 }

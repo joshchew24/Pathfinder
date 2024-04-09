@@ -615,6 +615,9 @@ LevelStruct WorldSystem::createLevelStruct(int level_idx) {
 		bestPath = {};
 		currentNode = 0;
 	}
+	for (vec2 archer : level.archers) {
+		createArcher(renderer, archer, vec2(70.f));
+	}
 	player = createOliver(renderer, level.playerSpawn);
 	return level;
 }
