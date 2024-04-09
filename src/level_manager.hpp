@@ -2,8 +2,10 @@
 
 #include <vector>
 #include <utility>
-#include "common.hpp"
 #include <iostream>
+
+#include "common.hpp"
+#include "config.hpp"
 
 // data to generate walls
 struct InitWall {
