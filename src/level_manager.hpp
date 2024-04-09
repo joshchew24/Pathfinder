@@ -79,8 +79,8 @@ class LevelManager {
 private:
 	int numLevels = 1;
 	InitWall parseWall(json wallJson);
-	void parseStair(LevelStruct level, json stairJson);
-	void parseSpike(LevelStruct level, json spikeJson);
+	void parseStair(LevelStruct& level, json stairJson);
+	void parseSpike(LevelStruct& level, json spikeJson);
 	InitPaintCan LevelManager::parsePaintCan(json paintcanJson);
 	InitBoulderSpawner LevelManager::parseBoulderSpawner(json boulderSpawnerJson);
 	InitSpikeProjectileSpawner LevelManager::parseSpikeProjectileSpawner(json spikeProjectileSpawnerJson);
