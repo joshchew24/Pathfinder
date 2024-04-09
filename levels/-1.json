@@ -36,21 +36,26 @@
   "gravity": 1500,
   "friction": 1000000,
   "ink_limit": 1000,
-  "player_spawn": [ 600, 750 ],
+  "player_spawn": [ 600, 650 ],
   "spawners": {
     "boulder_spawners": [
       {
         "x": 1000,
-        "y": 1000,
-        "random_x": false
+        "y": -100,
+        "random_x": false,
+        "delay": 6000
       }
     ],
     "spike_projectile_spawners": [
       {
         "x": 1900,
         "y": 553,
+        "width": 40,
+        "height": 20,
         "x_vel": -600,
-        "y_vel": 0
+        "y_vel": 0,
+        "angle": -90,
+        "delay": 3500
       }
     ]
   },

@@ -276,6 +276,11 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			if(!registry.players.has(motions_registry.entities[i])) // don't remove the player
 				registry.remove_all_components_of(motions_registry.entities[i]);
 		}
+		// remove deadlys if they leave bottom of the screen
+		if (motion.position.y - abs(motion.scale.y) > window_height_px) {
+			if (registry.deadlys.has(motions_registry.entities[i]))
+				registry.remove_all_components_of(motions_registry.entities[i]);
+		}
 	}
 
 	Motion& pmotion = registry.motions.get(player);
@@ -291,21 +296,27 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
-
 	next_boulder_spawn -= elapsed_ms_since_last_update * current_speed * 2;
-	if ((level_idx == 5 || level_idx == 6 || level_idx == 8) && registry.deadlys.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
-		// Reset timer
-		next_boulder_spawn = (BOULDER_DELAY_MS / 2) + uniform_dist(rng) * (BOULDER_DELAY_MS / 2);
-		createBoulder(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), -100.f));
-	}
-	else if (level_idx == 3 && next_boulder_spawn < 0.f) {
-		printf("right level");
-		next_boulder_spawn = (SPIKE_DELAY_MS / 2) + uniform_dist(rng) * (SPIKE_DELAY_MS / 2);
-		Entity e = createSpikes(renderer, { window_width_px - 100, 553 }, { 40, 20 }, -1.5708);
-		Motion& m = registry.motions.get(e);
-		m.velocity = { -600, 0 };
-		m.fixed = false;
-		m.grounded = true;
+	if (next_boulder_spawn < 0.f) {
+		for (const InitBoulderSpawner& boulderSpawner : level.boulderSpawners) {
+			if (registry.deadlys.components.size() <= MAX_BOULDERS) {
+				// Reset timer
+				vec2 spawnpoint = boulderSpawner.pos;
+				if (boulderSpawner.random_x) {
+					spawnpoint.x = 50.f + uniform_dist(rng) * (window_width_px - 100.f);
+				}
+				next_boulder_spawn = (boulderSpawner.delay / 2) + uniform_dist(rng) * (boulderSpawner.delay / 2);
+				createBoulder(renderer, spawnpoint);
+			}
+		}
+		for (const InitSpikeProjectileSpawner& spikeProjectileSpawner : level.spikeProjectileSpawners) {
+			next_boulder_spawn = (spikeProjectileSpawner.delay / 2) + uniform_dist(rng) * (spikeProjectileSpawner.delay / 2);
+			Entity e = createSpikes(renderer, spikeProjectileSpawner.pos, spikeProjectileSpawner.size, spikeProjectileSpawner.angle);
+			Motion& m = registry.motions.get(e);
+			m.velocity = spikeProjectileSpawner.vel;
+			m.fixed = false;
+			m.gravityScale = 0.f;
+		}
 	}
 
 	if(!registry.deathTimers.has(player) && level_idx == 6)

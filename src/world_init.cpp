@@ -452,6 +452,7 @@ Entity createSpikes(RenderSystem* renderer, vec2 position, vec2 size, float radi
 	motion.angle = radian;
 	motion.scale = size;
 	motion.fixed = true;
+	motion.grounded = true;
 
 	// Create a RenderRequest for the spikes
 	registry.deadlys.emplace(entity);

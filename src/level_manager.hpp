@@ -28,32 +28,33 @@ struct InitPaintCan {
 };
 
 struct InitBoulderSpawner {
-	int x;
-	int y;
+	vec2 pos;
 	bool random_x;
+	float delay;
 };
 
 struct InitSpikeProjectileSpawner {
-	int x;
-	int y;
-	int x_vel;
-	int y_vel;
+	vec2 pos;
+	vec2 size;
+	vec2 vel;
+	float angle;
+	float delay;
 };
 
 struct LevelStruct {
 	std::vector<InitWall> walls;
 	std::vector<Spike> spikes;
 	bool hasCheckpoint = false;
-	glm::vec2 checkpoint;
-	glm::vec2 endPoint;
+	vec2 checkpoint;
+	vec2 endPoint;
 	bool hasHint = false;
-	glm::vec2 hintPos;
+	vec2 hintPos;
 	std::string hint;
-	glm::vec2 hintTextPos;
+	vec2 hintTextPos;
 	float gravity;
 	float friction;
 	float inkLimit;
-	glm::vec2 playerSpawn;
+	vec2 playerSpawn;
 	std::vector<InitBoulderSpawner> boulderSpawners;
 	std::vector<InitSpikeProjectileSpawner> spikeProjectileSpawners;
 	std::vector<glm::vec2> chaseBoulders;
