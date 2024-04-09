@@ -35,7 +35,7 @@ private:
 public:
 	AISystem();
 	void init();
-	void updateGrid(std::vector<initWall> walls);
+	void updateGrid(std::vector<InitWall> walls);
 	void printGrid();
 	void step(float elapsed_ms);
 	std::vector<std::pair<int, int>> bestPath(Motion& eMotion, Motion& pMotion);
