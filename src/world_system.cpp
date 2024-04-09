@@ -652,7 +652,7 @@ void WorldSystem::restart_game() {
 	//createBackground(renderer);
 
 	// reset level
-	displayTutorialImage();
+	//displayTutorialImage();
 	//createLevel();
 	WorldSystem::level = createLevelStruct(level_idx);
 	
