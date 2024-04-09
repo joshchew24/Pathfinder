@@ -1,0 +1,41 @@
+{
+  "walls": [
+    {
+      "x": 900,
+      "y": 910,
+      "width": 1000,
+      "height": 600
+    },
+    {
+      "x": 0,
+      "y": 900,
+      "width": 400,
+      "height": 400
+    },
+    {
+      "x": 1800,
+      "y": 940,
+      "width": 500,
+      "height": 400
+    }
+  ],
+  "stairs": null,
+  "spikes": null,
+  "checkpoint": null,
+  "level_end": [ 1800, 695 ],
+  "hint": {
+    "npc": [ 920, 575 ],
+    "text": "Drawings can block line of sight of boulders, destroy archer projectiles, block paths of paintcans and archers, and a lot more!",
+    "text_pos": [ 350, 550 ]
+  },
+  "gravity": null,
+  "friction": null,
+  "ink_limit": null,
+  "player_spawn": [ 700, 460 ],
+  "enemies": {
+    "boulder_spawn": null,
+    "chaseboulder_spawn": null,
+    "archer_spawn": null
+  },
+  "paintcans": null
+}
