@@ -4,7 +4,7 @@ void LevelManager::loadLevels() {
 	//for (int i = 0; i < numLevels; i++) {
 	//	structLevels.push_back(loadLevel(i));
 	//}
-	structLevels.push_back(loadLevel(2));
+	structLevels.push_back(loadLevel(3));
 	structLevels.push_back(loadLevel(-1));
 	// test file
 	//loadLevel(-1);
@@ -30,7 +30,7 @@ LevelStruct LevelManager::loadLevel(int levelNumber) {
 	}
 
 	// automatically ignores null arrays
-	for (json spike : levelData["spike"]) {
+	for (json spike : levelData["spikes"]) {
 		parseSpike(levelObject, spike);
 	}
 
