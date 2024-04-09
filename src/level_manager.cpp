@@ -8,7 +8,11 @@ void LevelManager::loadLevels() {
 }
 
 void LevelManager::loadLevel(int levelNumber) {
-	printf("level file: %s%i.json\n", level_path().c_str(), levelNumber);
+	std::stringstream file_path;
+	file_path << level_path() << "/" << levelNumber << ".json";
+	printf("level file: %s\n", file_path.str().c_str());
+	std::ifstream file(file_path.str());
+	json level_data = json::parse(file);
 	return;
 }
 
