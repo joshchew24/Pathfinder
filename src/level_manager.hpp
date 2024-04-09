@@ -19,6 +19,30 @@ struct Spike {
 	float angle;
 };
 
+struct InitPaintCan {
+	int x;
+	int y;
+	float value;
+};
+
+struct LevelStruct {
+	std::vector<InitWall> walls;
+	std::vector<Spike> spikes;
+	glm::vec2 checkpoint;
+	glm::vec2 endPoint;
+	glm::vec2 hintPos;
+	std::string hint;
+	glm::vec2 hintTextPos;
+	float gravity;
+	float friction;
+	glm::vec2 playerSpawn;
+	float ink_limit;
+	std::vector<glm::vec2> boulderSpawns;
+	std::vector<glm::vec2> chaseBoulderSpawns;
+	std::vector<glm::vec2> archerSpawns;
+	std::vector<InitPaintCan> paintCanSpawns;
+};
+
 class Level {
 public:
 	std::vector<InitWall> walls;
@@ -33,9 +57,10 @@ public:
 
 class LevelManager {
 private:
-	int numLevels = 9;
+	int numLevels = 1;
 public:
 	std::vector<Level> levels;
+	std::vector<LevelStruct> structLevels;
 	
 	void loadLevels();
 	void loadLevel(int levelNumber);

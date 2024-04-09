@@ -145,7 +145,7 @@ void WorldSystem::init(RenderSystem* renderer_arg, bool* mainMenu) {
 	LevelManager lm;
 	lm.loadLevels();
 	lm.initLevel();
-	lm.printLevelsInfo();
+	//lm.printLevelsInfo();
 	this->levelManager = lm;
 	// Set all states to default
     restart_game();
