@@ -9,7 +9,7 @@ public:
 	float jump_height;
 	float friction;
 	float ink_limit;
-	float default_paintcan_value;
+	float paintcan_value;
 	float terminal_velocity;
 	int starting_level;
 	int tick_rate;
@@ -24,7 +24,7 @@ public:
 		jump_height = config["jump_height"];
 		friction = config["friction"];
 		ink_limit = config["ink_limit"];
-		default_paintcan_value = config["default_paintcan_value"];
+		paintcan_value = config["paintcan_value"];
 		terminal_velocity = config["terminal_velocity"];
 		starting_level = config["starting_level"];
 		tick_rate = config["tick_rate"];
