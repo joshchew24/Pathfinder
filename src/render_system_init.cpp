@@ -532,7 +532,7 @@ void RenderSystem::initializeParticleRendering() {
 
 	glGenBuffers(1, &particleInstanceVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, particleInstanceVBO);
-	glBufferData(GL_ARRAY_BUFFER, 100 * sizeof(glm::vec2), nullptr, GL_STREAM_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 10 * sizeof(glm::vec2), nullptr, GL_STREAM_DRAW);
 
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)0);
 	glEnableVertexAttribArray(2);
@@ -542,6 +542,7 @@ void RenderSystem::initializeParticleRendering() {
 	glBindVertexArray(0);
 	gl_has_errors();
 	loadEffectFromFile(shader_path("particle.vs.glsl"), shader_path("particle.fs.glsl"), particleShaderProgram);
+
 	gl_has_errors();
 }
 

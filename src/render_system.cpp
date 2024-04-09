@@ -421,6 +421,14 @@ void RenderSystem::drawParticles(const mat3& projection) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	gl_has_errors();
 	glm::mat4 projection_4x4 = glm::mat4(projection);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture_gl_handles[static_cast<int>(TEXTURE_ASSET_ID::CIRCLEPARTICLE)]);
+
+	// Tell the shader the texture is in texture unit 0
+	glUniform1i(glGetUniformLocation(particleShaderProgram, "sprite"), 0);
+
+	glUniform1i(glGetUniformLocation(particleShaderProgram, "sprite"), 0);
+	glUniform1i(glGetUniformLocation(particleShaderProgram, "texture1"), 5);
 
 	GLint projLoc = glGetUniformLocation(particleShaderProgram, "projection");
 	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection_4x4));
