@@ -37,20 +37,31 @@
   "friction": 1000000,
   "ink_limit": 1000,
   "player_spawn": [ 600, 750 ],
+  "spawners": {
+    "boulder_spawners": [
+      {
+        "x": 1000,
+        "y": 1000,
+        "random_x": false
+      }
+    ],
+    "spike_projectile_spawners": [
+      {
+        "x": 1900,
+        "y": 553,
+        "x_vel": -600,
+        "y_vel": 0
+      }
+    ]
+  },
   "enemies": {
-    "boulder_spawn": [
+    "chase_boulders": [
       {
         "x": 1000,
         "y": 1000
       }
     ],
-    "chaseboulder_spawn": [
-      {
-        "x": 1000,
-        "y": 1000
-      }
-    ],
-    "archer_spawn": [
+    "archers": [
       {
         "x": 1000,
         "y": 1000

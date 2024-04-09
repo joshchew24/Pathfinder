@@ -27,6 +27,19 @@ struct InitPaintCan {
 	float value;
 };
 
+struct InitBoulderSpawner {
+	int x;
+	int y;
+	bool random_x;
+};
+
+struct InitSpikeProjectileSpawner {
+	int x;
+	int y;
+	int x_vel;
+	int y_vel;
+};
+
 struct LevelStruct {
 	std::vector<InitWall> walls;
 	std::vector<Spike> spikes;
@@ -41,10 +54,11 @@ struct LevelStruct {
 	float friction;
 	float inkLimit;
 	glm::vec2 playerSpawn;
-	std::vector<glm::vec2> boulderSpawns;
-	std::vector<glm::vec2> chaseBoulderSpawns;
-	std::vector<glm::vec2> archerSpawns;
-	std::vector<InitPaintCan> paintCanSpawns;
+	std::vector<InitBoulderSpawner> boulderSpawners;
+	std::vector<InitSpikeProjectileSpawner> spikeProjectileSpawners;
+	std::vector<glm::vec2> chaseBoulders;
+	std::vector<glm::vec2> archers;
+	std::vector<InitPaintCan> paintcans;
 };
 
 class Level {
@@ -66,6 +80,8 @@ private:
 	void parseStair(LevelStruct level, json stairJson);
 	void parseSpike(LevelStruct level, json spikeJson);
 	InitPaintCan LevelManager::parsePaintCan(json paintcanJson);
+	InitBoulderSpawner LevelManager::parseBoulderSpawner(json boulderSpawnerJson);
+	InitSpikeProjectileSpawner LevelManager::parseSpikeProjectileSpawner(json spikeProjectileSpawnerJson);
 
 public:
 	std::vector<Level> levels;
