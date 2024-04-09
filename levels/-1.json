@@ -44,13 +44,23 @@
         "y": 1000
       }
     ],
-    "chaseboulder_spawn": [ null ],
-    "archer_spawn": [ null ],
-    "paintcan": [
+    "chaseboulder_spawn": [
       {
-        "spawn": [ null ],
-        "refill_value": 100
+        "x": 1000,
+        "y": 1000
+      }
+    ],
+    "archer_spawn": [
+      {
+        "x": 1000,
+        "y": 1000
       }
     ]
-  }
+  },
+  "paintcans": [
+    {
+      "spawn": [ 1000, 1000 ],
+      "refill_value": 100
+    }
+  ]
 }
