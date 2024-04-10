@@ -3,11 +3,14 @@
 
 #include "drawing_system.hpp"
 #include "world_init.hpp"
+#include <iostream>
 
 DrawingSystem drawings;
 
 // Configuration
 static const float pointdraw_freq_ms = 50.f;
+
+float DrawingSystem::remainingDrawingCount = 1000.f;
 
 DrawingSystem::DrawingSystem() {
 }
@@ -20,6 +23,18 @@ void DrawingSystem::reset() {
 	while (registry.drawings.entities.size() > 0)
 		registry.remove_all_components_of(registry.drawings.entities.back());
 	map_drawings_points_id.clear();
+	remainingDrawingCount = 1000.f;
+}
+
+void DrawingSystem::add_drawing_count(float count)
+{
+	remainingDrawingCount += count;
+	remainingDrawingCount = std::min(1000.f, remainingDrawingCount);
+}
+
+float DrawingSystem::get_drawing_count()
+{
+	return remainingDrawingCount;
 }
 
 
@@ -45,13 +60,14 @@ void DrawingSystem::start_drawing() {
 void DrawingSystem::stop_drawing() {
 	// Stop drawing and signal to our system instance to construct lines
 	is_drawing = false;
+	prev_line = Entity();
 }
 
 void DrawingSystem::set_draw_pos(const vec2 &pos) {
 	drawPos = pos;
 }
 
-Entity build_line(Entity& drawing, Entity& p1, Entity& p2) {
+Entity build_line(Entity& drawing, Entity& p1, Entity& p2, bool lineCollisionOn) {
 	const vec2& pos1 = registry.drawnPoints.get(p1).position;
 	const vec2& pos2 = registry.drawnPoints.get(p2).position;
 	const vec2 dp = pos2 - pos1; // displacement
@@ -77,15 +93,22 @@ Entity build_line(Entity& drawing, Entity& p1, Entity& p2) {
 	const float run = pos2.x - pos1.x + 0.000001f; // adding arbitrarily small error to avoid dividing by 0
 	dline.slope = rise / run;
 	dline.intercept = pos2.y - dline.slope * pos2.x;
-
-	registry.renderRequests.insert(line,
-				{TEXTURE_ASSET_ID::TEXTURE_COUNT,
-				EFFECT_ASSET_ID::EGG,
-				GEOMETRY_BUFFER_ID::DRAWN_LINE}); 
+	if (lineCollisionOn) {
+		registry.renderRequests.insert(line,
+			{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			EFFECT_ASSET_ID::EGG,
+			GEOMETRY_BUFFER_ID::DRAWN_LINE });
+	}
+	else {
+		registry.renderRequests.insert(line,
+			{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			EFFECT_ASSET_ID::EGG,
+			GEOMETRY_BUFFER_ID::PERMEABLE_LINE });
+	}
 	return line;
 }
 
-void build_joint(Entity& drawing, Entity& l1, Entity& l2) {
+void build_joint(Entity& drawing, Entity& l1, Entity& l2, bool lineCollisionOn) {
 	Entity j = Entity();
 	DrawnJoint& joint = registry.drawnJoints.emplace(j);
 	Motion& l1_m = registry.motions.get(l1);
@@ -104,13 +127,21 @@ void build_joint(Entity& drawing, Entity& l1, Entity& l2) {
 	m.angle = 1.5 * M_PI + l1_m.angle;
 	m.position = p2.position;
 	m.position += vec2(5*cos(m.angle), 5*sin(m.angle));	
-	registry.renderRequests.insert(j,
-				{TEXTURE_ASSET_ID::TEXTURE_COUNT,
-				EFFECT_ASSET_ID::EGG,
-				GEOMETRY_BUFFER_ID::JOINT_TRIANGLE}); 
+	if (lineCollisionOn) {
+		registry.renderRequests.insert(j,
+			{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			EFFECT_ASSET_ID::EGG,
+			GEOMETRY_BUFFER_ID::JOINT_TRIANGLE });
+	}
+	else {
+		registry.renderRequests.insert(j,
+			{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			EFFECT_ASSET_ID::EGG,
+			GEOMETRY_BUFFER_ID::JOINT_TRIANGLE_PERMEABLE });
+	}
 }
 
-void DrawingSystem::step(float elapsed_ms) {
+void DrawingSystem::step(float elapsed_ms, bool lineCollisionOn) {
 	static float ms_since_last_update = 0;
 
 	// Ensure we're only updating periodically according to freq constant
@@ -118,27 +149,40 @@ void DrawingSystem::step(float elapsed_ms) {
 	if (ms_since_last_update < pointdraw_freq_ms)
 		return; 	
 	ms_since_last_update -= pointdraw_freq_ms;
-
-	if (is_drawing) {	
+	if (is_drawing && remainingDrawingCount > 0.f) {	
 		auto& point_ents = map_drawings_points_id[curr_drawing];
 		const DrawnPoint& last_point = registry.drawnPoints.get(prev_point);
 		if (last_point.position == drawPos)
 			return; // avoid duplicate points
+		else {
+			// Calculate the distance traveled
+			float dx = last_point.position.x - drawPos.x;
+			float dy = last_point.position.y - drawPos.y;
+			float drawDistance = std::sqrt(dx * dx + dy * dy);
+
+			if (drawDistance <= 10000.f) {
+				remainingDrawingCount -= drawDistance;
+			}
+
+			remainingDrawingCount = std::max(remainingDrawingCount, 0.0f);
+			std::cout << drawings.get_drawing_count() << std::endl;
+
+		}
 		Entity point = Entity();
 		registry.drawnPoints.insert(point, {curr_drawing, drawPos});
-		Entity line = build_line(curr_drawing, prev_point, point);
+		Entity line = build_line(curr_drawing, prev_point, point, lineCollisionOn);
+
 
 		if (!start_connecting) {
 			prev_line = line;
 			start_connecting = true;
 		}
 		else {
-			build_joint(curr_drawing, prev_line, line);
+			build_joint(curr_drawing, prev_line, line, lineCollisionOn);
 			prev_line = line;
 		}
 		point_ents.push_back(point);
 		prev_point = point;
-
 	}
 }
 
