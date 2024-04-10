@@ -17,7 +17,7 @@ public:
 	void stop_drawing();
 	void set_draw_pos(const vec2 &pos);
 	
-	void reset();
+	void reset(float inkLimit);
 
 	bool check_player_collision(Entity& line);
 

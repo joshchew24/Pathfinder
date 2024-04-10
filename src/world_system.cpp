@@ -214,7 +214,7 @@ void WorldSystem::drawLinesLevel4(int currDrawing) {
 		//createDrawOnLines(620, 430, M_PI / 2);
 	}
 	else if (currDrawing == 1) {
-		DrawingSystem::remainingDrawingCount = 1000;
+		DrawingSystem::remainingDrawingCount = level.inkLimit;
 		createIndividualPlatforms({ 600, window_height_px - 300 }, { 200, 100 });
 		Entity e = createPaintCan(renderer, { 600, window_height_px - 350 }, { 25.f, 50.f }, 300);
 		Motion& m = registry.motions.get(e);
@@ -224,7 +224,7 @@ void WorldSystem::drawLinesLevel4(int currDrawing) {
 		drawLinesLoop(724, 47, 410, 0, 10, M_PI / 2, 0);
 	}
 	else if (currDrawing == 2) {
-		DrawingSystem::remainingDrawingCount = 1000;
+		DrawingSystem::remainingDrawingCount = level.inkLimit;
 		createIndividualPlatforms({ 850, window_height_px - 300 }, { 200, 100 });
 		Entity e = createPaintCan(renderer, { 850, window_height_px - 350 }, { 25.f, 50.f }, 300);
 		Motion& m = registry.motions.get(e);
@@ -249,7 +249,7 @@ void WorldSystem::drawLinesLevel4(int currDrawing) {
 		//drawLinesLoop(1185, 0, 200, 45, 7, 0, 0);
 	}
 	else if (currDrawing == 3) {
-		DrawingSystem::remainingDrawingCount = 1000;
+		DrawingSystem::remainingDrawingCount = level.inkLimit;
 		createIndividualPlatforms({ 1100, window_height_px - 300 }, { 200, 100 });
 		Entity e = createPaintCan(renderer, { 1100, window_height_px - 350 }, { 25.f, 50.f }, 300);
 		Motion& m = registry.motions.get(e);
@@ -609,7 +609,7 @@ Level WorldSystem::createLevel(int level_idx) {
 		createArcher(renderer, archer, vec2(70.f));
 	}
 	for (InitPaintCan paintcan : level.paintcans) {
-		createPaintCan(renderer, paintcan.pos, vec2(25, 50));
+		createPaintCan(renderer, paintcan.pos, vec2(25, 50), paintcan.value);
 	}
 	player = createOliver(renderer, level.playerSpawn);
 	return level;
@@ -626,7 +626,6 @@ void WorldSystem::restart_game() {
 
 	movementSystem.reset();
 	drawings.stop_drawing();
-	drawings.reset();
 
 	// Remove all entities that we created
 	while (registry.motions.entities.size() > 0)
@@ -645,6 +644,7 @@ void WorldSystem::restart_game() {
 	displayTutorialImage();
 	//createLevel();
 	WorldSystem::level = createLevel(level_idx);
+	drawings.reset(level.inkLimit);
 	
 	// Create pencil
 	pencil = createPencil(renderer, { window_width_px / 2, window_height_px / 2 }, { 50.f, 50.f });

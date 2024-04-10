@@ -15,7 +15,7 @@ float DrawingSystem::remainingDrawingCount = 1000.f;
 DrawingSystem::DrawingSystem() {
 }
 
-void DrawingSystem::reset() {
+void DrawingSystem::reset(float inkLimit = config.ink_limit) {
 	while (registry.drawnLines.entities.size() > 0)
 		registry.remove_all_components_of(registry.drawnLines.entities.back());
 	while (registry.drawnPoints.entities.size() > 0)
@@ -23,7 +23,7 @@ void DrawingSystem::reset() {
 	while (registry.drawings.entities.size() > 0)
 		registry.remove_all_components_of(registry.drawings.entities.back());
 	map_drawings_points_id.clear();
-	remainingDrawingCount = 1000.f;
+	remainingDrawingCount = inkLimit;
 }
 
 void DrawingSystem::add_drawing_count(float count)

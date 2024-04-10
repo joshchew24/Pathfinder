@@ -63,7 +63,7 @@
   ],
   "gravity": 10,
   "friction": null,
-  "ink_limit": null,
+  "ink_limit": 500,
   "line_collision_on": null,
   "player_spawn": [ 1000, 80 ],
   "spawners": {
