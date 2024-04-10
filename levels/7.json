@@ -78,7 +78,7 @@
   ],
   "gravity": null,
   "friction": null,
-  "ink_limit": null,
+  "ink_limit": 550,
   "line_collision_on": false,
   "disappearing": true,
   "disappearing_timer": null,

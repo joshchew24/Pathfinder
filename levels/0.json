@@ -14,7 +14,7 @@
   "hints": [
     {
       "npc": [ 750, 702 ],
-      "text": "Hello, I am the hint guy, I will give you a hint on certain levels! For now, just follow the tutorial and reach the trophy",
+      "text": "Hello, I am the hint guy, I will give you a hint on certain levels! Use WASD to reach the trophy.",
       "text_pos": [ 550, 440 ]
     }
   ],

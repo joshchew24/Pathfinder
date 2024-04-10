@@ -14,20 +14,20 @@
     },
     {
       "x": 1800,
-      "y": 770,
+      "y": 940,
       "width": 500,
-      "height": 455
+      "height": 400
     }
   ],
   "stairs": null,
   "spikes": null,
   "checkpoint": null,
-  "level_end": [ 1800, 495 ],
+  "level_end": [ 1800, 695 ],
   "hints": [
     {
-      "npc": [ 100, 665 ],
-      "text": "Jump with spacebar!",
-      "text_pos": [ 150, 450 ]
+      "npc": [ 650, 598 ],
+      "text": "Hit escape for the main menu",
+      "text_pos": [ 650, 525 ]
     }
   ],
   "gravity": null,

@@ -641,7 +641,7 @@ void WorldSystem::restart_game() {
 	//createBackground(renderer);
 
 	// reset level
-	displayTutorialImage();
+	//displayTutorialImage();
 	//createLevel();
 	WorldSystem::level = createLevel(level_idx);
 	drawings.reset(level.inkLimit);
