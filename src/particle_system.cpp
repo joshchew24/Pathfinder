@@ -4,6 +4,7 @@
 #include "components.hpp"
 #include "tiny_ecs_registry.hpp"
 #include <particle_system.hpp>
+#include <random>
 
 void ParticleSystem::step(float elapsed_ms) {
 	// Update particle positions
@@ -38,7 +39,7 @@ void ParticleSystem::step(float elapsed_ms) {
 			auto& emitter = emtitter_container.get(emitterEntity);
 			int particlesToSpawn = emitter.particles_per_second;
 			//printf("particles to spawn: %d\n", particlesToSpawn);
-			if (registry.pencil.has(emitterEntity) && drawings.currently_drawing()) {
+			if (registry.pencil.has(emitterEntity) && !drawings.currently_drawing()) {
 				continue;
 			}
 			for (int i = 0; i < particlesToSpawn; i++) {
@@ -51,19 +52,33 @@ void ParticleSystem::step(float elapsed_ms) {
 }
 
 void ParticleSystem::spawn_particle(const ParticleEmitter& emitter, Motion m) {
+	static std::random_device rd;
+	static std::mt19937 gen(rd());
+	std::uniform_real_distribution<> dis_offset_x(-10.0, 10.0);
+	std::uniform_real_distribution<> dis_offset_y(-2.0, 2.0);
+	std::uniform_real_distribution<> dis_velocity(-10.0, 10.0);
+
 	Entity entity = Entity();
 	auto& particle = registry.particles.emplace(entity);
 	particle.color = emitter.color;
 	particle.life = emitter.lifespan;
 	auto& motion = registry.motions.emplace(entity);
 
-	motion.position = { m.position.x - 20, m.position.y + 30 };
-	motion.velocity = m.velocity;
-	motion.scale = { 10, 10 };
+	motion.position = {
+		m.position.x + dis_offset_x(gen),
+		m.position.y + dis_offset_y(gen)
+	};
 
+	motion.velocity = {
+		m.velocity.x + dis_velocity(gen),
+		m.velocity.y + dis_velocity(gen)
+	};
+
+	motion.scale = { 10, 10 };
+	motion.grounded = true;
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::CIRCLEPARTICLE,
-				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+		  EFFECT_ASSET_ID::TEXTURED,
+		  GEOMETRY_BUFFER_ID::SPRITE });
 }
