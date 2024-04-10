@@ -6,6 +6,7 @@
 	"terminal_velocity": 1000,
 	"ink_limit": 1000,
 	"line_collision_on": true,
+	"disappearing_timer": 4000,
 	"paintcan_value": 100,
 	"starting_level": 0,
 	"max_level": 8,

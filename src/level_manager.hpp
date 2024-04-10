@@ -56,6 +56,9 @@ struct Level {
 	float friction;
 	float inkLimit;
 	bool lineCollisionOn = true;
+	bool disappearing = false;
+	float disappearing_timer;
+	bool mouse_gesture = false;
 	vec2 playerSpawn;
 	std::vector<InitBoulderSpawner> boulderSpawners;
 	std::vector<InitSpikeProjectileSpawner> spikeProjectileSpawners;

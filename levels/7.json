@@ -80,6 +80,8 @@
   "friction": null,
   "ink_limit": null,
   "line_collision_on": false,
+  "disappearing": true,
+  "disappearing_timer": null,
   "player_spawn": [ 50, 400 ],
   "spawners": {
     "boulder_spawners": null,

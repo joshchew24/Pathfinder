@@ -48,6 +48,9 @@ Level LevelManager::loadLevel(int levelNumber) {
 	levelObject.friction = levelData["friction"].is_null() ? config.friction : levelData["friction"];
 	levelObject.inkLimit = levelData["ink_limit"].is_null() ? config.ink_limit : levelData["ink_limit"];
 	levelObject.lineCollisionOn = levelData["line_collision_on"].is_null() ? config.line_collision_on : levelData["line_collision_on"];
+	levelObject.disappearing = levelData["disappearing"].is_null() ? levelObject.disappearing : levelData["disappearing"];
+	levelObject.disappearing_timer = levelData["disappearing_timer"].is_null() ? config.disappearing_timer : levelData["disappearing_timer"];
+	levelObject.mouse_gesture = levelData["mouse_gesture"].is_null() ? levelObject.mouse_gesture : levelData["mouse_gesture"];
 
 	levelObject.playerSpawn.x = levelData["player_spawn"][0];
 	levelObject.playerSpawn.y = levelData["player_spawn"][1];

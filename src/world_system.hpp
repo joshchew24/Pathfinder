@@ -77,7 +77,7 @@ private:
 
 	void createIndividualPlatforms(vec2 position, vec2 size);
 
-	void drawLinesLevel4(int currDrawing);
+	void handleDrawOnLines(int currDrawing);
 
 	void switchHintAnimation(Entity e, float elapsedTime);
 
@@ -124,8 +124,8 @@ private:
 	float cameraSpeed = 0.004f;
 
 	//platform disappear time
-	float level4DisappearTimer = 3500;
-	bool level4Disappeared = false;
+	float levelDisappearTimer = config.disappearing_timer;
+	bool levelDisappeared = false;
 
 	// C++ random number generator
 	std::default_random_engine rng;

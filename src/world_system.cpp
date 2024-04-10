@@ -193,7 +193,7 @@ void WorldSystem::createIndividualPlatforms(vec2 position, vec2 size) {
 	createPlatform(renderer, {position.x, window_height_px - platformHeight }, {size.x - 10, 10.f });
 }
 
-void WorldSystem::drawLinesLevel4(int currDrawing) {
+void WorldSystem::handleDrawOnLines(int currDrawing) {
 	drawings.stop_drawing();
 	for (Entity e : registry.motions.entities) {
 		if (!registry.platforms.has(e) && !registry.players.has(e) && !registry.walls.has(e) && !registry.levelEnds.has(e) &&
@@ -431,9 +431,9 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	movementSystem.handle_inputs();
 	handlePlayerAnimation(elapsed_ms_since_last_update);
 
-	if (!level4Disappeared && level_idx == 7) {
-		level4DisappearTimer -= elapsed_ms_since_last_update;
-		if (level4DisappearTimer <= 0) {
+	if (level.disappearing && !levelDisappeared) {
+		levelDisappearTimer -= elapsed_ms_since_last_update;
+		if (levelDisappearTimer <= 0) {
 			for (Entity entity : registry.platforms.entities) {
 				RenderRequest& r = registry.renderRequests.get(entity);
 				r.used_texture = TEXTURE_ASSET_ID::EMPTY;
@@ -446,14 +446,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 				RenderRequest& r = registry.renderRequests.get(entity);
 				r.used_texture = TEXTURE_ASSET_ID::EMPTY;
 			}
-			level4Disappeared = true;
+			levelDisappeared = true;
 		}
 	}
 
-	if (level_idx == 8) {
+	if (level.mouse_gesture) {
 
 		if (!currDrawn) {
-			drawLinesLevel4(currDrawing);
+			handleDrawOnLines(currDrawing);
 			currDrawn = true;
 		}
 		//printf("size: %d\n", registry.toDrawOns.size());
@@ -654,8 +654,8 @@ void WorldSystem::restart_game() {
 	// Center cursor to pencil location
 	glfwSetCursorPos(window, window_width_px / 2 - 25.f, window_height_px / 2 + 25.f);
 
-	level4DisappearTimer = 4000;
-	level4Disappeared = false;
+	levelDisappearTimer = level.disappearing_timer;
+	levelDisappeared = false;
 
 	currDrawing = 0;
 	currDrawn = false;

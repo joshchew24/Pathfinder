@@ -28,6 +28,7 @@
   "friction": null,
   "ink_limit": null,
   "line_collision_on": false,
+  "mouse_gesture": true,
   "player_spawn": [ 200, 555 ],
   "spawners": {
     "boulder_spawners": [
