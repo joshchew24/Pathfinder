@@ -152,6 +152,7 @@ public:
 
 	void initializeParticleRendering();
 	void drawParticles(const mat3& projection);
+
 private:
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(Entity entity, const mat3& projection);
