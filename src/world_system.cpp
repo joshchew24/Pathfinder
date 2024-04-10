@@ -633,7 +633,7 @@ void WorldSystem::restart_game() {
 	emitter.particles_per_second = 1;
 	emitter.initial_velocity = {0, 10.f};
 	emitter.color = { 1.f, 0.f, 0.f, 1.f };
-	emitter.lifespan = 0.4f;
+	emitter.lifespan = 0.2f;
 
 	// Create test paint can
 
