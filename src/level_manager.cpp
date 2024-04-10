@@ -149,6 +149,7 @@ InitPaintCan LevelManager::parsePaintCan(json paintcanJson) {
 	paintcan.pos.x = paintcanJson["x"];
 	paintcan.pos.y = paintcanJson["y"];
 	paintcan.value = paintcanJson["value"].is_null() ? config.paintcan_value : paintcanJson["value"];
+	paintcan.fixed = paintcanJson["fixed"].is_null() ? paintcan.fixed : paintcanJson["fixed"];
 	return paintcan;
 }
 

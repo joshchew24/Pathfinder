@@ -295,7 +295,7 @@ Entity createBackground(RenderSystem* renderer)
 	return entity;
 }
 
-Entity createPaintCan(RenderSystem* renderer, vec2 position, vec2 size, float paintRefill)
+Entity createPaintCan(RenderSystem* renderer, vec2 position, vec2 size, float paintRefill, bool fixed)
 {
 	auto entity = Entity();
 
@@ -310,6 +310,7 @@ Entity createPaintCan(RenderSystem* renderer, vec2 position, vec2 size, float pa
 	motion.position = position;
 	motion.gravityScale = 12.f;
 	motion.scale = size;
+	motion.fixed = fixed;
 
 	registry.eatables.emplace(entity);
 	PaintCan& p = registry.paintCans.emplace(entity);

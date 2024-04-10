@@ -30,6 +30,7 @@ struct InitHint {
 struct InitPaintCan {
 	vec2 pos;
 	float value;
+	bool fixed = false;
 };
 
 struct InitBoulderSpawner {

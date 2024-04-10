@@ -128,5 +128,12 @@
       }
     ]
   },
-  "paintcans": null
+  "paintcans": [
+    {
+      "x": 1000,
+      "y": 550,
+      "value": 300,
+      "fixed": true
+    }
+  ]
 }

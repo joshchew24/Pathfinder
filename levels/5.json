@@ -26,13 +26,13 @@
   "hints": [
     {
       "npc": [ 260, 750 ],
-      "text": "You finished the tutorial... Now the real fun begins.",
+      "text": "Use your ink wisely.",
       "text_pos": [ 260, 370 ]
     }
   ],
   "gravity": null,
   "friction": null,
-  "ink_limit": 500,
+  "ink_limit": 200,
   "player_spawn": [ 250, 700 ],
   "spawners": {
     "boulder_spawners": [
@@ -49,5 +49,12 @@
     "chase_boulder": null,
     "archers": null
   },
-  "paintcans": null
+  "paintcans": [
+    {
+      "x": 1000,
+      "y": 350,
+      "value": 200,
+      "fixed": true
+    }
+  ]
 }

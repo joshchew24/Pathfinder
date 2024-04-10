@@ -26,7 +26,13 @@
   "spikes": null,
   "checkpoint": [ 880, 395 ],
   "level_end": [ 1900, 445 ],
-  "hints": null,
+  "hints": [
+    {
+      "npc": [ 40, 665 ],
+      "text": "That spikey guy will chase you no matter what!",
+      "text_pos": [ 100, 450 ]
+    }
+  ],
   "gravity": null,
   "friction": null,
   "ink_limit": null,
@@ -51,11 +57,5 @@
       }
     ]
   },
-  "paintcans": [
-    {
-      "x": 1700,
-      "y": 500,
-      "value": null
-    }
-  ]
+  "paintcans": null
 }

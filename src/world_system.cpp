@@ -609,7 +609,7 @@ Level WorldSystem::createLevel(int level_idx) {
 		createArcher(renderer, archer, vec2(70.f));
 	}
 	for (InitPaintCan paintcan : level.paintcans) {
-		createPaintCan(renderer, paintcan.pos, vec2(25, 50), paintcan.value);
+		createPaintCan(renderer, paintcan.pos, vec2(25, 50), paintcan.value, paintcan.fixed);
 	}
 	player = createOliver(renderer, level.playerSpawn);
 	return level;
