@@ -5,7 +5,6 @@
 #include "tiny_ecs_registry.hpp"
 #include <particle_system.hpp>
 
-
 void ParticleSystem::step(float elapsed_ms) {
 	// Update particle positions
 	float step_second = elapsed_ms / 1000.f;
@@ -39,7 +38,9 @@ void ParticleSystem::step(float elapsed_ms) {
 			auto& emitter = emtitter_container.get(emitterEntity);
 			int particlesToSpawn = emitter.particles_per_second;
 			//printf("particles to spawn: %d\n", particlesToSpawn);
-
+			if (registry.pencil.has(emitterEntity) && drawings.currently_drawing()) {
+				continue;
+			}
 			for (int i = 0; i < particlesToSpawn; i++) {
 				spawn_particle(emitter, registry.motions.get(emitterEntity));
 			}
