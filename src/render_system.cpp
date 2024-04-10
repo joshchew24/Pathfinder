@@ -350,7 +350,7 @@ void RenderSystem::draw()
 				for (int i = 0; i < filledChars; ++i) {
 					barText += "|";
 				}
-				renderText(barText, m.position.x - m.scale.x/2, window_height_px - m.position.y + m.scale.y, 0.55, glm::vec3(1.0f, 1.0f, 1.0f), trans);
+				renderText(barText, m.position.x - 20, window_height_px - m.position.y + 50, 0.55, glm::vec3(1.0f, 1.0f, 1.0f), trans);
 			}
 		}
 
