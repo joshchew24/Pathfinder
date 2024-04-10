@@ -37,6 +37,7 @@ using namespace glm;
 // Get defintion of PROJECT_SOURCE_DIR from:
 #include "../ext/project_path.hpp"
 inline std::string data_path() { return std::string(PROJECT_SOURCE_DIR) + "data"; };
+inline std::string level_path() { return std::string(PROJECT_SOURCE_DIR) + "levels"; };
 inline std::string shader_path(const std::string& name) {return std::string(PROJECT_SOURCE_DIR) + "/shaders/" + name;};
 inline std::string textures_path(const std::string& name) {return data_path() + "/textures/" + std::string(name);};
 inline std::string audio_path(const std::string& name) {return data_path() + "/audio/" + std::string(name);};

@@ -1,0 +1,49 @@
+{
+  "walls": [
+    {
+      "x": 200,
+      "y": 900,
+      "width": 400,
+      "height": 600
+    },
+    {
+      "x": 1800,
+      "y": 900,
+      "width": 400,
+      "height": 600
+    }
+  ],
+  "stairs": null,
+  "spikes": null,
+  "checkpoint": null,
+  "level_end": [ 1800, 545 ],
+  "hints": [
+    {
+      "npc": [ 150, 565 ],
+      "text": "Hint: follow the red outlines and there might be a surprise....",
+      "text_pos": [ 150, 565 ]
+    }
+  ],
+  "gravity": null,
+  "friction": null,
+  "ink_limit": null,
+  "line_collision_on": false,
+  "mouse_gesture": true,
+  "player_spawn": [ 200, 555 ],
+  "spawners": {
+    "boulder_spawners": [
+      {
+        "x": 0,
+        "y": -100,
+        "random_x": true,
+        "delay": 6000
+      }
+    ],
+    "spike_projectile_spawners": null
+  },
+  "enemies": {
+    "chase_boulder": null,
+    "archers": null
+  },
+  "paintcans": null
+}

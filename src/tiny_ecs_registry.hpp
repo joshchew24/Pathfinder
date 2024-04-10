@@ -41,7 +41,7 @@ public:
 	ComponentContainer<Particle> particles;
 	ComponentContainer<ParticleEmitter> particleEmitters;
 	ComponentContainer<toDrawOn> toDrawOns;
-	ComponentContainer<hint> hints;
+	ComponentContainer<Hint> hints;
 
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!

@@ -1,0 +1,43 @@
+{
+  "walls": null,
+  "stairs": [
+    {
+      "quantity": 10,
+      "x": 250,
+      "y": 800,
+      "gap": 50,
+      "width": 100,
+      "height": 20
+    }
+  ],
+  "spikes": null,
+  "checkpoint": [ 1010, 385 ],
+  "level_end": [ 1600, 105 ],
+  "hints": [
+    {
+      "npc": [ 260, 750 ],
+      "text": "You finished the tutorial... Now the real fun begins.",
+      "text_pos": [ 260, 370 ]
+    }
+  ],
+  "gravity": null,
+  "friction": null,
+  "ink_limit": null,
+  "player_spawn": [ 250, 700 ],
+  "spawners": {
+    "boulder_spawners": [
+      {
+        "x": 0,
+        "y": -100,
+        "random_x": true,
+        "delay": 6000
+      }
+    ],
+    "spike_projectile_spawners": null
+  },
+  "enemies": {
+    "chase_boulder": null,
+    "archers": null
+  },
+  "paintcans": null
+}
