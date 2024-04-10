@@ -1,27 +1,17 @@
 {
-  "walls": [
+  "walls": null,
+  "stairs": [
     {
+      "quantity": 10,
       "x": 250,
       "y": 800,
-      "width": 100,
-      "height": 20
-    },
-    {
-      "x": 1000,
-      "y": 450,
-      "width": 100,
-      "height": 20
-    },
-    {
-      "x": 1600,
-      "y": 150,
+      "gap": 50,
       "width": 100,
       "height": 20
     }
   ],
-  "stairs": null,
   "spikes": null,
-  "checkpoint": [ 1000, 385 ],
+  "checkpoint": [ 1010, 385 ],
   "level_end": [ 1600, 105 ],
   "hints": [
     {
@@ -32,7 +22,7 @@
   ],
   "gravity": null,
   "friction": null,
-  "ink_limit": 500,
+  "ink_limit": null,
   "player_spawn": [ 250, 700 ],
   "spawners": {
     "boulder_spawners": [

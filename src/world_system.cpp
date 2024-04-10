@@ -794,7 +794,7 @@ void WorldSystem::handle_collisions(float elapsed_ms) {
 			}
 		}
 
-		if (registry.projectiles.has(entity)) {
+		if (registry.projectiles.has(entity) && !(registry.projectiles.has(entity_other) || registry.pencil.has(entity_other))) {
 			registry.remove_all_components_of(entity);
 		}
 	}

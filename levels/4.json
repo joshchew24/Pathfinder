@@ -1,85 +1,132 @@
 {
   "walls": [
     {
+      "name": "floor",
       "x": 1000,
       "y": 1000,
       "width": 2000,
       "height": 100
     },
     {
-      "x": 1225,
-      "y": 80,
-      "width": 130,
-      "height": 200
-    },
-    {
-      "name": "column",
-      "x": 440,
-      "y": 500,
-      "width": 300,
-      "height": 640
-    }
-  ],
-  "stairs": [
-    {
-      "quantity": 5,
-      "x": 500,
-      "y": 180,
-      "gap": 0,
+      "x": 75,
+      "y": 600,
       "width": 150,
-      "height": 0
+      "height": 20
     },
     {
-      "quantity": 1,
       "x": 1800,
-      "y": 260,
-      "gap": 0,
-      "width": 100,
-      "height": 50
+      "y": 600,
+      "width": 150,
+      "height": 20
     }
   ],
+  "stairs": null,
   "spikes": [
     {
-      "x": 320,
-      "y": 830,
-      "quantity": 7,
+      "x": 0,
+      "y": 940,
+      "quantity": 200,
       "gap": 40,
-      "angle": 180
+      "angle": 0
     }
   ],
-  "checkpoint": [750, 895],
-  "level_end": [ 1800, 180 ],
+  "checkpoint": null,
+  "level_end": [ 1800, 545 ],
   "hints": [
     {
-      "npc": [ 1100, 145 ],
-      "text": "Drawings block the boulder's vision!",
-      "text_pos": [ 500, 950 ]
-    },
-    {
-      "npc": [ 800, 915 ],
-      "text": "Use your ink wisely!",
-      "text_pos": [ 750, 220 ]
+      "npc": [ 40, 550 ],
+      "text": "Your drawings also protect you from their projectiles!",
+      "text_pos": [ 100, 600 ]
     }
   ],
-  "gravity": 10,
+  "gravity": null,
   "friction": null,
-  "ink_limit": 500,
-  "line_collision_on": null,
-  "player_spawn": [ 1000, 80 ],
+  "ink_limit": null,
+  "player_spawn": [ 90, 540 ],
   "spawners": {
-    "boulder_spawners": [
-      {
-        "x": 50,
-        "y": 0,
-        "random_x": false,
-        "delay": 3000
-      }
-    ],
+    "boulder_spawners": null,
     "spike_projectile_spawners": null
   },
   "enemies": {
     "chase_boulder": null,
-    "archers": null
+    "archers": [
+      {
+        "x": 100,
+        "y": 900
+      },
+      {
+        "x": 200,
+        "y": 900
+      },
+      {
+        "x": 300,
+        "y": 900
+      },
+      {
+        "x": 400,
+        "y": 900
+      },
+      {
+        "x": 500,
+        "y": 900
+      },
+      {
+        "x": 600,
+        "y": 900
+      },
+      {
+        "x": 700,
+        "y": 900
+      },
+      {
+        "x": 800,
+        "y": 900
+      },
+      {
+        "x": 900,
+        "y": 900
+      },
+      {
+        "x": 1000,
+        "y": 900
+      },
+      {
+        "x": 1100,
+        "y": 900
+      },
+      {
+        "x": 1200,
+        "y": 900
+      },
+      {
+        "x": 1300,
+        "y": 900
+      },
+      {
+        "x": 1400,
+        "y": 900
+      },
+      {
+        "x": 1500,
+        "y": 900
+      },
+      {
+        "x": 1600,
+        "y": 900
+      },
+      {
+        "x": 1700,
+        "y": 900
+      },
+      {
+        "x": 1800,
+        "y": 900
+      },
+      {
+        "x": 1900,
+        "y": 900
+      }
+    ]
   },
   "paintcans": null
 }
