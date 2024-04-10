@@ -122,7 +122,7 @@ int main()
 void step_game_logic(WorldSystem& world, PhysicsSystem& physics, AISystem& ai, DrawingSystem& drawings, float ms) {
 	world.step(ms);
 	world.handle_collisions(ms);
-	physics.step(ms);
+	physics.step(ms, world.isLineCollisionsOn());
 	ai.step(ms);
-	drawings.step(ms);
+	drawings.step(ms, world.isLineCollisionsOn());
 }
