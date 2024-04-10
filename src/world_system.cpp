@@ -97,7 +97,7 @@ GLFWwindow* WorldSystem::create_window() {
 	glfwSetMouseButtonCallback(window, mouse_button_redirect); 
 
 	// Set cursor mode to hidden
-	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
 	//////////////////////////////////////
 	// Loading music and sounds with SDL
@@ -589,6 +589,9 @@ void WorldSystem::createLevel() {
 	if (currentLevel.hintPos.first != NULL) {
 		createHint(renderer, { currentLevel.hintPos.first, currentLevel.hintPos.second }, currentLevel.hint);
 		renderer->hintPos = { currentLevel.hintTextPos.first, currentLevel.hintTextPos.second };
+	}
+	if (level == 0 || level == 1 || level == 2) {
+		DrawingSystem::showInkBar = false;
 	}
 	if (level == 7) {
 		DrawingSystem::remainingDrawingCount = 550;
