@@ -97,7 +97,7 @@ GLFWwindow* WorldSystem::create_window() {
 	glfwSetMouseButtonCallback(window, mouse_button_redirect); 
 
 	// Set cursor mode to hidden
-	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
 	//////////////////////////////////////
 	// Loading music and sounds with SDL
@@ -875,11 +875,13 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 			*mainMenu = true;
 			mainMenuEntity = createMainMenu(renderer, { window_width_px / 2, window_height_px / 2 }, { 800,800 });
 			renderer->renderMainMenuText = true;
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		}
 		else {
 			*mainMenu = false;
 			renderer->renderMainMenuText = false;
 			registry.remove_all_components_of(mainMenuEntity);
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 		}
 		/*createLine({window_width_px / 2 - 120, window_height_px / 2 + 20}, {5, 20}, 0);
 		createLine({ window_width_px / 2 + 130, window_height_px / 2 + 20 }, { 5, 20 }, 0);
