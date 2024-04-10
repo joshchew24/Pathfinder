@@ -28,10 +28,13 @@
   "friction": null,
   "ink_limit": null,
   "player_spawn": [ 100, 460 ],
+  "spawners": {
+    "boulder_spawners": null,
+    "spike_projectile_spawners": null
+  },
   "enemies": {
-    "boulder_spawn": null,
-    "chaseboulder_spawn": null,
-    "archer_spawn": null
+    "chase_boulder": null,
+    "archers": null
   },
   "paintcans": null
 }
