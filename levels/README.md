@@ -1,5 +1,7 @@
 # Making New Levels
 `-1.json` is a sample level containing all the attributes listed below. Feel free to use it as a template, but it may not be up to date with any new features added.
+
+If you add a new level, make sure the level numbering is correct. If you add it to the end, just add one to the previous highest level index. If you add it somewhere in the middle, make sure to increment all the other levels. You will also need to update the index of the last level in `config.json`. 
 ## Required Attributes
 The level manager expects these attributes to be in your level. If they're missing, you'll get an error. Replace `<x>` and `<y>` with the coordinates of the associated entity.
 
