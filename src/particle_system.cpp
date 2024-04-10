@@ -54,7 +54,7 @@ void ParticleSystem::step(float elapsed_ms) {
 void ParticleSystem::spawn_particle(const ParticleEmitter& emitter, Motion m) {
 	static std::random_device rd;
 	static std::mt19937 gen(rd());
-	std::uniform_real_distribution<> dis_offset_x(-10.0, 10.0);
+	std::uniform_real_distribution<> dis_offset_x(-20.0, 20.0);
 	std::uniform_real_distribution<> dis_offset_y(-5.0, 5.0);
 	std::uniform_real_distribution<> dis_velocity(-10.0, 10.0);
 
