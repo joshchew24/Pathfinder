@@ -81,7 +81,7 @@ class RenderSystem {
 			textures_path("hintAnimation/hint8.png"),
 			textures_path("character_roundGreen.png"),
 			textures_path("tile_0008.png"),
-			textures_path("circle_03.png"),
+			textures_path("star_07.png"),
 			textures_path("mainMenu.png"),
 			textures_path("tutorial/tutorialDraw.png"),
 			textures_path("tutorial/tutorialJump.png"),

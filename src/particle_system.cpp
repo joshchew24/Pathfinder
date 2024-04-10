@@ -57,7 +57,7 @@ void ParticleSystem::spawn_particle(const ParticleEmitter& emitter, Motion m) {
 	std::uniform_real_distribution<> dis_offset_x(-20.0, 20.0);
 	std::uniform_real_distribution<> dis_offset_y(-5.0, 5.0);
 	std::uniform_real_distribution<> dis_velocity(-10.0, 10.0);
-
+	std::uniform_real_distribution<> dis_angle(-3.14, 3.14);
 	Entity entity = Entity();
 	auto& particle = registry.particles.emplace(entity);
 	particle.color = emitter.color;
@@ -74,11 +74,13 @@ void ParticleSystem::spawn_particle(const ParticleEmitter& emitter, Motion m) {
 		m.velocity.y + dis_velocity(gen)
 	};
 
-	motion.scale = { 10, 10 };
+	motion.angle = dis_angle(gen);
+
+	motion.scale = { 30, 30 };
 	motion.grounded = true;
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::CIRCLEPARTICLE,
+		{ TEXTURE_ASSET_ID::STARPARTICLE,
 		  EFFECT_ASSET_ID::TEXTURED,
 		  GEOMETRY_BUFFER_ID::SPRITE });
 }

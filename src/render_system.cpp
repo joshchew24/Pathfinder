@@ -453,7 +453,7 @@ void RenderSystem::drawParticles(const mat3& projection) {
 	glBindVertexArray(particleVAO);
 	glm::mat4 projection_4x4 = glm::mat4(projection);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture_gl_handles[static_cast<int>(TEXTURE_ASSET_ID::CIRCLEPARTICLE)]);
+	glBindTexture(GL_TEXTURE_2D, texture_gl_handles[static_cast<int>(TEXTURE_ASSET_ID::STARPARTICLE)]);
 
 	// Tell the shader the texture is in texture unit 0
 	glUniform1i(glGetUniformLocation(particleShaderProgram, "sprite"), 0);
