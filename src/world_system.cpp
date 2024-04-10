@@ -590,9 +590,6 @@ void WorldSystem::createLevel() {
 		createHint(renderer, { currentLevel.hintPos.first, currentLevel.hintPos.second }, currentLevel.hint);
 		renderer->hintPos = { currentLevel.hintTextPos.first, currentLevel.hintTextPos.second };
 	}
-	if (level == 0 || level == 1 || level == 2) {
-		DrawingSystem::showInkBar = false;
-	}
 	if (level == 7) {
 		DrawingSystem::remainingDrawingCount = 550;
 	}
