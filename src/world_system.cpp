@@ -424,7 +424,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	//update parallax background based on player position
 	Motion& m = registry.motions.get(player);
 	float dx = m.position.x - renderer->camera_x;
-	renderer->camera_x = dx * cameraSpeed;
+	renderer->camera_x = -dx * cameraSpeed;
 	float dy = m.position.y - renderer->camera_y;
 	renderer->camera_y = dy * cameraSpeed;
 
