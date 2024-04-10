@@ -342,7 +342,7 @@ void RenderSystem::draw()
 
 		for (auto e : registry.players.entities) {
 			Motion m = registry.motions.get(e);
-			if (drawings.remainingDrawingCount < 1000 && drawings.remainingDrawingCount > 0) {
+			if (drawings.showInkBar && drawings.remainingDrawingCount > 0) {
 				int totalChars = 10;
 				int filledChars = ((drawings.remainingDrawingCount - 1) * totalChars) / 1000;
 

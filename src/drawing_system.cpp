@@ -12,6 +12,8 @@ static const float pointdraw_freq_ms = 50.f;
 
 float DrawingSystem::remainingDrawingCount = 1000.f;
 
+bool DrawingSystem::showInkBar = true;
+
 DrawingSystem::DrawingSystem() {
 }
 

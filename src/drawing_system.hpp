@@ -29,6 +29,8 @@ public:
 
 	static float remainingDrawingCount;
 
+	static bool showInkBar;
+
 	Entity get_prev_line() { return prev_line; }
 
 private:
