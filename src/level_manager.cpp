@@ -1,10 +1,10 @@
 #include "level_manager.hpp"
 
 void LevelManager::loadLevels() {
-	//for (int i = 0; i <= config.max_level; i++) {
-	//	levels.push_back(loadLevel(i));
-	//}
-	levels.push_back(loadLevel(9));
+	for (int i = 0; i <= config.max_level; i++) {
+		levels.push_back(loadLevel(i));
+	}
+	//levels.push_back(loadLevel(9));
 	return;
 }
 

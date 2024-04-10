@@ -13,7 +13,7 @@
   "spikes": null,
   "checkpoint": [ 1010, 385 ],
   "level_end": [ 1600, 105 ],
-  "hint": [
+  "hints": [
     {
       "npc": [ 260, 750 ],
       "text": "You finished the tutorial... Now the real fun begins.",

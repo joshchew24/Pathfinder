@@ -23,7 +23,7 @@
   "spikes": null,
   "checkpoint": null,
   "level_end": [ 1800, 495 ],
-  "hint": null,
+  "hints": null,
   "gravity": null,
   "friction": null,
   "ink_limit": null,

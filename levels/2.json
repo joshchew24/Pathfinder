@@ -23,7 +23,7 @@
   "spikes": null,
   "checkpoint": null,
   "level_end": [ 1800, 695 ],
-  "hint": [
+  "hints": [
     {
       "npc": [ 650, 598 ],
       "text": "Hit escape for the main menu",

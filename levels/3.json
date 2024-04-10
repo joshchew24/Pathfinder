@@ -39,7 +39,7 @@
   ],
   "checkpoint": [ 1000, 643 ],
   "level_end": [ 1800, 643 ],
-  "hint": [
+  "hints": [
     {
       "npc": [ 920, 663 ],
       "text": "Too hard? Hit the flag and press L to load the checkpoint",

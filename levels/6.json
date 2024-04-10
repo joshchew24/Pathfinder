@@ -26,7 +26,7 @@
   "spikes": null,
   "checkpoint": [ 880, 395 ],
   "level_end": [ 1900, 445 ],
-  "hint": null,
+  "hints": null,
   "gravity": null,
   "friction": null,
   "ink_limit": null,
