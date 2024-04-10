@@ -39,11 +39,13 @@
   ],
   "checkpoint": [ 1000, 643 ],
   "level_end": [ 1800, 643 ],
-  "hint": {
-    "npc": [ 920, 663 ],
-    "text": "Too hard? Hit the flag and press L to load the checkpoint",
-    "text_pos": [ 920, 455 ]
-  },
+  "hint": [
+    {
+      "npc": [ 920, 663 ],
+      "text": "Too hard? Hit the flag and press L to load the checkpoint",
+      "text_pos": [ 920, 455 ]
+    }
+  ],
   "gravity": null,
   "friction": null,
   "ink_limit": null,

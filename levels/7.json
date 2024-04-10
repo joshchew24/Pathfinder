@@ -69,11 +69,13 @@
   ],
   "checkpoint": null,
   "level_end": [ 1910, 435 ],
-  "hint": {
-    "npc": [ 150, 465 ],
-    "text": "Hint: the levels will disappear.. There must be some way to help you memorize them",
-    "text_pos": [ 150, 650 ]
-  },
+  "hint": [
+    {
+      "npc": [ 150, 465 ],
+      "text": "Hint: the levels will disappear.. There must be some way to help you memorize them",
+      "text_pos": [ 150, 650 ]
+    }
+  ],
   "gravity": null,
   "friction": null,
   "ink_limit": null,

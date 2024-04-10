@@ -23,11 +23,13 @@
   "spikes": null,
   "checkpoint": null,
   "level_end": [ 1800, 695 ],
-  "hint": {
-    "npc": [ 650, 598 ],
-    "text": "Hit escape for the main menu",
-    "text_pos": [ 650, 525 ]
-  },
+  "hint": [
+    {
+      "npc": [ 650, 598 ],
+      "text": "Hit escape for the main menu",
+      "text_pos": [ 650, 525 ]
+    }
+  ],
   "gravity": null,
   "friction": null,
   "ink_limit": null,

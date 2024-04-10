@@ -108,8 +108,9 @@ struct toDrawOn
 
 };
 
-struct hint {
+struct Hint {
 	std::string text;
+	vec2 textPos;
 };
 
 // All data relevant to the shape and motion of entities

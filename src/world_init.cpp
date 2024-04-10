@@ -487,7 +487,7 @@ Entity createArcher(RenderSystem * renderer, vec2 position, vec2 size)
 	return entity;
 }
 
-Entity createHint(RenderSystem* renderer, vec2 position, std::string text)
+Entity createHint(RenderSystem* renderer, vec2 position, std::string text, vec2 textPos)
 {
 	auto entity = Entity();
 
@@ -502,8 +502,9 @@ Entity createHint(RenderSystem* renderer, vec2 position, std::string text)
 	motion.scale = { 47.f, 60.f };
 	motion.fixed = true;
 
-	hint& h = registry.hints.emplace(entity);
+	Hint& h = registry.hints.emplace(entity);
 	h.text = text;
+	h.textPos = textPos;
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::HINT1,

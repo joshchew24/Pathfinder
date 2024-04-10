@@ -1,9 +1,10 @@
 #include "level_manager.hpp"
 
 void LevelManager::loadLevels() {
-	for (int i = 0; i <= config.max_level; i++) {
-		levels.push_back(loadLevel(i));
-	}
+	//for (int i = 0; i <= config.max_level; i++) {
+	//	levels.push_back(loadLevel(i));
+	//}
+	levels.push_back(loadLevel(9));
 	return;
 }
 
@@ -39,13 +40,8 @@ Level LevelManager::loadLevel(int levelNumber) {
 	levelObject.endPoint.x = levelData["level_end"][0];
 	levelObject.endPoint.y = levelData["level_end"][1];
 
-	if (!levelData["hint"].is_null()) {
-		levelObject.hasHint = true;
-		levelObject.hintPos.x = levelData["hint"]["npc"][0];
-		levelObject.hintPos.y = levelData["hint"]["npc"][1];
-		levelObject.hint = levelData["hint"]["text"];
-		levelObject.hintTextPos.x = levelData["hint"]["text_pos"][0];
-		levelObject.hintTextPos.y = levelData["hint"]["text_pos"][1];
+	for (json hint : levelData["hints"]) {
+		levelObject.hints.push_back(parseHint(hint));
 	}
 
 	levelObject.gravity = levelData["gravity"].is_null() ? config.gravity : levelData["gravity"];
@@ -133,6 +129,16 @@ void LevelManager::parseSpike(Level& level, json spikeJson) {
 		spike.angle = angle;
 		level.spikes.push_back(spike);
 	}
+}
+
+InitHint LevelManager::parseHint(json hintJson) {
+	InitHint hint;
+	hint.npcPos.x = hintJson["npc"][0];
+	hint.npcPos.y = hintJson["npc"][1];
+	hint.text = hintJson["text"];
+	hint.textPos.x = hintJson["text_pos"][0];
+	hint.textPos.y = hintJson["text_pos"][1];
+	return hint;
 }
 
 InitPaintCan LevelManager::parsePaintCan(json paintcanJson) {

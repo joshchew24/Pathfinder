@@ -11,11 +11,13 @@
   "spikes": null,
   "checkpoint": null,
   "level_end": [ 1600, 690 ],
-  "hint": {
-    "npc": [ 750, 702 ],
-    "text": "Hello, I am the hint guy, I will give you a hint on certain levels! For now, just follow the tutorial and reach the trophy",
-    "text_pos": [ 550, 440 ]
-  },
+  "hint": [
+    {
+      "npc": [ 750, 702 ],
+      "text": "Hello, I am the hint guy, I will give you a hint on certain levels! For now, just follow the tutorial and reach the trophy",
+      "text_pos": [ 550, 440 ]
+    }
+  ],
   "gravity": null,
   "friction": null,
   "ink_limit": null,

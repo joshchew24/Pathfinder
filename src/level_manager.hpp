@@ -21,6 +21,12 @@ struct InitSpike {
 	float angle;
 };
 
+struct InitHint {
+	vec2 npcPos;
+	std::string text;
+	vec2 textPos;
+};
+
 struct InitPaintCan {
 	vec2 pos;
 	float value;
@@ -46,10 +52,6 @@ struct Level {
 	bool hasCheckpoint = false;
 	vec2 checkpoint;
 	vec2 endPoint;
-	bool hasHint = false;
-	vec2 hintPos;
-	std::string hint;
-	vec2 hintTextPos;
 	float gravity;
 	float friction;
 	float inkLimit;
@@ -61,6 +63,7 @@ struct Level {
 	vec2 chaseBoulder;
 	std::vector<vec2> archers;
 	std::vector<InitPaintCan> paintcans;
+	std::vector<InitHint> hints;
 };
 
 class LevelManager {
@@ -68,9 +71,10 @@ private:
 	InitWall parseWall(json wallJson);
 	void parseStair(Level& level, json stairJson);
 	void parseSpike(Level& level, json spikeJson);
-	InitPaintCan LevelManager::parsePaintCan(json paintcanJson);
-	InitBoulderSpawner LevelManager::parseBoulderSpawner(json boulderSpawnerJson);
-	InitSpikeProjectileSpawner LevelManager::parseSpikeProjectileSpawner(json spikeProjectileSpawnerJson);
+	InitHint parseHint(json hintJson);
+	InitPaintCan parsePaintCan(json paintcanJson);
+	InitBoulderSpawner parseBoulderSpawner(json boulderSpawnerJson);
+	InitSpikeProjectileSpawner parseSpikeProjectileSpawner(json spikeProjectileSpawnerJson);
 
 public:
 	std::vector<Level> levels;

@@ -335,7 +335,10 @@ void RenderSystem::draw()
 
 		// renderHint
 		if (!renderMainMenuText) {
-			renderText(hint, hintPos.x - 100, hintPos.y - 70, 0.6, glm::vec3(1.0f, 1.0f, 1.0f), trans);
+			for (Hint hint : hints) {
+				renderText(hint.text, hint.textPos.x - 100, hint.textPos.y - 70, 0.6, glm::vec3(1.0f, 1.0f, 1.0f), trans);
+			}
+			//renderText(hint, hintPos.x - 100, hintPos.y - 70, 0.6, glm::vec3(1.0f, 1.0f, 1.0f), trans);
 		}
 
 		if (renderMainMenuText) {

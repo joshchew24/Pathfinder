@@ -13,11 +13,13 @@
   "spikes": null,
   "checkpoint": [ 1010, 385 ],
   "level_end": [ 1600, 105 ],
-  "hint": {
-    "npc": [ 260, 750 ],
-    "text": "You finished the tutorial... Now the real fun begins.",
-    "text_pos": [ 260, 370 ]
-  },
+  "hint": [
+    {
+      "npc": [ 260, 750 ],
+      "text": "You finished the tutorial... Now the real fun begins.",
+      "text_pos": [ 260, 370 ]
+    }
+  ],
   "gravity": null,
   "friction": null,
   "ink_limit": null,

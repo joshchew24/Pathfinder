@@ -17,11 +17,13 @@
   "spikes": null,
   "checkpoint": null,
   "level_end": [ 1800, 545 ],
-  "hint": {
-    "npc": [ 150, 565 ],
-    "text": "Hint: follow the red outlines and there might be a surprise....",
-    "text_pos": [ 150, 565 ]
-  },
+  "hint": [
+    {
+      "npc": [ 150, 565 ],
+      "text": "Hint: follow the red outlines and there might be a surprise....",
+      "text_pos": [ 150, 565 ]
+    }
+  ],
   "gravity": null,
   "friction": null,
   "ink_limit": null,

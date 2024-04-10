@@ -302,7 +302,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	next_boulder_spawn -= elapsed_ms_since_last_update * current_speed * 2;
 	if (next_boulder_spawn < 0.f) {
 		for (const InitBoulderSpawner& boulderSpawner : level.boulderSpawners) {
-			if (registry.deadlys.components.size() <= MAX_BOULDERS) {
+			if (registry.boulders.components.size() <= MAX_BOULDERS) {
 				// Reset timer
 				vec2 spawnpoint = boulderSpawner.pos;
 				if (boulderSpawner.random_x) {
@@ -502,7 +502,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		//printf("level: %d\n", currDrawing);
 	}
 
-	renderer->hint = "";
+	// clear rendering list for hint text
+	renderer->hints.clear();
 
 	for (Entity e : registry.hints.entities) {
 		switchHintAnimation(e, elapsed_ms_since_last_update);
@@ -585,9 +586,8 @@ Level WorldSystem::createLevel(int level_idx) {
 		createCheckpoint(renderer, level.checkpoint);
 	}
 	createEndpoint(renderer, level.endPoint);
-	if (level.hasHint) {
-		createHint(renderer, level.hintPos, level.hint);
-		renderer->hintPos = level.hintTextPos;
+	for (InitHint hint : level.hints) {
+		createHint(renderer, hint.npcPos, hint.text, hint.textPos);
 	}
 	if (level.hasChaseBoulder) {
 		chaseBoulder = createChaseBoulder(renderer, level.chaseBoulder);
@@ -776,9 +776,9 @@ void WorldSystem::handle_collisions(float elapsed_ms) {
 				}
 			}
 
+			// if colliding with hint npc, add it to the list of hint text to render
 			else if (registry.hints.has(entity_other)) {
-				Motion m = registry.motions.get(entity_other);
-				renderer->hint = registry.hints.get(entity_other).text;
+				renderer->hints.push_back(registry.hints.get(entity_other));
 			}
 		}
 
