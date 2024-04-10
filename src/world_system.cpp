@@ -214,13 +214,21 @@ void WorldSystem::drawLinesLevel4(int currDrawing) {
 		//createDrawOnLines(620, 430, M_PI / 2);
 	}
 	else if (currDrawing == 1) {
+		DrawingSystem::remainingDrawingCount = 1000;
 		createIndividualPlatforms({ 600, window_height_px - 300 }, { 200, 100 });
+		Entity e = createPaintCan(renderer, { 600, window_height_px - 350 }, { 25.f, 50.f }, 300);
+		Motion& m = registry.motions.get(e);
+		m.fixed = true;
 		drawLinesLoop(700, 25, 400, -25, 10, 0.698132, 0);
 		drawLinesLoop(950, 25, 175, 25, 10, 2.44346, 0);
 		drawLinesLoop(724, 47, 410, 0, 10, M_PI / 2, 0);
 	}
 	else if (currDrawing == 2) {
+		DrawingSystem::remainingDrawingCount = 1000;
 		createIndividualPlatforms({ 850, window_height_px - 300 }, { 200, 100 });
+		Entity e = createPaintCan(renderer, { 850, window_height_px - 350 }, { 25.f, 50.f }, 300);
+		Motion& m = registry.motions.get(e);
+		m.fixed = true;
 		drawLinesLoop(950, 25, 100, 0, 7, 1.5708, 0);
 		drawLinesLoop(950, 25, 250, 0, 7, 1.5708, 0);
 		//drawLinesLoop(950, 25, 550, 0, 7, 1.5708, 0);
@@ -241,8 +249,11 @@ void WorldSystem::drawLinesLevel4(int currDrawing) {
 		//drawLinesLoop(1185, 0, 200, 45, 7, 0, 0);
 	}
 	else if (currDrawing == 3) {
+		DrawingSystem::remainingDrawingCount = 1000;
 		createIndividualPlatforms({ 1100, window_height_px - 300 }, { 200, 100 });
-
+		Entity e = createPaintCan(renderer, { 1100, window_height_px - 350 }, { 25.f, 50.f }, 300);
+		Motion& m = registry.motions.get(e);
+		m.fixed = true;
 		drawLinesLoop(750, 25, 420, -40, 10, 0.698132, 0);
 		drawLinesLoop(980, 25, 55, 40, 10, 2.44346, 0);
 		drawLinesLoop(770, 70, 425, 0, 7, M_PI / 2, 0);
@@ -513,7 +524,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 }
 
 void WorldSystem::handlePlayerAnimation(float elapsed_ms_since_last_update) {
-	static const float targetFrameTime = 1000.0f / 30.0f; // Target time for each frame (30 FPS)
+	static const float targetFrameTime = 1000.0f / 24.0f; // Target time for each frame (24 FPS)
 
 	Motion& m = registry.motions.get(player);
 	static float accumulatedTime = 0.0f;
@@ -527,14 +538,14 @@ void WorldSystem::handlePlayerAnimation(float elapsed_ms_since_last_update) {
 		if (movementSystem.leftOrRight() && m.grounded) {
 			// Calculate next frame for texture change
 			currentRunningTexture++;
-			if (currentRunningTexture > (int)TEXTURE_ASSET_ID::RUN6) {
+			if (currentRunningTexture > (int)TEXTURE_ASSET_ID::RUN9) {
 				currentRunningTexture = (int)TEXTURE_ASSET_ID::OLIVER;
 			}
 			registry.renderRequests.get(player).used_texture = static_cast<TEXTURE_ASSET_ID>(currentRunningTexture);
 		}
 		else if (!m.grounded) {
 			// Player is not grounded (in air)
-			registry.renderRequests.get(player).used_texture = TEXTURE_ASSET_ID::RUN4;
+			registry.renderRequests.get(player).used_texture = TEXTURE_ASSET_ID::RUN7;
 		}
 		else if (m.grounded) {
 			// Player is grounded
@@ -732,7 +743,8 @@ void WorldSystem::handle_collisions(float elapsed_ms) {
 			// Checking Player - Eatable collisions
 			else if (registry.eatables.has(entity_other)) {
 				if (!registry.deathTimers.has(entity)) {
-					// chew, count points, and set the LightUp timer
+					PaintCan p = registry.paintCans.get(entity_other);
+					drawings.add_drawing_count(p.paintRefill);
 					registry.remove_all_components_of(entity_other);
 					Mix_PlayChannel(-1, ink_pickup_sound, 0);
 				}

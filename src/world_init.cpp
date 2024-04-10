@@ -295,7 +295,7 @@ Entity createBackground(RenderSystem* renderer)
 	return entity;
 }
 
-Entity createPaintCan(RenderSystem* renderer, vec2 position, vec2 size)
+Entity createPaintCan(RenderSystem* renderer, vec2 position, vec2 size, float paintRefill)
 {
 	auto entity = Entity();
 
@@ -312,7 +312,8 @@ Entity createPaintCan(RenderSystem* renderer, vec2 position, vec2 size)
 	motion.scale = size;
 
 	registry.eatables.emplace(entity);
-	registry.paintCans.emplace(entity);
+	PaintCan& p = registry.paintCans.emplace(entity);
+	p.paintRefill = paintRefill;
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::PAINTCAN,

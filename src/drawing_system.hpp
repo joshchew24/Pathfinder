@@ -23,6 +23,12 @@ public:
 
 	bool currently_drawing() { return is_drawing; }
 
+	void add_drawing_count(float count);
+
+	float get_drawing_count();
+
+	static float remainingDrawingCount;
+
 	Entity get_prev_line() { return prev_line; }
 
 private:

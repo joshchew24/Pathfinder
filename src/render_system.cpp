@@ -1,8 +1,9 @@
-// internal
+﻿// internal
 #include "render_system.hpp"
 #include <SDL.h>
 #include <SDL_opengl.h>
 #include "tiny_ecs_registry.hpp"
+#include "drawing_system.hpp"
 #include <glm/gtc/type_ptr.hpp>
 #include <chrono>
 #include <thread>
@@ -332,6 +333,26 @@ void RenderSystem::draw()
 
 		// Truely render to the screen
 		drawToScreen();
+
+		for (auto e : registry.paintCans.entities) {
+			Motion m = registry.motions.get(e);
+			PaintCan p = registry.paintCans.get(e);
+			renderText(std::to_string((int)p.paintRefill), m.position.x - 20, window_height_px - m.position.y, 0.55, glm::vec3(1.0f, 1.0f, 1.0f), trans);
+		}
+
+		for (auto e : registry.players.entities) {
+			Motion m = registry.motions.get(e);
+			if (drawings.remainingDrawingCount < 1000 && drawings.remainingDrawingCount > 0) {
+				int totalChars = 10;
+				int filledChars = ((drawings.remainingDrawingCount - 1) * totalChars) / 1000;
+
+				std::string barText = "|"; 
+				for (int i = 0; i < filledChars; ++i) {
+					barText += "|";
+				}
+				renderText(barText, m.position.x - m.scale.x/2, window_height_px - m.position.y + m.scale.y, 0.55, glm::vec3(1.0f, 1.0f, 1.0f), trans);
+			}
+		}
 
 		// renderHint
 		if (!renderMainMenuText) {

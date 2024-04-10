@@ -100,7 +100,7 @@ struct levelEnd
 
 struct PaintCan
 {
-
+	float paintRefill;
 };
 
 struct toDrawOn
@@ -239,7 +239,10 @@ enum class TEXTURE_ASSET_ID {
 	RUN4 = RUN3 + 1,
 	RUN5 = RUN4 + 1,
 	RUN6 = RUN5 + 1,
-	PENCIL = RUN6 + 1,
+	RUN7 = RUN6 + 1,
+	RUN8 = RUN7 + 1,
+	RUN9 = RUN8 + 1,
+	PENCIL = RUN9 + 1,
 	PAINTCAN = PENCIL + 1,
 	TUTORIAL = PAINTCAN + 1,
 	BACKGROUND = TUTORIAL + 1,

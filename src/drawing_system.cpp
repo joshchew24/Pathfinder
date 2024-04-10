@@ -3,11 +3,14 @@
 
 #include "drawing_system.hpp"
 #include "world_init.hpp"
+#include <iostream>
 
 DrawingSystem drawings;
 
 // Configuration
 static const float pointdraw_freq_ms = 50.f;
+
+float DrawingSystem::remainingDrawingCount = 1000.f;
 
 DrawingSystem::DrawingSystem() {
 }
@@ -20,6 +23,18 @@ void DrawingSystem::reset() {
 	while (registry.drawings.entities.size() > 0)
 		registry.remove_all_components_of(registry.drawings.entities.back());
 	map_drawings_points_id.clear();
+	remainingDrawingCount = 1000.f;
+}
+
+void DrawingSystem::add_drawing_count(float count)
+{
+	remainingDrawingCount += count;
+	remainingDrawingCount = std::min(1000.f, remainingDrawingCount);
+}
+
+float DrawingSystem::get_drawing_count()
+{
+	return remainingDrawingCount;
 }
 
 
@@ -134,15 +149,29 @@ void DrawingSystem::step(float elapsed_ms, bool lineCollisionOn) {
 	if (ms_since_last_update < pointdraw_freq_ms)
 		return; 	
 	ms_since_last_update -= pointdraw_freq_ms;
-
-	if (is_drawing) {	
+	if (is_drawing && remainingDrawingCount > 0.f) {	
 		auto& point_ents = map_drawings_points_id[curr_drawing];
 		const DrawnPoint& last_point = registry.drawnPoints.get(prev_point);
 		if (last_point.position == drawPos)
 			return; // avoid duplicate points
+		else {
+			// Calculate the distance traveled
+			float dx = last_point.position.x - drawPos.x;
+			float dy = last_point.position.y - drawPos.y;
+			float drawDistance = std::sqrt(dx * dx + dy * dy);
+
+			if (drawDistance <= 10000.f) {
+				remainingDrawingCount -= drawDistance;
+			}
+
+			remainingDrawingCount = std::max(remainingDrawingCount, 0.0f);
+			std::cout << drawings.get_drawing_count() << std::endl;
+
+		}
 		Entity point = Entity();
 		registry.drawnPoints.insert(point, {curr_drawing, drawPos});
 		Entity line = build_line(curr_drawing, prev_point, point, lineCollisionOn);
+
 
 		if (!start_connecting) {
 			prev_line = line;
@@ -154,7 +183,6 @@ void DrawingSystem::step(float elapsed_ms, bool lineCollisionOn) {
 		}
 		point_ents.push_back(point);
 		prev_point = point;
-
 	}
 }
 
