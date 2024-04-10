@@ -55,7 +55,7 @@ void ParticleSystem::spawn_particle(const ParticleEmitter& emitter, Motion m) {
 	static std::random_device rd;
 	static std::mt19937 gen(rd());
 	std::uniform_real_distribution<> dis_offset_x(-10.0, 10.0);
-	std::uniform_real_distribution<> dis_offset_y(-2.0, 2.0);
+	std::uniform_real_distribution<> dis_offset_y(-5.0, 5.0);
 	std::uniform_real_distribution<> dis_velocity(-10.0, 10.0);
 
 	Entity entity = Entity();
@@ -65,8 +65,8 @@ void ParticleSystem::spawn_particle(const ParticleEmitter& emitter, Motion m) {
 	auto& motion = registry.motions.emplace(entity);
 
 	motion.position = {
-		m.position.x + dis_offset_x(gen),
-		m.position.y + dis_offset_y(gen)
+		m.position.x + dis_offset_x(gen) - 20,
+		m.position.y + dis_offset_y(gen) + 30
 	};
 
 	motion.velocity = {

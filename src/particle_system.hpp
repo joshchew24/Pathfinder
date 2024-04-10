@@ -5,7 +5,7 @@ class ParticleSystem
 {
 
 	float frameCount = 0;
-	float frameMax = 75;
+	float frameMax = 50;
 public:
 	void init() {
 
