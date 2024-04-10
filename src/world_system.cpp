@@ -146,7 +146,6 @@ void WorldSystem::init(RenderSystem* renderer_arg, bool* mainMenu) {
 	lm.loadLevels();
 	//lm.printLevelsInfo();
 	this->levelManager = lm;
-	this->maxLevel = lm.levels.size() - 1;
 	// Set all states to default
     restart_game();
 }
@@ -260,7 +259,7 @@ void WorldSystem::drawLinesLevel4(int currDrawing) {
 }
 
 bool WorldSystem::isLineCollisionsOn() {
-	return levelManager.levels[this->level].lineCollisionOn;
+	return level.lineCollisionOn;
 }
 
 // Update our game world

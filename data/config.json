@@ -5,6 +5,7 @@
 	"friction": 1000000,
 	"terminal_velocity": 1000,
 	"ink_limit": 1000,
+	"line_collision_on": true,
 	"paintcan_value": 100,
 	"starting_level": 0,
 	"max_level": 8,

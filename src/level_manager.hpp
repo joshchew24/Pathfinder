@@ -53,6 +53,7 @@ struct Level {
 	float gravity;
 	float friction;
 	float inkLimit;
+	bool lineCollisionOn = true;
 	vec2 playerSpawn;
 	std::vector<InitBoulderSpawner> boulderSpawners;
 	std::vector<InitSpikeProjectileSpawner> spikeProjectileSpawners;
@@ -60,7 +61,6 @@ struct Level {
 	vec2 chaseBoulder;
 	std::vector<vec2> archers;
 	std::vector<InitPaintCan> paintcans;
-	bool lineCollisionOn = true;
 };
 
 class LevelManager {

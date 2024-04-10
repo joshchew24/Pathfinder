@@ -9,6 +9,7 @@ public:
 	float jump_height;
 	float friction;
 	float ink_limit;
+	bool line_collision_on;
 	float paintcan_value;
 	float terminal_velocity;
 	int starting_level;
@@ -25,6 +26,7 @@ public:
 		jump_height = config["jump_height"];
 		friction = config["friction"];
 		ink_limit = config["ink_limit"];
+		line_collision_on = config["line_collision_on"];
 		paintcan_value = config["paintcan_value"];
 		terminal_velocity = config["terminal_velocity"];
 		starting_level = config["starting_level"];

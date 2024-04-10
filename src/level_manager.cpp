@@ -51,6 +51,7 @@ Level LevelManager::loadLevel(int levelNumber) {
 	levelObject.gravity = levelData["gravity"].is_null() ? config.gravity : levelData["gravity"];
 	levelObject.friction = levelData["friction"].is_null() ? config.friction : levelData["friction"];
 	levelObject.inkLimit = levelData["ink_limit"].is_null() ? config.ink_limit : levelData["ink_limit"];
+	levelObject.lineCollisionOn = levelData["line_collision_on"].is_null() ? config.line_collision_on : levelData["line_collision_on"];
 
 	levelObject.playerSpawn.x = levelData["player_spawn"][0];
 	levelObject.playerSpawn.y = levelData["player_spawn"][1];

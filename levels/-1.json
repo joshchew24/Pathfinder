@@ -36,6 +36,7 @@
   "gravity": 1500,
   "friction": 1000000,
   "ink_limit": 1000,
+  "line_collision_on": null,
   "player_spawn": [ 600, 650 ],
   "spawners": {
     "boulder_spawners": [
