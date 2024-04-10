@@ -6,6 +6,7 @@
 #include "common.hpp"
 #include "components.hpp"
 #include "tiny_ecs.hpp"
+#include "level_manager.hpp"
 
 // matrices
 #include <glm/glm.hpp>
@@ -158,9 +159,7 @@ public:
 
 	void renderEnding(int i);
 
-	std::string hint;
-
-	vec2 hintPos;
+	std::vector<Hint> hints;
 
 	bool renderMainMenuText = false;
 private:

@@ -1,0 +1,46 @@
+{
+  "walls": [
+    {
+      "x": 900,
+      "y": 930,
+      "width": 1000,
+      "height": 600
+    },
+    {
+      "x": 40,
+      "y": 900,
+      "width": 400,
+      "height": 400
+    },
+    {
+      "x": 1800,
+      "y": 770,
+      "width": 500,
+      "height": 455
+    }
+  ],
+  "stairs": null,
+  "spikes": null,
+  "checkpoint": null,
+  "level_end": [ 1800, 495 ],
+  "hints": [
+    {
+      "npc": [ 100, 665 ],
+      "text": "Jump with spacebar!",
+      "text_pos": [ 150, 450 ]
+    }
+  ],
+  "gravity": null,
+  "friction": null,
+  "ink_limit": null,
+  "player_spawn": [ 100, 460 ],
+  "spawners": {
+    "boulder_spawners": null,
+    "spike_projectile_spawners": null
+  },
+  "enemies": {
+    "chase_boulder": null,
+    "archers": null
+  },
+  "paintcans": null
+}

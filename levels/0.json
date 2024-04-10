@@ -1,0 +1,34 @@
+{
+  "walls": [
+    {
+      "x": 1000,
+      "y": 940,
+      "width": 1400,
+      "height": 400
+    }
+  ],
+  "stairs": null,
+  "spikes": null,
+  "checkpoint": null,
+  "level_end": [ 1600, 690 ],
+  "hints": [
+    {
+      "npc": [ 750, 702 ],
+      "text": "Hello, I am the hint guy, I will give you a hint on certain levels! Use WASD to reach the trophy.",
+      "text_pos": [ 550, 440 ]
+    }
+  ],
+  "gravity": null,
+  "friction": null,
+  "ink_limit": null,
+  "player_spawn": [ 600, 650 ],
+  "spawners": {
+    "boulder_spawners": null,
+    "spike_projectile_spawners": null
+  },
+  "enemies": {
+    "chase_boulder": null,
+    "archers": null
+  },
+  "paintcans": null
+}

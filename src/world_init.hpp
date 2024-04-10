@@ -32,7 +32,7 @@ Entity createEndpoint(RenderSystem* renderer, vec2 position);
 
 Entity createBackground(RenderSystem* renderer);
 
-Entity createPaintCan(RenderSystem* renderer, vec2 pos, vec2 size, float paintRefill);
+Entity createPaintCan(RenderSystem* renderer, vec2 pos, vec2 size, float paintRefill, bool fixed=false);
 
 Entity createTutorialDraw(RenderSystem* renderer);
 
@@ -52,6 +52,6 @@ Entity createArcher(RenderSystem* renderer, vec2 pos, vec2 size);
 
 Entity createArcher(RenderSystem* renderer, vec2 pos, vec2 size);
 
-Entity createHint(RenderSystem* renderer, vec2 pos, std::string text);
+Entity createHint(RenderSystem* renderer, vec2 pos, std::string text, vec2 textPos);
 
 Entity createMainMenu(RenderSystem* renderer, vec2 pos, vec2 size);

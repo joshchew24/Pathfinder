@@ -1,0 +1,60 @@
+{
+  "walls": [
+    {
+      "x": 250,
+      "y": 800,
+      "width": 100,
+      "height": 20
+    },
+    {
+      "x": 1000,
+      "y": 450,
+      "width": 100,
+      "height": 20
+    },
+    {
+      "x": 1600,
+      "y": 150,
+      "width": 100,
+      "height": 20
+    }
+  ],
+  "stairs": null,
+  "spikes": null,
+  "checkpoint": [ 1000, 385 ],
+  "level_end": [ 1600, 105 ],
+  "hints": [
+    {
+      "npc": [ 260, 750 ],
+      "text": "Use your ink wisely.",
+      "text_pos": [ 260, 370 ]
+    }
+  ],
+  "gravity": null,
+  "friction": null,
+  "ink_limit": 200,
+  "player_spawn": [ 250, 700 ],
+  "spawners": {
+    "boulder_spawners": [
+      {
+        "x": 0,
+        "y": -100,
+        "random_x": true,
+        "delay": 6000
+      }
+    ],
+    "spike_projectile_spawners": null
+  },
+  "enemies": {
+    "chase_boulder": null,
+    "archers": null
+  },
+  "paintcans": [
+    {
+      "x": 1000,
+      "y": 350,
+      "value": 200,
+      "fixed": true
+    }
+  ]
+}

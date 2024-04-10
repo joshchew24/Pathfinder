@@ -141,12 +141,11 @@ void WorldSystem::init(RenderSystem* renderer_arg, bool* mainMenu) {
 	fprintf(stderr, "Loaded music\n");
 
 	//init levels
-	WorldSystem::level = config.starting_level;
+	WorldSystem::level_idx = config.starting_level;
 	LevelManager lm;
-	lm.initLevel();
-	lm.printLevelsInfo();
+	lm.loadLevels();
+	//lm.printLevelsInfo();
 	this->levelManager = lm;
-	this->maxLevel = lm.levels.size() - 1;
 	// Set all states to default
     restart_game();
 }
@@ -194,7 +193,7 @@ void WorldSystem::createIndividualPlatforms(vec2 position, vec2 size) {
 	createPlatform(renderer, {position.x, window_height_px - platformHeight }, {size.x - 10, 10.f });
 }
 
-void WorldSystem::drawLinesLevel4(int currDrawing) {
+void WorldSystem::handleDrawOnLines(int currDrawing) {
 	drawings.stop_drawing();
 	for (Entity e : registry.motions.entities) {
 		if (!registry.platforms.has(e) && !registry.players.has(e) && !registry.walls.has(e) && !registry.levelEnds.has(e) &&
@@ -215,7 +214,7 @@ void WorldSystem::drawLinesLevel4(int currDrawing) {
 		//createDrawOnLines(620, 430, M_PI / 2);
 	}
 	else if (currDrawing == 1) {
-		DrawingSystem::remainingDrawingCount = 1000;
+		DrawingSystem::remainingDrawingCount = level.inkLimit;
 		createIndividualPlatforms({ 600, window_height_px - 300 }, { 200, 100 });
 		Entity e = createPaintCan(renderer, { 600, window_height_px - 350 }, { 25.f, 50.f }, 300);
 		Motion& m = registry.motions.get(e);
@@ -225,7 +224,7 @@ void WorldSystem::drawLinesLevel4(int currDrawing) {
 		drawLinesLoop(724, 47, 410, 0, 10, M_PI / 2, 0);
 	}
 	else if (currDrawing == 2) {
-		DrawingSystem::remainingDrawingCount = 1000;
+		DrawingSystem::remainingDrawingCount = level.inkLimit;
 		createIndividualPlatforms({ 850, window_height_px - 300 }, { 200, 100 });
 		Entity e = createPaintCan(renderer, { 850, window_height_px - 350 }, { 25.f, 50.f }, 300);
 		Motion& m = registry.motions.get(e);
@@ -250,7 +249,7 @@ void WorldSystem::drawLinesLevel4(int currDrawing) {
 		//drawLinesLoop(1185, 0, 200, 45, 7, 0, 0);
 	}
 	else if (currDrawing == 3) {
-		DrawingSystem::remainingDrawingCount = 1000;
+		DrawingSystem::remainingDrawingCount = level.inkLimit;
 		createIndividualPlatforms({ 1100, window_height_px - 300 }, { 200, 100 });
 		Entity e = createPaintCan(renderer, { 1100, window_height_px - 350 }, { 25.f, 50.f }, 300);
 		Motion& m = registry.motions.get(e);
@@ -271,7 +270,7 @@ void WorldSystem::drawLinesLevel4(int currDrawing) {
 }
 
 bool WorldSystem::isLineCollisionsOn() {
-	return levelManager.levels[this->level].lineCollisionOn;
+	return level.lineCollisionOn;
 }
 
 // Update our game world
@@ -291,6 +290,11 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			if(!registry.players.has(motions_registry.entities[i])) // don't remove the player
 				registry.remove_all_components_of(motions_registry.entities[i]);
 		}
+		// remove deadlys if they leave bottom of the screen
+		if (motion.position.y - abs(motion.scale.y) > window_height_px) {
+			if (registry.deadlys.has(motions_registry.entities[i]))
+				registry.remove_all_components_of(motions_registry.entities[i]);
+		}
 	}
 
 	Motion& pmotion = registry.motions.get(player);
@@ -306,37 +310,43 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
-
 	next_boulder_spawn -= elapsed_ms_since_last_update * current_speed * 2;
-	if ((level == 5 || level == 6 || level == 8) && registry.deadlys.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
-		// Reset timer
-		next_boulder_spawn = (BOULDER_DELAY_MS / 2) + uniform_dist(rng) * (BOULDER_DELAY_MS / 2);
-		createBoulder(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), -100.f));
-	}
-	else if (level == 3 && next_boulder_spawn < 0.f) {
-		printf("right level");
-		next_boulder_spawn = (SPIKE_DELAY_MS / 2) + uniform_dist(rng) * (SPIKE_DELAY_MS / 2);
-		Entity e = createSpikes(renderer, { window_width_px - 100, 553 }, { 40, 20 }, -1.5708);
-		Motion& m = registry.motions.get(e);
-		m.velocity = { -600, 0 };
-		m.fixed = false;
-		m.grounded = true;
+	if (next_boulder_spawn < 0.f) {
+		for (const InitBoulderSpawner& boulderSpawner : level.boulderSpawners) {
+			if (registry.boulders.components.size() <= MAX_BOULDERS) {
+				// Reset timer
+				vec2 spawnpoint = boulderSpawner.pos;
+				if (boulderSpawner.random_x) {
+					spawnpoint.x = 50.f + uniform_dist(rng) * (window_width_px - 100.f);
+				}
+				next_boulder_spawn = (boulderSpawner.delay / 2) + uniform_dist(rng) * (boulderSpawner.delay / 2);
+				createBoulder(renderer, spawnpoint);
+			}
+		}
+		for (const InitSpikeProjectileSpawner& spikeProjectileSpawner : level.spikeProjectileSpawners) {
+			next_boulder_spawn = (spikeProjectileSpawner.delay / 2) + uniform_dist(rng) * (spikeProjectileSpawner.delay / 2);
+			Entity e = createSpikes(renderer, spikeProjectileSpawner.pos, spikeProjectileSpawner.size, spikeProjectileSpawner.angle);
+			Motion& m = registry.motions.get(e);
+			m.velocity = spikeProjectileSpawner.vel;
+			m.fixed = false;
+			m.gravityScale = 0.f;
+		}
 	}
 
-	if(!registry.deathTimers.has(player) && level == 6)
+	if(!registry.deathTimers.has(player) && level.hasChaseBoulder)
 	{
 		FrameCount += elapsed_ms_since_last_update;
 		if (FrameCount >= FrameInterval) {
-			aiSystem.updateGrid(levelManager.levels[level].walls);
+			aiSystem.updateGrid(levelManager.levels[level_idx].walls);
 			//aiSystem.printGrid();
-			Motion& eMotion = registry.motions.get(advancedBoulder);
+			Motion& eMotion = registry.motions.get(chaseBoulder);
 			Motion& pMotion = registry.motions.get(player);
 			bestPath = aiSystem.bestPath(eMotion, pMotion);
 			currentNode = 0;
 			FrameCount = 0;
 		}
 
-		Motion& eMotion = registry.motions.get(advancedBoulder);
+		Motion& eMotion = registry.motions.get(chaseBoulder);
 
 		//std::cout << "Path found: ";
 		//for (const auto& p : bestPath) {
@@ -421,10 +431,9 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	movementSystem.handle_inputs();
 	handlePlayerAnimation(elapsed_ms_since_last_update);
 
-	if (!level4Disappeared && level == 7) {
-		level4DisappearTimer -= elapsed_ms_since_last_update;
-		if (level4DisappearTimer <= 0) {
-			Level& level4 = this->levelManager.levels[WorldSystem::level];
+	if (level.disappearing && !levelDisappeared) {
+		levelDisappearTimer -= elapsed_ms_since_last_update;
+		if (levelDisappearTimer <= 0) {
 			for (Entity entity : registry.platforms.entities) {
 				RenderRequest& r = registry.renderRequests.get(entity);
 				r.used_texture = TEXTURE_ASSET_ID::EMPTY;
@@ -437,14 +446,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 				RenderRequest& r = registry.renderRequests.get(entity);
 				r.used_texture = TEXTURE_ASSET_ID::EMPTY;
 			}
-			level4Disappeared = true;
+			levelDisappeared = true;
 		}
 	}
 
-	if (level == 8) {
+	if (level.mouse_gesture) {
 
 		if (!currDrawn) {
-			drawLinesLevel4(currDrawing);
+			handleDrawOnLines(currDrawing);
 			currDrawn = true;
 		}
 		//printf("size: %d\n", registry.toDrawOns.size());
@@ -504,7 +513,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		//printf("level: %d\n", currDrawing);
 	}
 
-	renderer->hint = "";
+	// clear rendering list for hint text
+	renderer->hints.clear();
 
 	for (Entity e : registry.hints.entities) {
 		switchHintAnimation(e, elapsed_ms_since_last_update);
@@ -547,52 +557,62 @@ void WorldSystem::handlePlayerAnimation(float elapsed_ms_since_last_update) {
 	}
 }
 
-void WorldSystem::createLevel() {
-	if (WorldSystem::level == 0) 
+void WorldSystem::displayTutorialImage() {
+	// render tutorial images
+	if (WorldSystem::level_idx == 0)
 		tutorial = createTutorialMove(renderer);
-	else if (WorldSystem::level == 1) {
+	else if (WorldSystem::level_idx == 1) {
 		registry.renderRequests.remove(tutorial);
 		tutorial = createTutorialJump(renderer);
 	}
-	else if (WorldSystem::level == 2) {
+	else if (WorldSystem::level_idx == 2) {
 		registry.renderRequests.remove(tutorial);
 		tutorial = createTutorialMainMenu(renderer);
 	}
-	else if (WorldSystem::level == 3) {
+	else if (WorldSystem::level_idx == 3) {
 		registry.renderRequests.remove(tutorial);
 		//should be tutorial on checkpoints
 	}
-	else if (WorldSystem::level == 4) {
+	else if (WorldSystem::level_idx == 4) {
 		registry.renderRequests.remove(tutorial);
 		tutorial = createTutorialDraw(renderer);
 	}
 	else if (registry.renderRequests.has(tutorial))
 		registry.renderRequests.remove(tutorial);
+}
 
-	Level currentLevel = this->levelManager.levels[WorldSystem::level];
-	for (int i = 0; i < currentLevel.walls.size(); ++i) {
-		initWall w = currentLevel.walls[i];
-		int platformHeight = abs(w.y - window_height_px) + w.ySize / 2 + 2;
-		createPlatform(renderer, {w.x, window_height_px - platformHeight}, {w.xSize - 10, 10.f});
+Level WorldSystem::createLevel(int level_idx) {
+	printf("creating level: %i\n", level_idx);
+	Level level = this->levelManager.levels[level_idx];
+	int platformHeight;
+	for (InitWall w : level.walls) {
+		platformHeight = abs(w.y - window_height_px) + w.ySize / 2 + 2;
+		createPlatform(renderer, { w.x, window_height_px - platformHeight }, { w.xSize - 10, 10.f });
 		createWall(renderer, { w.x, w.y }, { w.xSize, w.ySize });
 	}
-	for (int i = 0; i < currentLevel.spikes.size(); ++i) {
-		spike s = currentLevel.spikes[i];
-		createSpikes(renderer, { s.x, s.y }, { 40, 20}, s.angle);
+	for (InitSpike s : level.spikes) {
+		createSpikes(renderer, { s.x, s.y }, { 40, 20 }, s.angle);
 	}
-	if (currentLevel.checkpoint.first != NULL) {
-		createCheckpoint(renderer, { currentLevel.checkpoint.first, currentLevel.checkpoint.second });
+	if (level.hasCheckpoint) {
+		createCheckpoint(renderer, level.checkpoint);
 	}
-	createEndpoint(renderer, { currentLevel.endPoint.first, currentLevel.endPoint.second });
-	player = createOliver(renderer, { currentLevel.playerPos.first, currentLevel.playerPos.second });
-	registry.colors.insert(player, { 1, 1, 1 });	
-	if (currentLevel.hintPos.first != NULL) {
-		createHint(renderer, { currentLevel.hintPos.first, currentLevel.hintPos.second }, currentLevel.hint);
-		renderer->hintPos = { currentLevel.hintTextPos.first, currentLevel.hintTextPos.second };
+	createEndpoint(renderer, level.endPoint);
+	for (InitHint hint : level.hints) {
+		createHint(renderer, hint.npcPos, hint.text, hint.textPos);
 	}
-	if (level == 7) {
-		DrawingSystem::remainingDrawingCount = 550;
+	if (level.hasChaseBoulder) {
+		chaseBoulder = createChaseBoulder(renderer, level.chaseBoulder);
+		bestPath = {};
+		currentNode = 0;
 	}
+	for (vec2 archer : level.archers) {
+		createArcher(renderer, archer, vec2(70.f));
+	}
+	for (InitPaintCan paintcan : level.paintcans) {
+		createPaintCan(renderer, paintcan.pos, vec2(25, 50), paintcan.value, paintcan.fixed);
+	}
+	player = createOliver(renderer, level.playerSpawn);
+	return level;
 }
 
 // Reset the world state to its initial state
@@ -606,7 +626,6 @@ void WorldSystem::restart_game() {
 
 	movementSystem.reset();
 	drawings.stop_drawing();
-	drawings.reset();
 
 	// Remove all entities that we created
 	while (registry.motions.entities.size() > 0)
@@ -621,8 +640,11 @@ void WorldSystem::restart_game() {
 	
 	//createBackground(renderer);
 
-	//platform
-	createLevel();
+	// reset level
+	//displayTutorialImage();
+	//createLevel();
+	WorldSystem::level = createLevel(level_idx);
+	drawings.reset(level.inkLimit);
 	
 	// Create pencil
 	pencil = createPencil(renderer, { window_width_px / 2, window_height_px / 2 }, { 50.f, 50.f });
@@ -632,16 +654,8 @@ void WorldSystem::restart_game() {
 	// Center cursor to pencil location
 	glfwSetCursorPos(window, window_width_px / 2 - 25.f, window_height_px / 2 + 25.f);
 
-	if (level == 6) {
-		advancedBoulder = createChaseBoulder(renderer, { window_width_px / 2, 100 });
-		bestPath = {};
-		currentNode = 0;
-		createPaintCan(renderer, { window_width_px - 300, window_height_px / 2 }, { 25.f, 50.f }, 168);
-		createArcher(renderer, { window_width_px - 600, window_height_px / 2 - 25}, { 70.f, 70.f });
-	}
-
-	level4DisappearTimer = 4000;
-	level4Disappeared = false;
+	levelDisappearTimer = level.disappearing_timer;
+	levelDisappeared = false;
 
 	currDrawing = 0;
 	currDrawn = false;
@@ -774,13 +788,13 @@ void WorldSystem::handle_collisions(float elapsed_ms) {
 				}
 			}
 
+			// if colliding with hint npc, add it to the list of hint text to render
 			else if (registry.hints.has(entity_other)) {
-				Motion m = registry.motions.get(entity_other);
-				renderer->hint = registry.hints.get(entity_other).text;
+				renderer->hints.push_back(registry.hints.get(entity_other));
 			}
 		}
 
-		if (registry.projectiles.has(entity)) {
+		if (registry.projectiles.has(entity) && !(registry.projectiles.has(entity_other) || registry.pencil.has(entity_other))) {
 			registry.remove_all_components_of(entity);
 		}
 	}
@@ -791,13 +805,13 @@ void WorldSystem::handle_collisions(float elapsed_ms) {
 
 
 void WorldSystem::next_level() {
-	if (level == maxLevel) {
-		level = 0;
+	if (level_idx == config.max_level) {
+		level_idx = 0;
 		restart_game();
 		renderer->endScreen = true;
 	}
 	else {
-		level++;
+		level_idx++;
 		restart_game();
 	}
 	checkPointAudioPlayer = false;
@@ -820,7 +834,7 @@ void WorldSystem::save_checkpoint() {
 	j["scale"]["x"] = m.scale[0];
 	j["scale"]["y"] = m.scale[1];
 	j["gravity"] = m.gravityScale;
-	j["level"] = level;
+	j["level"] = level_idx;
 
 	std::ofstream o("../save.json");
 	o << j.dump() << std::endl;
@@ -835,7 +849,7 @@ void WorldSystem::load_checkpoint() {
 	json j = json::parse(i);
 
 	int currentLevel = j["level"];
-	if (currentLevel == level) {
+	if (currentLevel == level_idx) {
 		// reset game to default then reposition player
 		restart_game();
 		Motion& m = registry.motions.get(player);
@@ -941,14 +955,14 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 
 	//next level
 	if (action == GLFW_RELEASE && key == GLFW_KEY_EQUAL) {
-		if (level < maxLevel) {
-			level++;
+		if (level_idx < config.max_level) {
+			level_idx++;
 			restart_game();
 		}
 	}
 	if (action == GLFW_RELEASE && key == GLFW_KEY_MINUS) {
-		if (level > 0) {
-			level--;
+		if (level_idx > 0) {
+			level_idx--;
 			restart_game();
 		}
 	}

@@ -1,0 +1,61 @@
+{
+  "walls": [
+    {
+      "x": 1500,
+      "y": 800,
+      "width": 1000,
+      "height": 600
+    },
+    {
+      "x": 0,
+      "y": 900,
+      "width": 400,
+      "height": 400
+    }
+  ],
+  "stairs": [
+    {
+      "quantity": 3,
+      "x": 400,
+      "y": 660,
+      "gap": 80,
+      "width": 150,
+      "height": 20
+    }
+  ],
+  "spikes": null,
+  "checkpoint": [ 880, 395 ],
+  "level_end": [ 1900, 445 ],
+  "hints": [
+    {
+      "npc": [ 40, 665 ],
+      "text": "That spikey guy will chase you no matter what!",
+      "text_pos": [ 100, 450 ]
+    }
+  ],
+  "gravity": null,
+  "friction": null,
+  "ink_limit": null,
+  "player_spawn": [ 100, 600 ],
+  "spawners": {
+    "boulder_spawners": [
+      {
+        "x": 0,
+        "y": -100,
+        "random_x": true,
+        "delay": 6000
+      }
+    ],
+    "spike_projectile_spawners": null
+  },
+  "enemies": {
+    "chase_boulder": [ 1000, 100 ],
+    "archers": [
+      {
+        "x": 1400,
+        "y": 475
+      }
+    ]
+  },
+  "paintcans": null
+}

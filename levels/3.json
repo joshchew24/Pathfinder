@@ -1,0 +1,86 @@
+{
+  "walls": [
+    {
+      "name": "floor",
+      "x": 1000,
+      "y": 1000,
+      "width": 2000,
+      "height": 100
+    },
+    {
+      "x": 1225,
+      "y": 80,
+      "width": 130,
+      "height": 200
+    },
+    {
+      "name": "column",
+      "x": 440,
+      "y": 500,
+      "width": 300,
+      "height": 640
+    }
+  ],
+  "stairs": [
+    {
+      "quantity": 5,
+      "x": 500,
+      "y": 180,
+      "gap": 0,
+      "width": 150,
+      "height": 0
+    },
+    {
+      "quantity": 1,
+      "x": 1800,
+      "y": 260,
+      "gap": 0,
+      "width": 100,
+      "height": 50
+    }
+  ],
+  "spikes": [
+    {
+      "x": 320,
+      "y": 830,
+      "quantity": 7,
+      "gap": 40,
+      "angle": 180
+    }
+  ],
+  "checkpoint": [750, 895],
+  "level_end": [ 1800, 180 ],
+  "hints": [
+    {
+      "npc": [ 1100, 145 ],
+      "text": "Drawings block the boulder's vision!",
+      "text_pos": [ 500, 950 ]
+    },
+    {
+      "npc": [ 800, 915 ],
+      "text": "You can stand on your drawings, but be careful not to draw over yourself!",
+      "text_pos": [ 750, 220 ]
+    }
+  ],
+  "gravity": 10,
+  "friction": null,
+  "ink_limit": 1000,
+  "line_collision_on": null,
+  "player_spawn": [ 1000, 80 ],
+  "spawners": {
+    "boulder_spawners": [
+      {
+        "x": 50,
+        "y": 0,
+        "random_x": false,
+        "delay": 3000
+      }
+    ],
+    "spike_projectile_spawners": null
+  },
+  "enemies": {
+    "chase_boulder": null,
+    "archers": null
+  },
+  "paintcans": null
+}

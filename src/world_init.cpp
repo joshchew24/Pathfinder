@@ -295,7 +295,7 @@ Entity createBackground(RenderSystem* renderer)
 	return entity;
 }
 
-Entity createPaintCan(RenderSystem* renderer, vec2 position, vec2 size, float paintRefill)
+Entity createPaintCan(RenderSystem* renderer, vec2 position, vec2 size, float paintRefill, bool fixed)
 {
 	auto entity = Entity();
 
@@ -310,6 +310,7 @@ Entity createPaintCan(RenderSystem* renderer, vec2 position, vec2 size, float pa
 	motion.position = position;
 	motion.gravityScale = 12.f;
 	motion.scale = size;
+	motion.fixed = fixed;
 
 	registry.eatables.emplace(entity);
 	PaintCan& p = registry.paintCans.emplace(entity);
@@ -453,6 +454,7 @@ Entity createSpikes(RenderSystem* renderer, vec2 position, vec2 size, float radi
 	motion.angle = radian;
 	motion.scale = size;
 	motion.fixed = true;
+	motion.grounded = true;
 
 	// Create a RenderRequest for the spikes
 	registry.deadlys.emplace(entity);
@@ -487,7 +489,7 @@ Entity createArcher(RenderSystem * renderer, vec2 position, vec2 size)
 	return entity;
 }
 
-Entity createHint(RenderSystem* renderer, vec2 position, std::string text)
+Entity createHint(RenderSystem* renderer, vec2 position, std::string text, vec2 textPos)
 {
 	auto entity = Entity();
 
@@ -502,8 +504,9 @@ Entity createHint(RenderSystem* renderer, vec2 position, std::string text)
 	motion.scale = { 47.f, 60.f };
 	motion.fixed = true;
 
-	hint& h = registry.hints.emplace(entity);
+	Hint& h = registry.hints.emplace(entity);
 	h.text = text;
+	h.textPos = textPos;
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::HINT1,

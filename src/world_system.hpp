@@ -21,7 +21,7 @@ class WorldSystem
 {
 public:
 	//level index
-	int level;
+	int level_idx;
 
 	WorldSystem();
 
@@ -51,9 +51,11 @@ public:
 	// Should the game be over ?
 	bool is_over()const;
 
-	void initLevels();
+	void displayTutorialImage();
 
 	void createLevel();
+
+	Level createLevel(int level_idx);
 
 	void next_level();
 private:
@@ -75,19 +77,19 @@ private:
 
 	void createIndividualPlatforms(vec2 position, vec2 size);
 
-	void drawLinesLevel4(int currDrawing);
+	void handleDrawOnLines(int currDrawing);
 
 	void switchHintAnimation(Entity e, float elapsedTime);
 
 	void createDrawOnLines(int x, int y, float rotation);
 
 	LevelManager levelManager;
-	int maxLevel;
+	Level level;
 
 	//AI
 	AISystem aiSystem;
 	//advanced AI
-	Entity advancedBoulder;
+	Entity chaseBoulder;
 	int currentNode = 0;
 	std::vector<std::pair<int, int>> bestPath;
 	float speed = 0.01f;
@@ -122,8 +124,8 @@ private:
 	float cameraSpeed = 0.004f;
 
 	//platform disappear time
-	float level4DisappearTimer = 3500;
-	bool level4Disappeared = false;
+	float levelDisappearTimer = config.disappearing_timer;
+	bool levelDisappeared = false;
 
 	// C++ random number generator
 	std::default_random_engine rng;
