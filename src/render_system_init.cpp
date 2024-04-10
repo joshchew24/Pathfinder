@@ -60,7 +60,7 @@ bool RenderSystem::init(GLFWwindow* window_arg)
 
 	initParallaxRendering();
 	initIntroduction();
-
+	initializeParticleRendering();
 	glBindVertexArray(vao);
 	initScreenTexture();
     initializeGlTextures();
@@ -528,6 +528,44 @@ bool RenderSystem::fontInit(GLFWwindow& window, const std::string& font_filename
 	glBindVertexArray(0);
 
 	return true;
+}
+
+void RenderSystem::initializeParticleRendering() {
+	float particle_quad[] = {
+		-0.5f, -0.5f, 0.0f, 0.0f,
+		 0.5f, -0.5f, 1.0f, 0.0f,
+		 0.5f,  0.5f, 1.0f, 1.0f,
+		-0.5f,  0.5f, 0.0f, 1.0f
+	};
+
+
+	glGenVertexArrays(1, &particleVAO);
+	glBindVertexArray(particleVAO);
+
+	glGenBuffers(1, &particleVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, particleVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(particle_quad), particle_quad, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+	glGenBuffers(1, &particleInstanceVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, particleInstanceVBO);
+	glBufferData(GL_ARRAY_BUFFER, 10 * sizeof(glm::vec2), nullptr, GL_STREAM_DRAW);
+
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)0);
+	glEnableVertexAttribArray(2);
+	glVertexAttribDivisor(2, 1);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+	gl_has_errors();
+	loadEffectFromFile(shader_path("particle.vs.glsl"), shader_path("particle.fs.glsl"), particleShaderProgram);
+
+	gl_has_errors();
 }
 
 bool gl_compile_shader(GLuint shader)

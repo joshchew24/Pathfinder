@@ -7,6 +7,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <chrono>
 #include <thread>
+#include <iostream>
 
 bool RenderSystem::introductionScreen = true;
 
@@ -34,11 +35,10 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 	// Setting shaders
 	glUseProgram(program);
 	gl_has_errors();
-
+	glBindVertexArray(globalVao);
 	assert(render_request.used_geometry != GEOMETRY_BUFFER_ID::GEOMETRY_COUNT);
 	const GLuint vbo = vertex_buffers[(GLuint)render_request.used_geometry];
 	const GLuint ibo = index_buffers[(GLuint)render_request.used_geometry];
-
 	// Setting vertex and index buffers
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
@@ -215,6 +215,7 @@ void RenderSystem::drawToScreen()
 	glUseProgram(effects[(GLuint)EFFECT_ASSET_ID::WIND]);
 	gl_has_errors();
 	// Clearing backbuffer
+	glBindVertexArray(globalVao);
 	int w, h;
 	glfwGetFramebufferSize(window, &w, &h); // Note, this will be 2x the resolution given to glfwCreateWindow on retina displays
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -328,7 +329,11 @@ void RenderSystem::draw()
 				continue;
 			// Note, its not very efficient to access elements indirectly via the entity
 			// albeit iterating through all Sprites in sequence. A good point to optimize
+			if (registry.particles.has(entity)) {
+				drawParticles(projection_2D);
+			}
 			drawTexturedMesh(entity, projection_2D);
+
 		}
 
 		// Truely render to the screen
@@ -439,6 +444,39 @@ void RenderSystem::renderText(const std::string& text, float x, float y, float s
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
+}
+
+void RenderSystem::drawParticles(const mat3& projection) {
+	glUseProgram(particleShaderProgram);
+
+	glEnable(GL_BLEND);
+
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBindVertexArray(particleVAO);
+	glm::mat4 projection_4x4 = glm::mat4(projection);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture_gl_handles[static_cast<int>(TEXTURE_ASSET_ID::STARPARTICLE)]);
+
+	// Tell the shader the texture is in texture unit 0
+	glUniform1i(glGetUniformLocation(particleShaderProgram, "sprite"), 0);
+	glUniform1i(glGetUniformLocation(particleShaderProgram, "texture1"), 5);
+
+	GLint projLoc = glGetUniformLocation(particleShaderProgram, "projection");
+	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection_4x4));
+	glUniform4f(glGetUniformLocation(particleShaderProgram, "color"), 0.4f, 0.4f, 0.4f, 1.0f);
+	std::vector<glm::vec4> particleOffsets;
+	for (auto& entity : registry.particles.entities) {
+		auto& pos = registry.motions.get(entity).position;
+		particleOffsets.emplace_back(pos.x, pos.y, 0.0f, 0.0f);
+	}
+	glBindBuffer(GL_ARRAY_BUFFER, particleVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, particleInstanceVBO);
+	glBufferData(GL_ARRAY_BUFFER, particleOffsets.size() * sizeof(glm::vec4), particleOffsets.data(), GL_STREAM_DRAW);
+	glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, static_cast<GLsizei>(particleOffsets.size()));
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glUseProgram(0);
+	glBindVertexArray(0);
 }
 
 mat3 RenderSystem::createProjectionMatrix()

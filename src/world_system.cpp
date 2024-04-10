@@ -649,6 +649,14 @@ void WorldSystem::restart_game() {
 	// Create pencil
 	pencil = createPencil(renderer, { window_width_px / 2, window_height_px / 2 }, { 50.f, 50.f });
 
+	Motion& mParticle = registry.motions.get(pencil);
+	ParticleEmitter& emitter = registry.particleEmitters.emplace(pencil);
+	emitter.emission_point = { mParticle.position.x - 20, mParticle.position.y + 30 };
+	emitter.particles_per_second = 1;
+	emitter.initial_velocity = {0, 10.f};
+	emitter.color = { 1.f, 0.f, 0.f, 1.f };
+	emitter.lifespan = 1.0f;
+
 	// Create test paint can
 
 	// Center cursor to pencil location
@@ -1044,6 +1052,7 @@ void WorldSystem::on_mouse_click(int button, int action, int mod) {
 			       drawings.stop_drawing();
 		       }
 		}
+
 	}
 }
 

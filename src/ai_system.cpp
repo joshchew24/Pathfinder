@@ -288,6 +288,8 @@ bool AISystem::archerDecisionTree(std::string choice, Entity& archerEntity, cons
                          EFFECT_ASSET_ID::TEXTURED,
                          GEOMETRY_BUFFER_ID::SPRITE });
             cooldownTimer.timeSinceLastShot = 0.f;
+
+           // printf("shoot arrow\n");
         }
 	}
 

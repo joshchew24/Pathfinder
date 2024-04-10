@@ -11,8 +11,9 @@
 #include "ai_system.hpp"
 #include "config.hpp"
 #include "movement_system.hpp"
+#include "particle_system.hpp"
 
-void step_game_logic(WorldSystem& world, PhysicsSystem& physics, AISystem& ai, DrawingSystem& drawings, float ms);
+void step_game_logic(WorldSystem& world, PhysicsSystem& physics, AISystem& ai, DrawingSystem& drawings, ParticleSystem& particles, float ms);
 
 // Entry point
 int main()
@@ -26,6 +27,7 @@ int main()
 	RenderSystem renderer;
 	PhysicsSystem physics;
 	AISystem ai;
+	ParticleSystem particles;
 
 	// Initializing window
 	GLFWwindow* window = world.create_window();
@@ -84,11 +86,11 @@ int main()
 				game_logic_accumulator += elapsed_ms;
 				while (game_logic_accumulator >= ms_per_tick) {
 					game_logic_accumulator -= ms_per_tick;
-					step_game_logic(world, physics, ai, drawings, ms_per_tick);
+					step_game_logic(world, physics, ai, drawings, particles, ms_per_tick);
 				}
 			}
 			else {
-				step_game_logic(world, physics, ai, drawings, elapsed_ms);
+				step_game_logic(world, physics, ai, drawings, particles, elapsed_ms);
 			}
 		}
 
@@ -119,10 +121,12 @@ int main()
 	return EXIT_SUCCESS;
 }
 
-void step_game_logic(WorldSystem& world, PhysicsSystem& physics, AISystem& ai, DrawingSystem& drawings, float ms) {
+void step_game_logic(WorldSystem& world, PhysicsSystem& physics, AISystem& ai, DrawingSystem& drawings, ParticleSystem& particles, float ms) {
 	world.step(ms);
 	world.handle_collisions(ms);
 	physics.step(ms, world.isLineCollisionsOn());
 	ai.step(ms);
 	drawings.step(ms, world.isLineCollisionsOn());
+	particles.step(ms);
+
 }
