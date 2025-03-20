@@ -1,0 +1,84 @@
+{
+  "walls": [
+    {
+      "x": 1000,
+      "y": 940,
+      "width": 1400,
+      "height": 400
+    }
+  ],
+  "stairs": [
+    {
+      "quantity": 10,
+      "x": 800,
+      "y": 250,
+      "gap": 50,
+      "width": 100,
+      "height": 20
+    }
+  ],
+  "spikes": [
+    {
+      "quantity": 46,
+      "x": 100,
+      "y": 503,
+      "gap": 40,
+      "angle": 180
+    }
+  ],
+  "checkpoint": [ 400, 400 ],
+  "level_end": [ 1600, 690 ],
+  "hints": [
+    {
+      "npc": [ 750, 702 ],
+      "text": "Hello, I am the hint guy, I will give you a hint on certain levels! For now, just follow the tutorial and reach the trophy",
+      "text_pos": [ 550, 440 ]
+    }
+  ],
+  "gravity": 1500,
+  "friction": 1000000,
+  "ink_limit": 1000,
+  "line_collision_on": null,
+  "disappearing": null,
+  "disappearing_timer": null,
+  "mouse_gesture": null,
+  "player_spawn": [ 600, 650 ],
+  "spawners": {
+    "boulder_spawners": [
+      {
+        "x": 1000,
+        "y": -100,
+        "random_x": false,
+        "delay": 6000
+      }
+    ],
+    "spike_projectile_spawners": [
+      {
+        "x": 1900,
+        "y": 553,
+        "width": 40,
+        "height": 20,
+        "x_vel": -600,
+        "y_vel": 0,
+        "angle": -90,
+        "delay": 3500
+      }
+    ]
+  },
+  "enemies": {
+    "chase_boulder": [ 1000, 100 ],
+    "archers": [
+      {
+        "x": 1000,
+        "y": 1000
+      }
+    ]
+  },
+  "paintcans": [
+    {
+      "x": 1000,
+      "y": 1000,
+      "value": 100
+    }
+  ]
+}

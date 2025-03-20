@@ -21,15 +21,17 @@ class WorldSystem
 {
 public:
 	//level index
-	int level;
+	int level_idx;
 
 	WorldSystem();
 
 	// Creates a window
 	GLFWwindow* create_window();
 
+	bool isLineCollisionsOn();
+
 	// starts the game
-	void init(RenderSystem* renderer);
+	void init(RenderSystem* renderer, bool* mainMenu);
 
 	// Releases all associated resources
 	~WorldSystem();
@@ -49,9 +51,11 @@ public:
 	// Should the game be over ?
 	bool is_over()const;
 
-	void initLevels();
+	void displayTutorialImage();
 
 	void createLevel();
+
+	Level createLevel(int level_idx);
 
 	void next_level();
 private:
@@ -71,13 +75,21 @@ private:
 	
 	void handleLineCollision(const Entity& line, float elapsed_ms);
 
+	void createIndividualPlatforms(vec2 position, vec2 size);
+
+	void handleDrawOnLines(int currDrawing);
+
+	void switchHintAnimation(Entity e, float elapsedTime);
+
+	void createDrawOnLines(int x, int y, float rotation);
+
 	LevelManager levelManager;
-	int maxLevel = 3;
+	Level level;
 
 	//AI
 	AISystem aiSystem;
 	//advanced AI
-	Entity advancedBoulder;
+	Entity chaseBoulder;
 	int currentNode = 0;
 	std::vector<std::pair<int, int>> bestPath;
 	float speed = 0.01f;
@@ -92,7 +104,6 @@ private:
 	RenderSystem* renderer;
 	float current_speed;
 	float next_boulder_spawn;
-	float next_bug_spawn;
 	Entity player;
 	Entity pencil;
 	Entity tutorial;
@@ -113,10 +124,25 @@ private:
 	float cameraSpeed = 0.004f;
 
 	//platform disappear time
-	float level4DisappearTimer = 3500;
-	bool level4Disappeared = false;
+	float levelDisappearTimer = config.disappearing_timer;
+	bool levelDisappeared = false;
 
 	// C++ random number generator
 	std::default_random_engine rng;
 	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
+
+	int currDrawing = 0;
+	bool currDrawn = false;
+
+	//hint animation index
+	int currentHintTexture = (int)TEXTURE_ASSET_ID::HINT1;
+	int hintElapsedMsTotal = 0;
+
+	bool* mainMenu;
+	bool restart = false;
+	bool resume = false;
+	bool exit = false;
+
+	Entity mainMenuEntity;
+
 };

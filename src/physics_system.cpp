@@ -22,7 +22,7 @@ vec2 quadraticBezier(const glm::vec2& start, const glm::vec2& control, const glm
 	return point;
 }
 
-void PhysicsSystem::step(float elapsed_ms)
+void PhysicsSystem::step(float elapsed_ms, bool lineCollisionOn)
 {
 	//elapsed_ms = clamp(elapsed_ms, 0.f, 8.f);
 	auto& motion_registry = registry.motions;
@@ -37,9 +37,6 @@ void PhysicsSystem::step(float elapsed_ms)
 
 		// decide y accel and vel
 		if (motion.isJumping) {
-			if (debugging.in_debug_mode) {
-				printf("%f\n", motion.timeJumping);
-			}
 			if (motion.timeJumping <= 150.f) {
 				motion.grounded = false;
 				motion.velocity.y = -jump_height;
@@ -55,13 +52,8 @@ void PhysicsSystem::step(float elapsed_ms)
 			motion.acceleration.y = 0.f;
 			motion.velocity.y = 0.f;
 		}
-		else if (registry.boulders.has(entity)) {
-			// this should just be set once in the boulder creation
-			motion.acceleration.y = gravity / 20;
-			motion.velocity.y = clamp(motion.velocity.y + motion.acceleration.y*step_seconds, -terminal_velocity, terminal_velocity);
-		}
-		else if (!motion.notAffectedByGravity) {
-			motion.acceleration.y = gravity;
+		else {
+			motion.acceleration.y = gravity * motion.gravityScale;
 			motion.velocity.y = clamp(motion.velocity.y + motion.acceleration.y * step_seconds, -terminal_velocity, terminal_velocity);
 		}
     
@@ -80,7 +72,7 @@ void PhysicsSystem::step(float elapsed_ms)
 			motion.grounded = isGrounded;
 			});
       
-    motion.last_position = motion.position;
+		motion.last_position = motion.position;
 		motion.position += motion.velocity * step_seconds;
 
 	}
@@ -105,6 +97,7 @@ void PhysicsSystem::step(float elapsed_ms)
 		}
 	}
 
+	// bezier movement
 	ComponentContainer<BezierProjectile>& projectile_container = registry.projectiles;
 	ComponentContainer<Platform>& platform_container = registry.platforms;
 	std::vector<Entity> to_be_removed;
@@ -141,20 +134,41 @@ void PhysicsSystem::step(float elapsed_ms)
 			break;
 		}
 	}
-	player.grounded = touching_any_platform;
 
 	// Check collisions with drawn lines
 	Entity& oliver = registry.players.entities[0];
 	Mesh *meshptr = registry.meshPtrs.get(oliver);
 	vec4 bbox = getBox(meshptr, player);
-	for (auto &line_ent : registry.drawnLines.entities) {
-		const DrawnLine& line = registry.drawnLines.get(line_ent);
-		if (collisionSystem.lineCollides(line_ent, bbox[2], bbox[3], bbox[0], bbox[1])) {
-			registry.collisions.emplace_with_duplicates(oliver, line_ent);
-			registry.collisions.emplace_with_duplicates(line_ent, oliver);
-			//player.position = player.last_position;
+	//printf("min x = %f, max x = %f\n", bbox[2], bbox[0]);
+	if (lineCollisionOn) {
+		for (auto& line_ent : registry.drawnLines.entities) {
+			const DrawnLine& line = registry.drawnLines.get(line_ent);
+			if (collisionSystem.lineCollides(line_ent, bbox[2], bbox[3], bbox[0], bbox[1])) {
+				registry.collisions.emplace_with_duplicates(oliver, line_ent);
+				registry.collisions.emplace_with_duplicates(line_ent, oliver);
+				//player.position = player.last_position;
+				const DrawnLine& l = registry.drawnLines.get(line_ent);
+				const Motion& lm = registry.motions.get(line_ent);
+				// if player is above line, set player to grounded
+				// if the player is on the edge of the line, use the edge of the line's x value instead
+				float player_pos = player.position.x;
+				float min_x = min(line.x_bounds[0], line.x_bounds[1]);
+				float max_x = max(line.x_bounds[0], line.x_bounds[1]);
+				if (player.position.x < min_x) {
+					player_pos = min_x;
+				}
+				else if (player.position.x > max_x) {
+					player_pos = max_x;
+				}
+				float line_y_pos = l.slope * (player_pos - lm.position.x) + lm.position.y;
+				if (player.position.y <= line_y_pos) {
+					touching_any_platform = true;
+					break;
+				}
+			}
 		}
 	}
+	player.grounded = touching_any_platform;
 }
 
 template<typename T>

@@ -21,9 +21,9 @@ void AISystem::init() {
     };
 }
 
-void AISystem::updateGrid(std::vector<initWall> walls) {
+void AISystem::updateGrid(std::vector<InitWall> walls) {
     init();
-    for (initWall w : walls) {
+    for (InitWall w : walls) {
         int left = (w.x - w.xSize / 2) / gridSize;
         int top = (w.y - w.ySize / 2) / gridSize;
         int right = (w.x + w.xSize / 2) / gridSize;
@@ -41,7 +41,7 @@ void AISystem::updateGrid(std::vector<initWall> walls) {
             for (top; top <= bottom; top++) {
                 grid[top][left] = 1;
             }
-             top = (w.y - w.ySize / 2) / gridSize;
+            top = (w.y - w.ySize / 2) / gridSize;
         }
     }
 }
@@ -158,7 +158,7 @@ void AISystem::createAllDecisionTrees() {
 
 }
 
-bool AISystem::boulderDecisionTreeSwitch(std::string choice, Entity& boulderEntity, const vec2& playerPosition, ECSRegistry& registry) {
+bool AISystem::boulderDecisionTreeSwitch(std::string choice, Entity& boulderEntity, const vec2& playerPosition) {
     auto& motions_registry = registry.motions;
     Motion& boulderMotion = motions_registry.get(boulderEntity);
 
@@ -189,7 +189,7 @@ bool AISystem::boulderDecisionTreeSwitch(std::string choice, Entity& boulderEnti
     return true;
 }
 
-bool AISystem::paintCanDecisionTree(std::string choice, Entity& paintCanEntity, const vec2& playerPosition, ECSRegistry& registry) {
+bool AISystem::paintCanDecisionTree(std::string choice, Entity& paintCanEntity, const vec2& playerPosition) {
     auto& paintCanRegistry = registry.paintCans;
     auto& platformContainer = registry.platforms;
     auto& motionRegistry = registry.motions;
@@ -239,7 +239,7 @@ bool AISystem::paintCanDecisionTree(std::string choice, Entity& paintCanEntity, 
     return true;
 }
 
-bool AISystem::archerDecisionTree(std::string choice, Entity& archerEntity, const vec2& playerPosition, ECSRegistry& registry, Motion& playerMotion) {
+bool AISystem::archerDecisionTree(std::string choice, Entity& archerEntity, const vec2& playerPosition, Motion& playerMotion) {
 	auto& archerRegistry = registry.archers;
 	auto& platformContainer = registry.platforms;
 	auto& motionRegistry = registry.motions;
@@ -264,23 +264,23 @@ bool AISystem::archerDecisionTree(std::string choice, Entity& archerEntity, cons
     else if (choice == "shootProjectile") {
         auto& cooldownTimer = registry.arrowCooldowns.get(archerEntity);
         if (cooldownTimer.timeSinceLastShot >= cooldownTimer.cooldown) {
+            vec2 startPosition = archerMotion.position + glm::vec2(0.f, -200);
             auto entity = Entity();
             auto& motion = registry.motions.emplace(entity);
-            motion.angle = 0.f;
-            motion.velocity = { 0.f, 0.f };
-            motion.position = archerMotion.position + glm::vec2(0.f, -200);
+            motion.position = startPosition;
             motion.scale = { 50.f, 50.f };
-            motion.gravityScale = 12.f;
+            // the projectile follows a bezier curve, so ignore gravity
+            motion.gravityScale = 0.f;
+
             BezierProjectile& projectile = registry.projectiles.emplace(entity);
             projectile.targetPosition = {playerPosition.x - playerMotion.scale.x * 2, playerPosition.y + 100};
             projectile.elapsedTime = 0.0f;
-            vec2 startPosition = motion.position;
             glm::vec2 endPosition = projectile.targetPosition;
             float distance = glm::distance(startPosition, endPosition);
             float arcHeight = distance * 0.5;
-            vec2 controlPoint = calculateControlPoint(startPosition, endPosition, arcHeight);
-            projectile.controlPoint = controlPoint;
+            projectile.controlPoint = calculateControlPoint(startPosition, endPosition, arcHeight);
             projectile.startPosition = startPosition;
+
             registry.deadlys.emplace(entity);
             registry.renderRequests.insert(
                 entity,
@@ -288,6 +288,8 @@ bool AISystem::archerDecisionTree(std::string choice, Entity& archerEntity, cons
                          EFFECT_ASSET_ID::TEXTURED,
                          GEOMETRY_BUFFER_ID::SPRITE });
             cooldownTimer.timeSinceLastShot = 0.f;
+
+           // printf("shoot arrow\n");
         }
 	}
 
@@ -351,7 +353,7 @@ void AISystem::step(float elapsed_ms) {
         for (auto& boulderEntity : boulderRegistry.entities) {
             DecisionNode* start = decisionTreeMap["boulder"];
             while (start != nullptr) {
-                if (boulderDecisionTreeSwitch(start->condition, boulderEntity, player_position, registry)) {
+                if (boulderDecisionTreeSwitch(start->condition, boulderEntity, player_position)) {
                     start = start->trueCase;
                 }
                 else {
@@ -367,7 +369,7 @@ void AISystem::step(float elapsed_ms) {
             Motion& paintCanMotion = motionRegistry.get(paintCanEntity);
             DecisionNode* start = decisionTreeMap["paintCan"];
             while (start != nullptr) {
-                if (paintCanDecisionTree(start->condition, paintCanEntity, player_position, registry)) {
+                if (paintCanDecisionTree(start->condition, paintCanEntity, player_position)) {
                     start = start->trueCase;
                 }
                 else {
@@ -381,7 +383,7 @@ void AISystem::step(float elapsed_ms) {
         for (auto& archerEntity : archerRegistry.entities) {
 			DecisionNode* start = decisionTreeMap["archer"];
             while (start != nullptr) {
-                if (archerDecisionTree(start->condition, archerEntity, player_position, registry, playerMotion)) {
+                if (archerDecisionTree(start->condition, archerEntity, player_position, playerMotion)) {
 					start = start->trueCase;
 				}
                 else {

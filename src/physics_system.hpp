@@ -24,7 +24,7 @@ private:
   
 	void applyFriction(Motion& motion, float elapsed_ms);
 public:
-	void step(float elapsed_ms);
+	void step(float elapsed_ms, bool lineCollisionOn);
 
 	PhysicsSystem()	{}
 

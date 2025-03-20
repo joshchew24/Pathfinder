@@ -16,7 +16,7 @@ Entity createOliver(RenderSystem* renderer, vec2 pos);
 
 Entity createPlatform(RenderSystem* renderer, vec2 pos, vec2 size);
 // a red line for debugging purposes
-Entity createLine(vec2 position, vec2 size);
+Entity createLine(vec2 position, vec2 size, float angle);
 
 Entity createBoulder(RenderSystem* renderer, vec2 position);
 
@@ -32,12 +32,26 @@ Entity createEndpoint(RenderSystem* renderer, vec2 position);
 
 Entity createBackground(RenderSystem* renderer);
 
-Entity createPaintCan(RenderSystem* renderer, vec2 pos, vec2 size);
+Entity createPaintCan(RenderSystem* renderer, vec2 pos, vec2 size, float paintRefill, bool fixed=false);
 
-Entity createTutorial(RenderSystem* renderer);
+Entity createTutorialDraw(RenderSystem* renderer);
+
+Entity createTutorialJump(RenderSystem* renderer);
+
+Entity createTutorialMainMenu(RenderSystem* renderer);
+
+Entity createTutorialMove(RenderSystem* renderer);
+
+Entity createTutorialRestart(RenderSystem* renderer);
 
 vec4 getBox(const Mesh* mesh, const Motion& motion);
 
-Entity createSpikes(RenderSystem* renderer, vec2 pos, vec2 size);
+Entity createSpikes(RenderSystem* renderer, vec2 pos, vec2 size, float radian);
 
 Entity createArcher(RenderSystem* renderer, vec2 pos, vec2 size);
+
+Entity createArcher(RenderSystem* renderer, vec2 pos, vec2 size);
+
+Entity createHint(RenderSystem* renderer, vec2 pos, std::string text, vec2 textPos);
+
+Entity createMainMenu(RenderSystem* renderer, vec2 pos, vec2 size);

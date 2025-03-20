@@ -1,0 +1,103 @@
+{
+  "walls": [
+    {
+      "name": "floor",
+      "x": 1000,
+      "y": 1000,
+      "width": 2000,
+      "height": 100
+    },
+    {
+      "x": 75,
+      "y": 600,
+      "width": 150,
+      "height": 20
+    },
+    {
+      "x": 1800,
+      "y": 600,
+      "width": 150,
+      "height": 20
+    }
+  ],
+  "stairs": null,
+  "spikes": [
+    {
+      "x": 20,
+      "y": 940,
+      "quantity": 40,
+      "gap": 50,
+      "angle": 0
+    }
+  ],
+  "checkpoint": null,
+  "level_end": [ 1800, 545 ],
+  "hints": [
+    {
+      "npc": [ 40, 550 ],
+      "text": "Your drawings also protect you from their projectiles!",
+      "text_pos": [ 100, 600 ]
+    }
+  ],
+  "gravity": null,
+  "friction": null,
+  "ink_limit": 600,
+  "player_spawn": [ 90, 540 ],
+  "spawners": {
+    "boulder_spawners": null,
+    "spike_projectile_spawners": null
+  },
+  "enemies": {
+    "chase_boulder": null,
+    "archers": [
+      {
+        "x": 100,
+        "y": 900
+      },
+      {
+        "x": 300,
+        "y": 900
+      },
+      {
+        "x": 500,
+        "y": 900
+      },
+      {
+        "x": 700,
+        "y": 900
+      },
+      {
+        "x": 900,
+        "y": 900
+      },
+      {
+        "x": 1100,
+        "y": 900
+      },
+      {
+        "x": 1300,
+        "y": 900
+      },
+      {
+        "x": 1500,
+        "y": 900
+      },
+      {
+        "x": 1700,
+        "y": 900
+      },
+      {
+        "x": 1900,
+        "y": 900
+      }
+    ]
+  },
+  "paintcans": [
+    {
+      "x": 1000,
+      "y": 550,
+      "value": 300,
+      "fixed": true
+    }
+  ]
+}

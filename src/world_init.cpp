@@ -41,10 +41,9 @@ Entity createOliver(RenderSystem* renderer, vec2 pos)
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = {40.f, 80.f};
-	motion.gravityScale = 8.f;
+	motion.gravityScale = 1.f;
 	motion.grounded = false;
 
-	// Create and (empty) Chicken component to be able to refer to all eagles
 	registry.players.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
@@ -71,7 +70,6 @@ Entity createPlatform(RenderSystem* renderer, vec2 position, vec2 size)
 	motion.scale = size;
 	motion.fixed = true;
 
-	// Create and (empty) Eagle component to be able to refer to all eagles
 	registry.platforms.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
@@ -98,7 +96,6 @@ Entity createWall(RenderSystem* renderer, vec2 position, vec2 size)
 	motion.scale = size;
 	motion.fixed = true;
 
-	// Create and (empty) Eagle component to be able to refer to all eagles
 	registry.walls.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
@@ -109,7 +106,7 @@ Entity createWall(RenderSystem* renderer, vec2 position, vec2 size)
 	return entity;
 }
 
-Entity createLine(vec2 position, vec2 scale)
+Entity createLine(vec2 position, vec2 scale, float angle)
 {
 	Entity entity = Entity();
 
@@ -122,12 +119,15 @@ Entity createLine(vec2 position, vec2 scale)
 
 	// Create motion
 	Motion& motion = registry.motions.emplace(entity);
-	motion.angle = 0.f;
+	motion.angle = angle;
 	motion.velocity = { 0, 0 };
 	motion.position = position;
 	motion.scale = scale;
+	motion.fixed = true;
 
-	registry.debugComponents.emplace(entity);
+	registry.toDrawOns.emplace(entity);
+
+	//registry.debugComponents.emplace(entity);
 	return entity;
 }
 
@@ -144,7 +144,7 @@ Entity createBoulder(RenderSystem* renderer, vec2 position)
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 100.f };
 	motion.position = position;
-	motion.gravityScale = 12.f;
+	motion.gravityScale = 0.05f;
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -BOULDER_BB_WIDTH, BOULDER_BB_HEIGHT });
@@ -174,7 +174,6 @@ Entity createChaseBoulder(RenderSystem* renderer, vec2 position)
 	motion.velocity = { 0.f, 0.f };
 	motion.position = position;
 	motion.gravityScale = 0.f;
-	motion.notAffectedByGravity = true;
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -BOULDER_BB_WIDTH / 1.3, BOULDER_BB_HEIGHT / 1.3 });
@@ -286,7 +285,7 @@ Entity createBackground(RenderSystem* renderer)
 	motion.scale = { window_width_px - 10, window_height_px - 10 };
 	motion.fixed = true;
 
-	// Create a RenderRequest for the checkpoint flag
+	// Create a RenderRequest for the background
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::BACKGROUND,
@@ -296,7 +295,7 @@ Entity createBackground(RenderSystem* renderer)
 	return entity;
 }
 
-Entity createPaintCan(RenderSystem* renderer, vec2 position, vec2 size)
+Entity createPaintCan(RenderSystem* renderer, vec2 position, vec2 size, float paintRefill, bool fixed)
 {
 	auto entity = Entity();
 
@@ -311,9 +310,11 @@ Entity createPaintCan(RenderSystem* renderer, vec2 position, vec2 size)
 	motion.position = position;
 	motion.gravityScale = 12.f;
 	motion.scale = size;
+	motion.fixed = fixed;
 
 	registry.eatables.emplace(entity);
-	registry.paintCans.emplace(entity);
+	PaintCan& p = registry.paintCans.emplace(entity);
+	p.paintRefill = paintRefill;
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::PAINTCAN,
@@ -324,7 +325,7 @@ Entity createPaintCan(RenderSystem* renderer, vec2 position, vec2 size)
 }
 
 
-Entity createTutorial(RenderSystem* renderer) {
+Entity createTutorialDraw(RenderSystem* renderer) {
 	Entity e = Entity();
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
@@ -335,19 +336,111 @@ Entity createTutorial(RenderSystem* renderer) {
 	motion.angle = 0.f;
 	motion.velocity = { 0, 0 };
 	motion.position = {window_width_px / 2, window_height_px / 4};
-	motion.scale = { window_width_px * 0.7, window_height_px * 0.3 };
+	motion.scale = { window_width_px * 0.1, window_height_px * 0.2 };
 	motion.fixed = true;
 
-	// Create a RenderRequest for the checkpoint flag
+	// Create a RenderRequest for the tutorial
 	registry.renderRequests.insert(
-		e, { TEXTURE_ASSET_ID::TUTORIAL,
+		e, { TEXTURE_ASSET_ID::TUTORIALDRAW,
 		  EFFECT_ASSET_ID::TEXTURED,
 		  GEOMETRY_BUFFER_ID::SPRITE });
 
 	return e;
 }
 
-Entity createSpikes(RenderSystem* renderer, vec2 position, vec2 size)
+Entity createTutorialJump(RenderSystem* renderer) {
+	Entity e = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(e, &mesh);
+
+	auto& motion = registry.motions.emplace(e);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = { window_width_px / 2, window_height_px / 4 - 100 };
+	motion.scale = { window_width_px * 0.3, window_height_px * 0.4 };
+	motion.fixed = true;
+
+	// Create a RenderRequest for the tutorial
+	registry.renderRequests.insert(
+		e, { TEXTURE_ASSET_ID::TUTORIALJUMP,
+		  EFFECT_ASSET_ID::TEXTURED,
+		  GEOMETRY_BUFFER_ID::SPRITE });
+
+	return e;
+}
+
+Entity createTutorialMainMenu(RenderSystem* renderer) {
+	Entity e = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(e, &mesh);
+
+	auto& motion = registry.motions.emplace(e);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = { window_width_px / 2, window_height_px / 4 };
+	motion.scale = { window_width_px * 0.1, window_height_px * 0.2 };
+	motion.fixed = true;
+
+	// Create a RenderRequest for the tutorial
+	registry.renderRequests.insert(
+		e, { TEXTURE_ASSET_ID::TUTORIALMAINMENU,
+		  EFFECT_ASSET_ID::TEXTURED,
+		  GEOMETRY_BUFFER_ID::SPRITE });
+
+	return e;
+}
+
+Entity createTutorialMove(RenderSystem* renderer) {
+	Entity e = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(e, &mesh);
+
+	auto& motion = registry.motions.emplace(e);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = { window_width_px / 2, window_height_px / 4 };
+	motion.scale = { window_width_px * 0.3, window_height_px * 0.4 };
+	motion.fixed = true;
+
+	// Create a RenderRequest for the tutorial
+	registry.renderRequests.insert(
+		e, { TEXTURE_ASSET_ID::TUTORIALMOVE,
+		  EFFECT_ASSET_ID::TEXTURED,
+		  GEOMETRY_BUFFER_ID::SPRITE });
+
+	return e;
+}
+
+Entity createTutorialRestart(RenderSystem* renderer) {
+	Entity e = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(e, &mesh);
+
+	auto& motion = registry.motions.emplace(e);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = { window_width_px / 2, window_height_px / 4 };
+	motion.scale = { window_width_px * 0.3, window_height_px * 0.4 };
+	motion.fixed = true;
+
+	// Create a RenderRequest for the tutorial
+	registry.renderRequests.insert(
+		e, { TEXTURE_ASSET_ID::TUTORIALRESTART,
+		  EFFECT_ASSET_ID::TEXTURED,
+		  GEOMETRY_BUFFER_ID::SPRITE });
+
+	return e;
+}
+
+Entity createSpikes(RenderSystem* renderer, vec2 position, vec2 size, float radian)
 {
 	auto entity = Entity();
 
@@ -355,14 +448,15 @@ Entity createSpikes(RenderSystem* renderer, vec2 position, vec2 size)
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
 
-	// Initialize the pencil
+	// Initialize the motion component
 	auto& motion = registry.motions.emplace(entity);
 	motion.position = position;
-
+	motion.angle = radian;
 	motion.scale = size;
 	motion.fixed = true;
+	motion.grounded = true;
 
-	// Create a RenderRequest for the pencil
+	// Create a RenderRequest for the spikes
 	registry.deadlys.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
@@ -391,6 +485,56 @@ Entity createArcher(RenderSystem * renderer, vec2 position, vec2 size)
 		{ TEXTURE_ASSET_ID::GREENENEMY,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity createHint(RenderSystem* renderer, vec2 position, std::string text, vec2 textPos)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = position;
+	motion.scale = { 47.f, 60.f };
+	motion.fixed = true;
+
+	Hint& h = registry.hints.emplace(entity);
+	h.text = text;
+	h.textPos = textPos;
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::HINT1,
+		  EFFECT_ASSET_ID::TEXTURED,
+		  GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity createMainMenu(RenderSystem* renderer, vec2 position, vec2 size)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = position;
+	motion.scale = size;
+	motion.fixed = true;
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::MAINMENU,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
 
 	return entity;
 }

@@ -100,21 +100,30 @@ struct levelEnd
 
 struct PaintCan
 {
+	float paintRefill;
+};
 
+struct toDrawOn
+{
+
+};
+
+struct Hint {
+	std::string text;
+	vec2 textPos;
 };
 
 // All data relevant to the shape and motion of entities
 struct Motion {
-	vec2 position = { 0, 0 };
-	vec2 last_position = { 0, 0};
-	float angle = 0;
-	vec2 velocity = { 0, 0 };
-	vec2 scale = { 10, 10 };
-	vec2 acceleration = { 0, 0 };
+	vec2 position = { 0.f, 0.f };
+	vec2 last_position = { 0.f, 0.f};
+	float angle = 0.f;
+	vec2 velocity = { 0.f, 0.f };
+	vec2 scale = { 10.f, 10.f };
+	vec2 acceleration = { 0.f, 0.f };
 	float gravityScale = 1.0f;
 	bool grounded = false;
 	bool fixed = false;
-	bool notAffectedByGravity = false;
 	bool isJumping = false;
 	float timeJumping = 0.f;
 	int jumpsLeft = 1;
@@ -192,6 +201,21 @@ struct ArrowCooldown {
 	float cooldown = 3000;
 };
 
+struct Particle {
+	vec2 position;
+	vec2 velocity;
+	vec4 color;
+	float life;
+};
+
+struct ParticleEmitter {
+	vec2 emission_point;
+	int particles_per_second;
+	vec2 initial_velocity;
+	vec4 color;
+	float lifespan;
+};
+
 /**
  * The following enumerators represent global identifiers refering to graphic
  * assets. For example TEXTURE_ASSET_ID are the identifiers of each texture
@@ -230,7 +254,10 @@ enum class TEXTURE_ASSET_ID {
 	RUN4 = RUN3 + 1,
 	RUN5 = RUN4 + 1,
 	RUN6 = RUN5 + 1,
-	PENCIL = RUN6 + 1,
+	RUN7 = RUN6 + 1,
+	RUN8 = RUN7 + 1,
+	RUN9 = RUN8 + 1,
+	PENCIL = RUN9 + 1,
 	PAINTCAN = PENCIL + 1,
 	TUTORIAL = PAINTCAN + 1,
 	BACKGROUND = TUTORIAL + 1,
@@ -246,7 +273,14 @@ enum class TEXTURE_ASSET_ID {
 	HINT8 = HINT7 + 1,
 	GREENENEMY = HINT8 + 1,
 	BEZIERPROJECTILE = GREENENEMY + 1,
-	TEXTURE_COUNT = BEZIERPROJECTILE + 1
+	STARPARTICLE = BEZIERPROJECTILE + 1,
+	MAINMENU = STARPARTICLE + 1,
+	TUTORIALDRAW = MAINMENU + 1,
+	TUTORIALJUMP = TUTORIALDRAW + 1,
+	TUTORIALMAINMENU = TUTORIALJUMP +1,
+	TUTORIALMOVE = TUTORIALMAINMENU + 1,
+	TUTORIALRESTART = TUTORIALMOVE + 1,
+	TEXTURE_COUNT = TUTORIALRESTART + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
@@ -268,8 +302,10 @@ enum class GEOMETRY_BUFFER_ID {
 	EGG = SPRITE + 1,
 	DRAWN_LINE = EGG + 1,
 	DEBUG_LINE = DRAWN_LINE + 1,
-	JOINT_TRIANGLE = DEBUG_LINE + 1,
-	SCREEN_TRIANGLE = JOINT_TRIANGLE + 1,
+	PERMEABLE_LINE = DEBUG_LINE + 1,
+	JOINT_TRIANGLE = PERMEABLE_LINE + 1,
+	JOINT_TRIANGLE_PERMEABLE = JOINT_TRIANGLE + 1,
+	SCREEN_TRIANGLE = JOINT_TRIANGLE_PERMEABLE + 1,
 	GEOMETRY_COUNT = SCREEN_TRIANGLE + 1
 };
 const int geometry_count = (int)GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;

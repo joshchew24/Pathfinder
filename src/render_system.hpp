@@ -6,6 +6,7 @@
 #include "common.hpp"
 #include "components.hpp"
 #include "tiny_ecs.hpp"
+#include "level_manager.hpp"
 
 // matrices
 #include <glm/glm.hpp>
@@ -62,6 +63,9 @@ class RenderSystem {
 			textures_path("Run4.png"),
 			textures_path("Run5.png"),
 			textures_path("Run6.png"),
+			textures_path("Run7.png"),
+			textures_path("Run8.png"),
+			textures_path("Run9.png"),
 			textures_path("pencil.png"),
 			textures_path("paintcan.png"),
 			textures_path("tutorial.png"),
@@ -77,7 +81,14 @@ class RenderSystem {
 			textures_path("hintAnimation/hint7.png"),
 			textures_path("hintAnimation/hint8.png"),
 			textures_path("character_roundGreen.png"),
-			textures_path("tile_0008.png")
+			textures_path("tile_0008.png"),
+			textures_path("star_07.png"),
+			textures_path("mainMenu.png"),
+			textures_path("tutorial/tutorialDraw.png"),
+			textures_path("tutorial/tutorialJump.png"),
+			textures_path("tutorial/tutorialMainMenu.png"),
+			textures_path("tutorial/tutorialMove.png"),
+			textures_path("tutorial/tutorialRestart.png")
       };
 
 	std::array<GLuint, effect_count> effects;
@@ -148,6 +159,16 @@ public:
 	int sceneIndex = 0;
 
 	void renderEnding(int i);
+
+	void initializeParticleRendering();
+	void drawParticles(const mat3& projection);
+
+	std::string hint;
+
+	vec2 hintPos;
+	std::vector<Hint> hints;
+
+	bool renderMainMenuText = false;
 private:
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(Entity entity, const mat3& projection);
@@ -190,6 +211,12 @@ private:
 	GLuint introductionVao;
 	GLuint introductionVbo;
 	GLuint introductionShader;
+
+	//particle
+	GLuint particleShaderProgram;
+	GLuint particleVAO;
+	GLuint particleVBO;
+	GLuint particleInstanceVBO;
 };
 
 bool loadEffectFromFile(

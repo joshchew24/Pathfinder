@@ -1,0 +1,78 @@
+{
+  "walls": [
+    {
+      "x": 1000,
+      "y": 1000,
+      "width": 2000,
+      "height": 600
+    },
+    {
+      "x": 1000,
+      "y": 90,
+      "width": 2000,
+      "height": 800
+    }
+  ],
+  "stairs": null,
+  "spikes": [
+    {
+      "quantity": 46,
+      "x": 100,
+      "y": 503,
+      "gap": 40,
+      "angle": 180
+    },
+    {
+      "quantity": 5,
+      "x": 160,
+      "y": 685,
+      "gap": 120,
+      "angle": 0
+    },
+    {
+      "quantity": 5,
+      "x": 1200,
+      "y": 685,
+      "gap": 120,
+      "angle": 0
+    }
+  ],
+  "checkpoint": [ 1000, 643 ],
+  "level_end": [ 1800, 643 ],
+  "hints": [
+    {
+      "npc": [ 920, 663 ],
+      "text": "Too hard? Hit the flag and press L to load the checkpoint",
+      "text_pos": [ 920, 455 ]
+    },
+    {
+      "npc": [ 1600, 663 ],
+      "text": "Need a rest? Hit Escape to pause.",
+      "text_pos": [ 1450, 600 ]
+    }
+  ],
+  "gravity": null,
+  "friction": null,
+  "ink_limit": null,
+  "player_spawn": [ 30, 560 ],
+  "spawners": {
+    "boulder_spawners": null,
+    "spike_projectile_spawners": [
+      {
+        "x": 1900,
+        "y": 553,
+        "width": 40,
+        "height": 20,
+        "x_vel": -600,
+        "y_vel": 0,
+        "angle": -90,
+        "delay": 3500
+      }
+    ]
+  },
+  "enemies": {
+    "chase_boulder": null,
+    "archers": null
+  },
+  "paintcans": null
+}

@@ -35,7 +35,7 @@ private:
 public:
 	AISystem();
 	void init();
-	void updateGrid(std::vector<initWall> walls);
+	void updateGrid(std::vector<InitWall> walls);
 	void printGrid();
 	void step(float elapsed_ms);
 	std::vector<std::pair<int, int>> bestPath(Motion& eMotion, Motion& pMotion);
@@ -50,11 +50,11 @@ public:
 
 	void createAllDecisionTrees();
 
-	bool boulderDecisionTreeSwitch(std::string choice, Entity& boulderEntity, const vec2& playerPosition, ECSRegistry& registry);
+	bool boulderDecisionTreeSwitch(std::string choice, Entity& boulderEntity, const vec2& playerPosition);
 
-	bool paintCanDecisionTree(std::string choice, Entity& paintCanEntity, const vec2& playerPosition, ECSRegistry& registry);
+	bool paintCanDecisionTree(std::string choice, Entity& paintCanEntity, const vec2& playerPosition);
 
-	bool archerDecisionTree(std::string choice, Entity& archerEntity, const vec2& playerPosition, ECSRegistry& registry, Motion& playerMotion);
+	bool archerDecisionTree(std::string choice, Entity& archerEntity, const vec2& playerPosition, Motion& playerMotion);
 
 
 	template<typename T>
